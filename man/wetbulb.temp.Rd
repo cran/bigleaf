@@ -5,6 +5,7 @@
 \title{Wet-Bulb Temperature}
 \usage{
 wetbulb.temp(Tair, pressure, VPD, accuracy = 0.001,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
 }
 \arguments{
@@ -15,6 +16,10 @@ wetbulb.temp(Tair, pressure, VPD, accuracy = 0.001,
 \item{VPD}{Vapor pressure deficit (kPa)}
 
 \item{accuracy}{Accuracy of the result (deg C)}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 
 \item{constants}{cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 eps - ratio of the molecular weight of water vapor to dry air (-)}

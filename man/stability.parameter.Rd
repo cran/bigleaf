@@ -31,7 +31,8 @@ g - gravitational acceleration (m s-2)}
 \item{\eqn{\zeta} - }{stability parameter (-)}
 }
 \description{
-Stability Parameter "zeta"
+calculates "zeta", a parameter characterizing stratification in 
+             the lower atmosphere.
 }
 \details{
 The stability parameter \eqn{\zeta} is given by:

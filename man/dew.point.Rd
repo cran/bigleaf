@@ -4,7 +4,8 @@
 \alias{dew.point}
 \title{Dew Point}
 \usage{
-dew.point(Tair, VPD, accuracy = 0.001)
+dew.point(Tair, VPD, accuracy = 0.001, Esat.formula = c("Sonntag_1990",
+  "Alduchov_1996", "Allen_1998"))
 }
 \arguments{
 \item{Tair}{Air temperature (degC)}
@@ -12,6 +13,10 @@ dew.point(Tair, VPD, accuracy = 0.001)
 \item{VPD}{Vapor pressure deficit (kPa)}
 
 \item{accuracy}{Accuracy of the result (deg C)}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 }
 \value{
 \item{Td -}{dew point temperature (degC)}

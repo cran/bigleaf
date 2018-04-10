@@ -4,7 +4,8 @@
 \alias{virtual.temp}
 \title{Virtual Temperature}
 \usage{
-virtual.temp(Tair, pressure, VPD, constants = bigleaf.constants())
+virtual.temp(Tair, pressure, VPD, Esat.formula = c("Sonntag_1990",
+  "Alduchov_1996", "Allen_1998"), constants = bigleaf.constants())
 }
 \arguments{
 \item{Tair}{Air temperature (deg C)}
@@ -12,6 +13,10 @@ virtual.temp(Tair, pressure, VPD, constants = bigleaf.constants())
 \item{pressure}{Atmospheric pressure (kPa)}
 
 \item{VPD}{Vapor pressure deficit (kPa)}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat. 
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 
 \item{constants}{Kelvin - conversion degree Celsius to Kelvin \cr
 eps - ratio of the molecular weight of water vapor to dry air (-)}

@@ -6,7 +6,8 @@
 \usage{
 potential.ET(data, Tair = "Tair", pressure = "pressure", Rn = "Rn",
   G = NULL, S = NULL, alpha = 1.26, missing.G.as.NA = FALSE,
-  missing.S.as.NA = FALSE, constants = bigleaf.constants())
+  missing.S.as.NA = FALSE, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
+  "Allen_1998"), constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables; optional}
@@ -26,6 +27,10 @@ potential.ET(data, Tair = "Tair", pressure = "pressure", Rn = "Rn",
 \item{missing.G.as.NA}{if \code{TRUE}, missing G are treated as \code{NA}s, otherwise set to 0.}
 
 \item{missing.S.as.NA}{if \code{TRUE}, missing S are treated as \code{NA}s, otherwise set to 0.}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 
 \item{constants}{cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 eps - ratio of the molecular weight of water vapor to dry air (-)}
@@ -60,7 +65,7 @@ potential.ET(Tair=30,pressure=100,Rn=400,alpha=1.26)
 
 }
 \references{
-Priestley C.H.B., Taylor R.J., 1972: On the assessment of surface heat flux
+Priestley, C.H.B., Taylor, R.J., 1972: On the assessment of surface heat flux
             and evaporation using large-scale parameters. Monthly Weather Review 100, 81-92.
 }
 \seealso{

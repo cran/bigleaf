@@ -6,8 +6,8 @@
 \usage{
 Gb.Choudhury(data, Tair = "Tair", pressure = "pressure", wind = "wind",
   ustar = "ustar", H = "H", leafwidth, LAI, zh, zr, d,
-  stab_formulation = c("Dyer_1970", "Businger_1971"),
-  constants = bigleaf.constants())
+  stab_formulation = c("Dyer_1970", "Businger_1971"), Sc = NULL,
+  Sc_name = NULL, constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}
@@ -35,25 +35,32 @@ Gb.Choudhury(data, Tair = "Tair", pressure = "pressure", wind = "wind",
 \item{stab_formulation}{Stability correction function used (If \code{stab_correction = TRUE}).
 Either \code{"Dyer_1970"} or \code{"Businger_1971"}.}
 
-\item{constants}{k - von-Karman constant (-) \cr
-Rbwc - Ratio of the transfer efficiency through the boundary layer for water vapor and CO2 (-)}
+\item{Sc}{Optional: Schmidt number of additional quantities to be calculated}
+
+\item{Sc_name}{Optional: Name of the additonal quantities, has to be of same length than 
+\code{Sc_name}}
+
+\item{constants}{k - von-Karman constant \cr
+Sc_CO2 - Schmidt number for CO2 \cr 
+Pr - Prandtl number (if \code{Sc} is provided)}
 }
 \value{
 A data frame with the following columns:
-    \item{Rb}{Boundary layer resistance for heat and water (s m-1)}
-    \item{Rb_CO2}{Boundary layer resistance for CO2 (s m-1)}
-    \item{Gb}{Boundary layer conductance (m s-1)}
-    \item{kB}{kB-1 parameter (-)}
+ \item{Gb_h}{Boundary layer conductance for heat transfer (m s-1)}
+ \item{Rb_h}{Boundary layer resistance for heat transfer (s m-1)}
+ \item{kB_h}{kB-1 parameter for heat transfer}
+ \item{Gb_Sc_name}{Boundary layer conductance for \code{Sc_name} (m s-1). Only added if \code{Sc_name} and 
+                   \code{Sc_name} are provided}
 }
 \description{
 A formulation for the canopy boundary layer conductance 
-             to heat/water vapor according to Choudhury & Monteith 1988.
+             for heat transfer according to Choudhury & Monteith 1988.
 }
 \details{
 Boundary layer conductance according to Choudhury & Monteith 1988 is
          given by:
          
-           \deqn{Gb = LAI((2a/\alpha)*sqrt(u(h)/w)*(1-exp(-\alpha/2)))}
+           \deqn{Gb_h = LAI((2a/\alpha)*sqrt(u(h)/w)*(1-exp(-\alpha/2)))}
          
          where u(zh) is the wind speed at the canopy surface, approximated from
          measured wind speed at sensor height zr and a wind extinction coefficient \eqn{\alpha}:
@@ -64,14 +71,12 @@ Boundary layer conductance according to Choudhury & Monteith 1988 is
          
            \deqn{\alpha = 4.39 - 3.97*exp(-0.258*LAI)}
          
-         Rb for water vapor and heat is assumed to be equal. Rb for CO2 (Rb_CO2) is given as:
+         Gb (=1/Rb) for water vapor and heat are assumed to be equal in this package.
+         Gb for other quantities x is calculated as (Hicks et al. 1987):
  
-           \deqn{Rb_CO2 = 1.37 * Rb}
+           \deqn{Gb_x = Gb / (Sc_x / Pr)^0.67}
  
-         The factor 1.37 arises due the lower molecular diffusivity of CO2 compared to water.
-         It is lower than the ratio of the molecular diffusivities (Dw/DCO2 = 1.6), as movement
-         across the boundary layer is assumed to be partly by diffusion and partly by turbulent
-         mixing (Nobel 2005).
+         where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
 }
 \examples{
 ## bulk canopy boundary layer resistance for a closed canopy (LAI=5) 
@@ -91,8 +96,9 @@ Choudhury, B. J., Monteith J.L., 1988: A four-layer model for the heat
             the resistors in the two-layer model for calculating the energy budget of a
             plant canopy. Boundary-Layer Meteorology 74, 261-288.
             
-            Nobel, P. S., 2005: Physicochemical and Environmental Plant Physiology. Third 
-            Edition. Elsevier Academic Press, Burlington, USA.
+            Hicks, B.B., Baldocchi, D.D., Meyers, T.P., Hosker, J.R., Matt, D.R., 1987:
+            A preliminary multiple resistance routine for deriving dry deposition velocities
+            from measured quantities. Water, Air, and Soil Pollution 36, 311-330.
 }
 \seealso{
 \code{\link{Gb.Thom}}, \code{\link{Gb.Su}}, \code{\link{aerodynamic.conductance}}

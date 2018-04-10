@@ -6,6 +6,7 @@
 \usage{
 decoupling(data, Tair = "Tair", pressure = "pressure", Ga = "Ga",
   Gs = "Gs", approach = c("JarvisMcNaughton_1986", "Martin_1989"), LAI,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
 }
 \arguments{
@@ -23,6 +24,10 @@ decoupling(data, Tair = "Tair", pressure = "pressure", Ga = "Ga",
 or \code{"Martin_1989"}.}
 
 \item{LAI}{Leaf area index (m2 m-2), only used if \code{approach = "Martin_1989"}.}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 
 \item{constants}{Kelvin - conversion degree Celsius to Kelvin \cr
 cp - specific heat of air for constant pressure (J K-1 kg-1) \cr

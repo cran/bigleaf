@@ -14,6 +14,9 @@
 #' @param approach    Approach used to calculate omega. Either \code{"JarvisMcNaughton_1986"} (default)
 #'                    or \code{"Martin_1989"}.
 #' @param LAI         Leaf area index (m2 m-2), only used if \code{approach = "Martin_1989"}.
+#' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
+#'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                      See \code{\link{Esat.slope}}. 
 #' @param constants   Kelvin - conversion degree Celsius to Kelvin \cr
 #'                    cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                    eps - ratio of the molecular weight of water vapor to dry air (-) \cr
@@ -66,14 +69,15 @@
 #' @export
 decoupling <- function(data,Tair="Tair",pressure="pressure",Ga="Ga",Gs="Gs",
                        approach=c("JarvisMcNaughton_1986","Martin_1989"),
-                       LAI,constants=bigleaf.constants()){
+                       LAI,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                       constants=bigleaf.constants()){
   
   approach    <- match.arg(approach)
   
   check.input(data,list(Tair,pressure,Ga,Gs))
   
-  Delta   <- Esat.slope(Tair)[,"Delta"]
-  gamma   <- psychrometric.constant(Tair,pressure,constants=constants)
+  Delta   <- Esat.slope(Tair,Esat.formula)[,"Delta"]
+  gamma   <- psychrometric.constant(Tair,pressure,constants)
   epsilon <- Delta/gamma
   
   if (approach == "JarvisMcNaughton_1986"){
@@ -88,7 +92,7 @@ decoupling <- function(data,Tair="Tair",pressure="pressure",Ga="Ga",Gs="Gs",
       
     } else {
       
-      Gr    <- longwave.conductance(Tair,LAI,constants=constants)
+      Gr    <- longwave.conductance(Tair,LAI,constants)
       Omega <- (epsilon + 1 + Gr/Ga) / (epsilon + 1 + Ga/Gs + Gr/Gs + Gr/Ga)
       
     }

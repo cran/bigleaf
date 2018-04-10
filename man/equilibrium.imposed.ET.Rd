@@ -7,6 +7,7 @@
 equilibrium.imposed.ET(data, Tair = "Tair", pressure = "pressure",
   VPD = "VPD", Gs = "Gs", Rn = "Rn", G = NULL, S = NULL,
   missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
 }
 \arguments{
@@ -29,6 +30,10 @@ equilibrium.imposed.ET(data, Tair = "Tair", pressure = "pressure",
 \item{missing.G.as.NA}{if \code{TRUE}, missing G are treated as \code{NA}s, otherwise set to 0.}
 
 \item{missing.S.as.NA}{if \code{TRUE}, missing S are treated as \code{NA}s, otherwise set to 0.}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 
 \item{constants}{cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 eps - ratio of the molecular weight of water vapor to dry air (-)}
@@ -76,10 +81,10 @@ equilibrium.imposed.ET(df)
             
 }
 \references{
-Jarvis P.G., McNaughton K.G., 1986: Stomatal control of transpiration:
+Jarvis, P.G., McNaughton, K.G., 1986: Stomatal control of transpiration:
             scaling up from leaf to region. Advances in Ecological Research 15, 1-49.
             
-            Monteith J.L., Unsworth M.H., 2008: Principles of Environmental Physics.
+            Monteith, J.L., Unsworth, M.H., 2008: Principles of Environmental Physics.
             3rd edition. Academic Press, London.
 }
 \seealso{

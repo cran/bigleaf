@@ -4,8 +4,8 @@
 \alias{Monin.Obukhov.length}
 \title{Monin-Obukhov Length}
 \usage{
-Monin.Obukhov.length(data, Tair, pressure, ustar, H,
-  constants = bigleaf.constants())
+Monin.Obukhov.length(data, Tair = "Tair", pressure = "pressure",
+  ustar = "ustar", H = "H", constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}
@@ -27,8 +27,9 @@ g - gravitational acceleration (m s-2)}
 \item{L -}{Monin-Obukhov length (m)}
 }
 \description{
-
-
+calculates the Monin-Obukhov length.
+}
+\details{
 The Monin-Obukhov length (L) is given by:
 
              \deqn{L = - (\rho * cp * ustar^3 * Tair) / (k * g * H)}

@@ -199,8 +199,7 @@ Gs_PM <- surface.conductance(DE_Tha_Jun_2014_2,Tair="Tair",pressure="pressure",
                              formulation="PenmanMonteith")[,"Gs_mol"]
 
 # calculate Ci 
-Ci <- intercellular.CO2(DE_Tha_Jun_2014_2,Ca="Ca",GPP="GPP",Gs=Gs_PM,
-                        calc.surface.CO2=FALSE) 
+Ci <- intercellular.CO2(DE_Tha_Jun_2014_2,Ca="Ca",GPP="GPP",Gs=Gs_PM) 
 
 # calculate Vcmax25 and Jmax25
 photosynthetic.capacity(DE_Tha_Jun_2014_2,Temp="Tair",Ci=Ci,PPFD_j=c(200,500),PPFD_c=1000)

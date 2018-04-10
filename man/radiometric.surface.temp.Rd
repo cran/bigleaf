@@ -4,13 +4,17 @@
 \alias{radiometric.surface.temp}
 \title{Radiometric Surface Temperature}
 \usage{
-radiometric.surface.temp(longwave_up, emissivity,
-  constants = bigleaf.constants())
+radiometric.surface.temp(data, LW_up = "LW_up", LW_down = "LW_down",
+  emissivity, constants = bigleaf.constants())
 }
 \arguments{
-\item{longwave_up}{Longwave upward radiation (W m-2)}
+\item{data}{Data.frame or matrix containing all required input variables}
 
-\item{emissivity}{Infrared emissivity of the surface (-)}
+\item{LW_up}{Longwave upward radiation (W m-2)}
+
+\item{LW_down}{Longwave downward radiation (W m-2)}
+
+\item{emissivity}{Emissivity of the surface (-)}
 
 \item{constants}{sigma - Stefan-Boltzmann constant (W m-2 K-4) \cr
 Kelvin - conversion degree Celsius to Kelvin}
@@ -21,17 +25,25 @@ a data.frame with the following columns:
         \item{Trad_degC}{Radiometric surface temperature (degC)}
 }
 \description{
-Radiometric surface temperature from longwave upward radiation
+Radiometric surface temperature from longwave radiation
              measurements.
 }
 \details{
 Radiometric surface temperature (Trad) is calculated as:
 
-           \deqn{Trad = LW_up / (\sigma \epsilon)^(1/4)}
+           \deqn{Trad = ((LW_up - (1 - \epsilon)*LW_down) / (\sigma \epsilon))^(1/4)}
 }
 \examples{
-# determine radiative temperature of an object that has an emissivity of 0.98 
-# and emits longwave radiation of 400Wm-2  
-radiometric.surface.temp(400,0.98)
+# determine radiometric surface temperature for the site DE-Tha in June 2014 
+# assuming an emissivity of 0.98.
+# (Note that variable 'LW_down' was only included for the DE-Tha example dataset
+# and not for the others due restrictions on file size) 
+Trad <- radiometric.surface.temp(DE_Tha_Jun_2014,emissivity=0.98)
+summary(Trad)
 
+}
+\references{
+Wang, W., Liang, S., Meyers, T. 2008: Validating MODIS land surface
+            temperature products using long-term nighttime ground measurements.
+            Remote Sensing of Environment 112, 623-635.
 }

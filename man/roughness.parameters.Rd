@@ -8,8 +8,8 @@ roughness.parameters(method = c("canopy_height", "canopy_height&LAI",
   "wind_profile"), zh, frac_d = 0.7, frac_z0m = 0.1, LAI, zr, cd = 0.2,
   hs = 0.01, data, Tair = "Tair", pressure = "pressure", wind = "wind",
   ustar = "ustar", H = "H", d = NULL, z0m = NULL,
-  stab_roughness = FALSE, stab_formulation = c("Dyer_1970",
-  "Businger_1971"), constants = bigleaf.constants())
+  stab_roughness = TRUE, stab_formulation = c("Dyer_1970", "Businger_1971"),
+  constants = bigleaf.constants())
 }
 \arguments{
 \item{method}{Method to use, one of \code{"canopy_height","canopy_height&LAI","wind_profile"} \cr
@@ -100,7 +100,7 @@ The two main roughness parameters, the displacement height (d)
            \deqn{z0m = median((zr - d) * exp(-k*wind / ustar - psi_m)}
                  
          By default, d in this equation is fixed to 0.7*zh, but can be set to any
-         other value. psi_m is 0 if \code{stab_roughness = FALSE} (the default).
+         other value. psi_m is 0 if \code{stab_roughness = FALSE}.
 }
 \examples{
 # estimate d and z0m from canopy height for a dense (LAI=5) and open (LAI=2) canopy

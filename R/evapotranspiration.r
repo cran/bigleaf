@@ -15,6 +15,9 @@
 #' @param alpha     Priestley-Taylor coefficient (-)
 #' @param missing.G.as.NA  if \code{TRUE}, missing G are treated as \code{NA}s, otherwise set to 0. 
 #' @param missing.S.as.NA  if \code{TRUE}, missing S are treated as \code{NA}s, otherwise set to 0. 
+#' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
+#'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                  eps - ratio of the molecular weight of water vapor to dry air (-)
 #' 
@@ -36,7 +39,7 @@
 #'       directly for the calculations. If \code{data} is not provided, all input variables have to be
 #'       numeric vectors.        
 #'   
-#' @references Priestley C.H.B., Taylor R.J., 1972: On the assessment of surface heat flux
+#' @references Priestley, C.H.B., Taylor, R.J., 1972: On the assessment of surface heat flux
 #'             and evaporation using large-scale parameters. Monthly Weather Review 100, 81-92.  
 #'          
 #' @seealso \code{\link{reference.ET}}
@@ -47,7 +50,9 @@
 #' 
 #' @export
 potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=NULL,alpha=1.26,
-                         missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,constants=bigleaf.constants()){
+                         missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
+                         Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                         constants=bigleaf.constants()){
   
   check.input(data,list(Tair,pressure,Rn,G,S))
   
@@ -66,7 +71,7 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
   }
   
   gamma  <- psychrometric.constant(Tair,pressure,constants)
-  Delta  <- Esat.slope(Tair)[,"Delta"]
+  Delta  <- Esat.slope(Tair,Esat.formula)[,"Delta"]
   
   LE_pot <- (alpha * Delta * (Rn - G - S)) / (Delta + gamma)
   ET_pot <- LE.to.ET(LE_pot,Tair)
@@ -83,7 +88,7 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
 #'              equation with a prescribed surface conductance.
 #' 
 #' @param data      Data.frame or matrix containing all required variables
-#' @param Gs        Surface conductance (m s-1); defaults to 0.0143 m s-1 (~ 0.58 mol m-2 s-1)
+#' @param Gs_ref    Reference surface conductance (m s-1); defaults to 0.0143 m s-1 (~ 0.58 mol m-2 s-1)
 #' @param Tair      Air temperature (deg C)
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param VPD       Vapor pressure deficit (kPa)
@@ -93,6 +98,9 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
 #' @param S         Sum of all storage fluxes (W m-2); optional
 #' @param missing.G.as.NA  if \code{TRUE}, missing G are treated as \code{NA}s, otherwise set to 0. 
 #' @param missing.S.as.NA  if \code{TRUE}, missing S are treated as \code{NA}s, otherwise set to 0. 
+#' @param Esat.formula  Optional: formula used for the calculation of esat and the slope of esat.
+#'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                  eps - ratio of the molecular weight of water vapor to dry air (-) \cr
 #'                  Rd - gas constant of dry air (J kg-1 K-1) \cr
@@ -102,41 +110,47 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
 #' @details Reference evapotranspiration is calculated according to the Penman-Monteith
 #'          equation:
 #' 
-#'          \deqn{LE_0 = (\Delta * (Rn - G - S) * \rho * cp * VPD * Ga) / (\Delta + \gamma * (1 + Ga/Gs)}
+#'          \deqn{LE_ref = (\Delta * (Rn - G - S) * \rho * cp * VPD * Ga) / (\Delta + \gamma * (1 + Ga/Gs_ref)}
 #'          
 #'          where \eqn{\Delta} is the slope of the saturation vapor pressure curve (kPa K-1),
 #'          \eqn{\rho} is the air density (kg m-3), and \eqn{\gamma} is the psychrometric constant (kPa K-1).
 #'          The reference evapotranspiration is calculated with respect to a 'reference surface',
 #'          which is typically a well-watered grass/crop of 0.12m height, an albedo of 0.23 and 
 #'          a surface conductance of ~ 0.6 mol m-2 s-1 (Allen et al. 1998), but can be calculated for any other
-#'          surface.
+#'          surface (i.e. any EC site).
+#'          The value of \code{Gs_ref} is typically a maximum value of Gs observed at the site, e.g. the 90th
+#'          percentile of Gs within the growing season.
 #'
 #' @return a data.frame with the following columns:
-#'         \item{ET_0}{Reference evapotranspiration (kg m-2 s-1)}
-#'         \item{LE_0}{Reference latent heat flux (W m-2)}              
+#'         \item{ET_ref}{Reference evapotranspiration (kg m-2 s-1)}
+#'         \item{LE_ref}{Reference latent heat flux (W m-2)}              
 #'                  
-#' @references  Allen R.G., Pereira L.S., Raes D., Smith M., 1998: Crop evapotranspiration -
-#'              Guidelines for computing crop water requirements - FAO Irrigation and drainage
-#'              paper 56.
+#' @references Allen, R.G., Pereira L.S., Raes D., Smith M., 1998: Crop evapotranspiration -
+#'             Guidelines for computing crop water requirements - FAO Irrigation and drainage
+#'             paper 56.
+#'              
+#'             Novick, K.A., et al. 2016: The increasing importance of atmospheric demand
+#'             for ecosystem water and carbon fluxes. Nature Climate Change 6, 1023 - 1027.
 #' 
 #' @seealso \code{\link{potential.ET}}
 #' 
 #' @examples 
-#' # Calculate ET_ref for a surface with known Gs (0.5 mol m-2 s-1) and Ga (0.1 m s-1)
+#' # Calculate LE_ref for a surface with known Gs (0.5 mol m-2 s-1) and Ga (0.1 m s-1)
 #' 
 #' # Gs is required in m s-1
 #' Gs_ms <- mol.to.ms(0.5,Tair=20,pressure=100)
-#' ET_ref <- reference.ET(Gs=Gs_ms,Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400)
+#' LE_ref <- reference.ET(Gs_ref=Gs_ms,Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400)[,"LE_ref"]
 #' 
-#' # now cross-check with the inverted version
-#' surface.conductance(Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400,LE=ET_ref[,"LE_ref"])
+#' # now cross-check with the inverted equation
+#' surface.conductance(Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400,LE=LE_ref)
 #' 
 #' @export                 
-reference.ET <- function(data,Gs=0.0143,Tair="Tair",pressure="pressure",VPD="VPD",Rn="Rn",Ga="Ga",
+reference.ET <- function(data,Gs_ref=0.0143,Tair="Tair",pressure="pressure",VPD="VPD",Rn="Rn",Ga="Ga",
                          G=NULL,S=NULL,missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
+                         Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                          constants=bigleaf.constants()){
   
-  check.input(data,list(Tair,pressure,VPD,Rn,Ga,G,S))
+  check.input(data,list(Gs_ref,Tair,pressure,VPD,Rn,Ga,G,S))
   
   if(!is.null(G)){
     if (!missing.G.as.NA){G[is.na(G)] <- 0}
@@ -153,11 +167,11 @@ reference.ET <- function(data,Gs=0.0143,Tair="Tair",pressure="pressure",VPD="VPD
   }
   
   gamma  <- psychrometric.constant(Tair,pressure,constants)
-  Delta  <- Esat.slope(Tair)[,"Delta"]
-  rho    <- air.density(Tair,pressure)
+  Delta  <- Esat.slope(Tair,Esat.formula)[,"Delta"]
+  rho    <- air.density(Tair,pressure,constants)
   
   LE_ref <- (Delta * (Rn - G - S) + rho * constants$cp * VPD * Ga) / 
-            (Delta + gamma * (1 + Ga / Gs))
+            (Delta + gamma * (1 + Ga / Gs_ref))
   
   ET_ref <- LE.to.ET(LE_ref,Tair)
   
@@ -183,6 +197,9 @@ reference.ET <- function(data,Gs=0.0143,Tair="Tair",pressure="pressure",VPD="VPD
 #' @param S         Sum of all storage fluxes (W m-2); optional
 #' @param missing.G.as.NA  if \code{TRUE}, missing G are treated as \code{NA}s, otherwise set to 0. 
 #' @param missing.S.as.NA  if \code{TRUE}, missing S are treated as \code{NA}s, otherwise set to 0.
+#' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
+#'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                  eps - ratio of the molecular weight of water vapor to dry air (-)
 #'                  
@@ -216,10 +233,10 @@ reference.ET <- function(data,Gs=0.0143,Tair="Tair",pressure="pressure",VPD="VPD
 #'         \item{LE_eq}{Equilibrium LE (W m-2)}
 #'         \item{LE_imp}{Imposed LE (W m-2)}      
 #' 
-#' @references Jarvis P.G., McNaughton K.G., 1986: Stomatal control of transpiration:
+#' @references Jarvis, P.G., McNaughton, K.G., 1986: Stomatal control of transpiration:
 #'             scaling up from leaf to region. Advances in Ecological Research 15, 1-49.
 #'             
-#'             Monteith J.L., Unsworth M.H., 2008: Principles of Environmental Physics.
+#'             Monteith, J.L., Unsworth, M.H., 2008: Principles of Environmental Physics.
 #'             3rd edition. Academic Press, London. 
 #'             
 #' @seealso \code{\link{decoupling}}            
@@ -232,6 +249,7 @@ reference.ET <- function(data,Gs=0.0143,Tair="Tair",pressure="pressure",VPD="VPD
 #' @export
 equilibrium.imposed.ET <- function(data,Tair="Tair",pressure="pressure",VPD="VPD",Gs="Gs",
                                    Rn="Rn",G=NULL,S=NULL,missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
+                                   Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                                    constants=bigleaf.constants()){
   
   check.input(data,list(Tair,pressure,VPD,Rn,Gs,G,S))
@@ -239,7 +257,7 @@ equilibrium.imposed.ET <- function(data,Tair="Tair",pressure="pressure",VPD="VPD
   if(!is.null(G)){
     if (!missing.G.as.NA){G[is.na(G)] <- 0}
   } else {
-    cat("ground heat flux G is not provided and set to 0.",fill=TRUE)
+    cat("Ground heat flux G is not provided and set to 0.",fill=TRUE)
     G <- 0
   }
   
@@ -250,9 +268,9 @@ equilibrium.imposed.ET <- function(data,Tair="Tair",pressure="pressure",VPD="VPD
     S <- 0
   }
   
-  rho    <- air.density(Tair,pressure)
+  rho    <- air.density(Tair,pressure,constants)
   gamma  <- psychrometric.constant(Tair,pressure,constants)
-  Delta  <- Esat.slope(Tair)[,"Delta"]
+  Delta  <- Esat.slope(Tair,Esat.formula)[,"Delta"]
   
   LE_eq  <- (Delta * (Rn - G - S)) / (gamma + Delta)
   LE_imp <- (rho * constants$cp * Gs * VPD) / gamma

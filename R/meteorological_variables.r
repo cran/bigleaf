@@ -80,7 +80,8 @@ pressure.from.elevation <- function(elev,Tair,VPD=NULL,constants=bigleaf.constan
   } else {
     
     pressure1   <- constants$pressure0 / exp(constants$g * elev / (constants$Rd*Tair))
-    Tv          <- virtual.temp(Tair - constants$Kelvin,pressure1 / 1000,VPD,constants) + constants$Kelvin
+    Tv          <- virtual.temp(Tair - constants$Kelvin,pressure1 / 1000,VPD,Esat.formula="Sonntag_1990",
+                                constants) + constants$Kelvin
     
     pressure    <- constants$pressure0 / exp(constants$g * elev / (constants$Rd*Tv))
   }
@@ -91,14 +92,15 @@ pressure.from.elevation <- function(elev,Tair,VPD=NULL,constants=bigleaf.constan
 
 
 
+
 #' Saturation Vapor Pressure (Esat) and Slope of the Esat Curve
 #' 
 #' @description Calculates saturation vapor pressure (Esat) over water and the
 #'              corresponding slope of the saturation vapor pressure curve.
 #' 
 #' @param Tair     Air temperature (deg C)
-#' @param formula  Formula to be used. Either \code{"Sonntag_1990"} (Default) or 
-#'                 \code{"Alduchov_1996"}.
+#' @param formula  Formula to be used. Either \code{"Sonntag_1990"} (Default), 
+#'                 \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #' 
 #' @details Esat (kPa) is calculated using the Magnus equation:
 #' 
@@ -106,7 +108,9 @@ pressure.from.elevation <- function(elev,Tair,VPD=NULL,constants=bigleaf.constan
 #'  
 #'  where the coefficients a, b, c take different values depending on the formula used.
 #'  The default values are from Sonntag 1990 (a=611.2, b=17.62, c=243.12). This version
-#'  of the Magnus equation is recommended by the WMO (WMO 2008; p1.4-29).
+#'  of the Magnus equation is recommended by the WMO (WMO 2008; p1.4-29). Alternatively,
+#'  parameter values determined by Alduchov & Eskridge 1996 or Allen et al. 1998 can be 
+#'  used (see references).
 #'  The slope of the Esat curve (\eqn{\Delta}) is calculated as the first derivative of the function:
 #'  
 #'    \deqn{\Delta = dEsat / dTair}
@@ -121,20 +125,24 @@ pressure.from.elevation <- function(elev,Tair,VPD=NULL,constants=bigleaf.constan
 #'             pressure formulations based on the ITS-90 and psychrometric formulae. 
 #'             Zeitschrift fuer Meteorologie 70, 340-344.
 #'             
-#'             Alduchov, O. A. & Eskridge, R. E., 1996: Improved Magnus form approximation of 
-#'             saturation vapor pressure. Journal of Applied Meteorology, 35, 601-609
-#'             
 #'             World Meteorological Organization 2008: Guide to Meteorological Instruments
 #'             and Methods of Observation (WMO-No.8). World Meteorological Organization,
 #'             Geneva. 7th Edition.
+#'             
+#'             Alduchov, O. A. & Eskridge, R. E., 1996: Improved Magnus form approximation of 
+#'             saturation vapor pressure. Journal of Applied Meteorology, 35, 601-609
+#'             
+#'             Allen, R.G., Pereira, L.S., Raes, D., Smith, M., 1998: Crop evapotranspiration -
+#'             Guidelines for computing crop water requirements - FAO irrigation and drainage
+#'             paper 56, FAO, Rome.
 #' 
 #' @examples 
 #' Esat.slope(seq(0,45,5))[,"Esat"]  # Esat in kPa
-#' Esat.slope(seq(0,45,5))[,"Delta"] # the corresponding slope of the Esat curve in kPa K-1
+#' Esat.slope(seq(0,45,5))[,"Delta"] # the corresponding slope of the Esat curve (Delta) in kPa K-1
 #'        
 #' @importFrom stats D                  
 #' @export
-Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996")){
+Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996","Allen_1998")){
   
   formula <- match.arg(formula)
   
@@ -146,6 +154,10 @@ Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996")){
     a <- 610.94
     b <- 17.625
     c <- 243.04
+  } else if (formula == "Allen_1998"){
+    a <- 610.8
+    b <- 17.27
+    c <- 237.3
   }
   
   # saturation vapor pressure
@@ -173,10 +185,10 @@ Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996")){
 #'                  
 #' @details The psychrometric constant (\eqn{\gamma}) is given as:
 #' 
-#'    \deqn{\gamma = cp * pressure / (eps * \lambda)},
+#'    \deqn{\gamma = cp * pressure / (eps * \lambda)}
 #'  
 #'  where \eqn{\lambda} is the latent heat of vaporization (J kg-1), 
-#'  as calculated with \code{\link{latent.heat.vaporization}}.
+#'  as calculated from \code{\link{latent.heat.vaporization}}.
 #'  
 #' @return \item{\eqn{\gamma} -}{the psychrometric constant (kPa K-1)}
 #'  
@@ -211,6 +223,8 @@ psychrometric.constant <- function(Tair,pressure,constants=bigleaf.constants()){
 #' 
 #' @references Stull, B., 1988: An Introduction to Boundary Layer Meteorology (p.641)
 #'             Kluwer Academic Publishers, Dordrecht, Netherlands
+#'             
+#'             Foken, T, 2008: Micrometeorology. Springer, Berlin, Germany. 
 #' 
 #' @examples 
 #' latent.heat.vaporization(seq(5,45,5))             
@@ -234,18 +248,21 @@ latent.heat.vaporization <- function(Tair) {
 #' 
 #' @description Solver function used in wetbulb.temp()
 #' 
-#' @param ea         Air vapor pressure (kPa)
-#' @param Tair       Air temperature (degC)
-#' @param gamma      Psychrometric constant (kPa K-1)
-#' @param accuracy   Accuracy of the result (degC)
+#' @param ea           Air vapor pressure (kPa)
+#' @param Tair         Air temperature (degC)
+#' @param gamma        Psychrometric constant (kPa K-1)
+#' @param accuracy     Accuracy of the result (degC)
+#' @param Esat.formula Optional: formula to be used for the calculation of esat and the slope of esat.
+#'                     One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                     See \code{\link{Esat.slope}}. 
 #' 
-#' @note \code{accuracy} is passed to this function by wetbulb.temp().
+#' @note Arguments \code{accuracy} and \code{Esat.formula} are passed to this function by wetbulb.temp().
 #' 
 #' @importFrom stats optimize 
 #' 
 #' @keywords internal
-wetbulb.solver <- function(ea,Tair,gamma,accuracy){
-  wetbulb.optim <- optimize(function(Tw){abs(ea - c((Esat.slope(Tw)[,"Esat"] - 0.93*gamma*(Tair - Tw))))},
+wetbulb.solver <- function(ea,Tair,gamma,accuracy,Esat.formula){
+  wetbulb.optim <- optimize(function(Tw){abs(ea - c((Esat.slope(Tw,Esat.formula)[,"Esat"] - 0.93*gamma*(Tair - Tw))))},
                             interval=c(-100,100),tol=accuracy)
   return(wetbulb.optim)
 }
@@ -261,6 +278,9 @@ wetbulb.solver <- function(ea,Tair,gamma,accuracy){
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param VPD       Vapor pressure deficit (kPa)
 #' @param accuracy  Accuracy of the result (deg C)
+#' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
+#'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                  eps - ratio of the molecular weight of water vapor to dry air (-) 
 #' 
@@ -282,7 +302,8 @@ wetbulb.solver <- function(ea,Tair,gamma,accuracy){
 #'        
 #' @importFrom stats optimize                  
 #' @export
-wetbulb.temp <- function(Tair,pressure,VPD,accuracy=1e-03,constants=bigleaf.constants()){
+wetbulb.temp <- function(Tair,pressure,VPD,accuracy=1e-03,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                         constants=bigleaf.constants()){
   
   if (!is.numeric(accuracy)){
     stop("'accuracy' must be numeric!")
@@ -299,10 +320,10 @@ wetbulb.temp <- function(Tair,pressure,VPD,accuracy=1e-03,constants=bigleaf.cons
   
   
   gamma  <- psychrometric.constant(Tair,pressure)
-  ea     <- VPD.to.e(VPD,Tair)
+  ea     <- VPD.to.e(VPD,Tair,Esat.formula)
   
   Tw <- sapply(seq_along(ea),function(i) round(wetbulb.solver(ea[i],Tair[i],gamma[i],
-                                                              accuracy=accuracy)$minimum,ndigits))
+                                                              accuracy=accuracy,Esat.formula)$minimum,ndigits))
   
   return(Tw)
   
@@ -322,17 +343,20 @@ wetbulb.temp <- function(Tair,pressure,VPD,accuracy=1e-03,constants=bigleaf.cons
 #' 
 #' @description Solver function used in dew.point()
 #' 
-#' @param ea         Air vapor pressure (kPa)
-#' @param accuracy   Accuracy of the result (degC)
+#' @param ea           Air vapor pressure (kPa)
+#' @param accuracy     Accuracy of the result (degC)
+#' @param Esat.formula Optional: formula to be used for the calculation of esat and the slope of esat.
+#'                     One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                     See \code{\link{Esat.slope}}. 
 #' 
-#' @note \code{accuracy} is passed to this function by dew.point().
+#' @note Arguments \code{accuracy} and \code{Esat.formula} are passed to this function by dew.point().
 #' 
 #' @importFrom stats optimize 
 #' 
 #' @keywords internal
-dew.point.solver <- function(ea,accuracy){
+dew.point.solver <- function(ea,accuracy,Esat.formula){
   
-  Td.optim <- optimize(function(Td){abs(ea - Esat.slope(Td)[,"Esat"])},
+  Td.optim <- optimize(function(Td){abs(ea - Esat.slope(Td,Esat.formula)[,"Esat"])},
                        interval=c(-100,100),tol=accuracy)
   return(Td.optim)
 }
@@ -347,6 +371,9 @@ dew.point.solver <- function(ea,accuracy){
 #' @param Tair     Air temperature (degC)
 #' @param VPD      Vapor pressure deficit (kPa)
 #' @param accuracy Accuracy of the result (deg C)
+#' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
+#'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                      See \code{\link{Esat.slope}}. 
 #' 
 #' @details Dew point temperature (Td) is defined by:
 #' 
@@ -365,7 +392,7 @@ dew.point.solver <- function(ea,accuracy){
 #' 
 #' @importFrom stats optimize 
 #' @export              
-dew.point <- function(Tair,VPD,accuracy=1e-03){
+dew.point <- function(Tair,VPD,accuracy=1e-03,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998")){
   
   if (!is.numeric(accuracy)){
     stop("'accuracy' must be numeric!")
@@ -380,8 +407,9 @@ dew.point <- function(Tair,VPD,accuracy=1e-03){
   ndigits <- as.numeric(strsplit(format(accuracy,scientific = TRUE),"-")[[1]][2])
   ndigits <- ifelse(is.na(ndigits),0,ndigits)
   
-  ea <- VPD.to.e(VPD,Tair)
-  Td <- sapply(seq_along(ea),function(i) round(dew.point.solver(ea[i],accuracy=accuracy)$minimum,ndigits))
+  ea <- VPD.to.e(VPD,Tair,Esat.formula)
+  Td <- sapply(seq_along(ea),function(i) round(dew.point.solver(ea[i],accuracy=accuracy,
+                                                                Esat.formula)$minimum,ndigits))
   
   return(Td)
 }
@@ -400,6 +428,9 @@ dew.point <- function(Tair,VPD,accuracy=1e-03){
 #' @param Tair      Air temperature (deg C)
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param VPD       Vapor pressure deficit (kPa)
+#' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat. 
+#'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                      See \code{\link{Esat.slope}}. 
 #' @param constants Kelvin - conversion degree Celsius to Kelvin \cr
 #'                  eps - ratio of the molecular weight of water vapor to dry air (-) 
 #' 
@@ -419,9 +450,10 @@ dew.point <- function(Tair,VPD,accuracy=1e-03){
 #' virtual.temp(25,100,1.5)                        
 #'               
 #' @export
-virtual.temp <- function(Tair,pressure,VPD,constants=bigleaf.constants()){
+virtual.temp <- function(Tair,pressure,VPD,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                         constants=bigleaf.constants()){
   
-  e    <- VPD.to.e(VPD,Tair)
+  e    <- VPD.to.e(VPD,Tair,Esat.formula)
   Tair <- Tair + constants$Kelvin
   
   Tv <- Tair / (1 - (1 - constants$eps) * e/pressure) 

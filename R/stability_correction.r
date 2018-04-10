@@ -4,7 +4,7 @@
 
 #' Monin-Obukhov Length
 #' 
-#' @description 
+#' @description calculates the Monin-Obukhov length.
 #' 
 #' @param data      Data.frame or matrix containing all required variables
 #' @param Tair      Air temperature (deg C)
@@ -16,7 +16,7 @@
 #'                  k - von Karman constant (-) \cr
 #'                  g - gravitational acceleration (m s-2)
 #' 
-#' @description The Monin-Obukhov length (L) is given by:
+#' @details The Monin-Obukhov length (L) is given by:
 #' 
 #'              \deqn{L = - (\rho * cp * ustar^3 * Tair) / (k * g * H)}
 #'              
@@ -36,11 +36,12 @@
 #' Monin.Obukhov.length(Tair=25,pressure=100,ustar=seq(0.2,1,0.1),H=seq(40,200,20))
 #' 
 #' @export
-Monin.Obukhov.length <- function(data,Tair,pressure,ustar,H,constants=bigleaf.constants()){
+Monin.Obukhov.length <- function(data,Tair="Tair",pressure="pressure",ustar="ustar",
+                                 H="H",constants=bigleaf.constants()){
   
   check.input(data,list(Tair,pressure,ustar,H))
   
-  rho  <- air.density(Tair,pressure,constants=bigleaf.constants())
+  rho  <- air.density(Tair,pressure,constants)
   Tair <- Tair + constants$Kelvin
   MOL  <- (-rho*constants$cp*ustar^3*Tair) / (constants$k*constants$g*H)
   
@@ -50,6 +51,9 @@ Monin.Obukhov.length <- function(data,Tair,pressure,ustar,H,constants=bigleaf.co
 
 
 #' Stability Parameter "zeta"
+#' 
+#' @description calculates "zeta", a parameter characterizing stratification in 
+#'              the lower atmosphere.
 #' 
 #' @param data      Data.frame or matrix containing all required variables
 #' @param Tair      Air temperature (degC)

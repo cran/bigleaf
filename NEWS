@@ -1,0 +1,91 @@
+NEWS for Package 'bigleaf'
+
+version 0.5.2 (2018-04-10)
+  - Gb output in aerodynamic.conductance and Gb functions renamed to Gb_h to clarify
+    that values correspond to heat transfer. Same for Rb and kB.
+
+
+version 0.5.1 (2018-04-09)
+
+  - results of additional quantities (for which Sc is provided) are expressed as 
+    conductances instead of resistances in aerodynamic.conductance()
+  - 'data' included as argument in radiometric.surface.temp()
+  - calculation of 'nr_data' accounts for missing values in Gamma if model=Leuning
+    (function stomatal.slope())
+    
+
+version 0.5.0 (2018-04-06)
+
+  - wind.profile() function restructured. z0m can be provided or calculated from
+    the logarithmic wind profile equation
+  - reflectance of downwelling longwave radiation is now accounted for in the 
+    calculation of radiometric surface temperature (function radiometric.surface.temp())
+  - variable 'LW_down' added to dataset DE_Tha_Jun_2014
+  - argument 'calc.surface.CO2' removed from intercellular.CO2()
+  
+
+version 0.4.6 (2018-04-05)
+
+  - important bugfix concerning several functions: all required arguments are passed
+    to nested functions
+  - argument 'N' in aerodynamic.conductance() now defaults to 2 as in Gb.Su()
+
+
+version 0.4.5 (2018-03-16)
+
+  - variables 'LW_up' (upward longwave radiation) and 'Reco' (ecosystem respiration)
+    were added to all three example datasets
+  - bug fix to 'surface.conditions' and 'pressure.from.elevation' regarding the 
+    'Esat.formulation' argument. In 'Esat.formulation', this argument is not
+	  implemented and the default formulation is taken for all calculations.
+  
+  
+
+version 0.4.4 (2018-03-13)
+
+  - 'reference.ET': argument Gs renamed to Gs_ref
+
+	  
+version 0.4.3 (2018-03-12)
+
+  - Function 'bigleaf.constants' restructured in a way that allows 
+    changing the constants for each function call
+
+
+version 0.4.2 (2018-03-12)
+
+  - constants (a,b,c) from Allen et al. 1998 added as option to 'Esat.slope'
+   	(pull request from Rémi Vezy)
+  - Argument 'Esat.formula' added to every function that calculates esat
+    or slope of esat to allow consistency among functions.  
+  - 'light.response': argument "..." added to the nls function
+  - 'stomatal.slope': argument "..." within each call of nls in the function	
+  
+		 
+version 0.4.1 (2018-03-08)
+
+  - aerodynamic.conductance: Ga_CO2 added to function output 
+
+
+version 0.4.0 (2018-03-08)
+
+  - 'aerodynamic.conductance': Rb can be calculated for other quantities if 
+    the respective Schmidt number is provided. I.e. new arguments "Sc" and
+    "Sc_name" as the value of the Schmidt number, and the name of the quantity
+ 	  for which Sc is provided, respectively.
+  - 'bigleaf.constants': Prandtl number (Pr) and Schmidt number for CO2 (Sc_CO2)
+     added
+  - 'light.response': bug fix: +Reco replaced by -Reco (sign was reversed)
+		 
+		 
+version 0.3.2 (2018-03-06)	
+	 
+  - rH.to.VPD: if statement vectorized (thanks to Rémi Vezy)
+  - radiometric.surface.temp: Output renamed	("." replaced by "_")
+
+	   
+version 0.3.1 (2018-02-09)		  
+
+  - Monin.Obukhov.length: default arguments added
+		 
+         		 

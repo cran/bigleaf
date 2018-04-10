@@ -4,15 +4,16 @@
 \alias{reference.ET}
 \title{Reference Evapotranspiration}
 \usage{
-reference.ET(data, Gs = 0.0143, Tair = "Tair", pressure = "pressure",
+reference.ET(data, Gs_ref = 0.0143, Tair = "Tair", pressure = "pressure",
   VPD = "VPD", Rn = "Rn", Ga = "Ga", G = NULL, S = NULL,
   missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}
 
-\item{Gs}{Surface conductance (m s-1); defaults to 0.0143 m s-1 (~ 0.58 mol m-2 s-1)}
+\item{Gs_ref}{Reference surface conductance (m s-1); defaults to 0.0143 m s-1 (~ 0.58 mol m-2 s-1)}
 
 \item{Tair}{Air temperature (deg C)}
 
@@ -32,6 +33,10 @@ reference.ET(data, Gs = 0.0143, Tair = "Tair", pressure = "pressure",
 
 \item{missing.S.as.NA}{if \code{TRUE}, missing S are treated as \code{NA}s, otherwise set to 0.}
 
+\item{Esat.formula}{Optional: formula used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
+
 \item{constants}{cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 eps - ratio of the molecular weight of water vapor to dry air (-) \cr
 Rd - gas constant of dry air (J kg-1 K-1) \cr
@@ -40,8 +45,8 @@ Kelvin - conversion degree Celsius to Kelvin \cr}
 }
 \value{
 a data.frame with the following columns:
-        \item{ET_0}{Reference evapotranspiration (kg m-2 s-1)}
-        \item{LE_0}{Reference latent heat flux (W m-2)}
+        \item{ET_ref}{Reference evapotranspiration (kg m-2 s-1)}
+        \item{LE_ref}{Reference latent heat flux (W m-2)}
 }
 \description{
 Reference evapotranspiration calculated from the Penman-Monteith
@@ -51,30 +56,35 @@ Reference evapotranspiration calculated from the Penman-Monteith
 Reference evapotranspiration is calculated according to the Penman-Monteith
          equation:
 
-         \deqn{LE_0 = (\Delta * (Rn - G - S) * \rho * cp * VPD * Ga) / (\Delta + \gamma * (1 + Ga/Gs)}
+         \deqn{LE_ref = (\Delta * (Rn - G - S) * \rho * cp * VPD * Ga) / (\Delta + \gamma * (1 + Ga/Gs_ref)}
          
          where \eqn{\Delta} is the slope of the saturation vapor pressure curve (kPa K-1),
          \eqn{\rho} is the air density (kg m-3), and \eqn{\gamma} is the psychrometric constant (kPa K-1).
          The reference evapotranspiration is calculated with respect to a 'reference surface',
          which is typically a well-watered grass/crop of 0.12m height, an albedo of 0.23 and 
          a surface conductance of ~ 0.6 mol m-2 s-1 (Allen et al. 1998), but can be calculated for any other
-         surface.
+         surface (i.e. any EC site).
+         The value of \code{Gs_ref} is typically a maximum value of Gs observed at the site, e.g. the 90th
+         percentile of Gs within the growing season.
 }
 \examples{
-# Calculate ET_ref for a surface with known Gs (0.5 mol m-2 s-1) and Ga (0.1 m s-1)
+# Calculate LE_ref for a surface with known Gs (0.5 mol m-2 s-1) and Ga (0.1 m s-1)
 
 # Gs is required in m s-1
 Gs_ms <- mol.to.ms(0.5,Tair=20,pressure=100)
-ET_ref <- reference.ET(Gs=Gs_ms,Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400)
+LE_ref <- reference.ET(Gs_ref=Gs_ms,Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400)[,"LE_ref"]
 
-# now cross-check with the inverted version
-surface.conductance(Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400,LE=ET_ref[,"LE_ref"])
+# now cross-check with the inverted equation
+surface.conductance(Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400,LE=LE_ref)
 
 }
 \references{
-Allen R.G., Pereira L.S., Raes D., Smith M., 1998: Crop evapotranspiration -
-             Guidelines for computing crop water requirements - FAO Irrigation and drainage
-             paper 56.
+Allen, R.G., Pereira L.S., Raes D., Smith M., 1998: Crop evapotranspiration -
+            Guidelines for computing crop water requirements - FAO Irrigation and drainage
+            paper 56.
+             
+            Novick, K.A., et al. 2016: The increasing importance of atmospheric demand
+            for ecosystem water and carbon fluxes. Nature Climate Change 6, 1023 - 1027.
 }
 \seealso{
 \code{\link{potential.ET}}

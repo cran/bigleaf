@@ -4,17 +4,21 @@
 \alias{dew.point.solver}
 \title{Solver function for dew point temperature}
 \usage{
-dew.point.solver(ea, accuracy)
+dew.point.solver(ea, accuracy, Esat.formula)
 }
 \arguments{
 \item{ea}{Air vapor pressure (kPa)}
 
 \item{accuracy}{Accuracy of the result (degC)}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 }
 \description{
 Solver function used in dew.point()
 }
 \note{
-\code{accuracy} is passed to this function by dew.point().
+Arguments \code{accuracy} and \code{Esat.formula} are passed to this function by dew.point().
 }
 \keyword{internal}

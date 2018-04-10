@@ -11,26 +11,36 @@
 \alias{VPD.to.q}
 \title{Conversions between Humidity Measures}
 \usage{
-VPD.to.rH(VPD, Tair)
+VPD.to.rH(VPD, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
+  "Allen_1998"))
 
-rH.to.VPD(rH, Tair)
+rH.to.VPD(rH, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
+  "Allen_1998"))
 
-VPD.to.e(VPD, Tair)
+VPD.to.e(VPD, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
+  "Allen_1998"))
 
-e.to.VPD(e, Tair)
+e.to.VPD(e, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
+  "Allen_1998"))
 
 e.to.q(e, pressure, constants = bigleaf.constants())
 
 q.to.e(q, pressure, constants = bigleaf.constants())
 
-q.to.VPD(q, Tair, pressure, constants = bigleaf.constants())
+q.to.VPD(q, Tair, pressure, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
+  "Allen_1998"), constants = bigleaf.constants())
 
-VPD.to.q(VPD, Tair, pressure, constants = bigleaf.constants())
+VPD.to.q(VPD, Tair, pressure, Esat.formula = c("Sonntag_1990",
+  "Alduchov_1996", "Allen_1998"), constants = bigleaf.constants())
 }
 \arguments{
 \item{VPD}{Vapor pressure deficit (kPa)}
 
 \item{Tair}{Air temperature (deg C)}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 
 \item{rH}{Relative humidity (-)}
 

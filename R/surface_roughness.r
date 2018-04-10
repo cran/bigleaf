@@ -104,7 +104,7 @@ Reynolds.Number <- function(Tair,pressure,ustar,z0m,constants=bigleaf.constants(
 #'            \deqn{z0m = median((zr - d) * exp(-k*wind / ustar - psi_m)}
 #'                  
 #'          By default, d in this equation is fixed to 0.7*zh, but can be set to any
-#'          other value. psi_m is 0 if \code{stab_roughness = FALSE} (the default).       
+#'          other value. psi_m is 0 if \code{stab_roughness = FALSE}.       
 #' 
 #' @return a data.frame with the following columns:
 #'         \item{d}{Zero-plane displacement height (m)}
@@ -136,7 +136,7 @@ Reynolds.Number <- function(Tair,pressure,ustar,z0m,constants=bigleaf.constants(
 roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","wind_profile"),zh,
                                  frac_d=0.7,frac_z0m=0.1,LAI,zr,cd=0.2,hs=0.01,data,Tair="Tair",pressure="pressure",
                                  wind="wind",ustar="ustar",H="H",d=NULL,z0m=NULL,
-                                 stab_roughness=FALSE,stab_formulation=c("Dyer_1970","Businger_1971"),
+                                 stab_roughness=TRUE,stab_formulation=c("Dyer_1970","Businger_1971"),
                                  constants=bigleaf.constants()){
   
   method           <- match.arg(method)
@@ -174,7 +174,7 @@ roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","w
       
       zeta  <- stability.parameter(data=data,Tair=Tair,pressure=pressure,ustar=ustar,H=H,
                                    zr=zr,d=d,constants=constants)
-      psi_m <- stability.correction(zeta)[,"psi_m"]
+      psi_m <- stability.correction(zeta,formulation=stab_formulation)[,"psi_m"]
       z0m_all <- (zr - d) * exp(-constants$k*wind / ustar - psi_m)
       
     } else {
@@ -197,8 +197,8 @@ roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","w
 
 #' Wind Speed at Given Heights in the Surface Layer
 #' 
-#' @description wind speed at a given height above the canopy estimated from single-level
-#'              measurements of wind speed at some distance above the canopy.
+#' @description Wind speed at a given height above the canopy estimated from single-level
+#'              measurements of wind speed.
 #'          
 #' @param data      Data.frame or matrix containing all required variables
 #' @param heights   Vector with heights for which wind speed is to be 
@@ -207,14 +207,18 @@ roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","w
 #' @param pressure  Atmospheric pressure (kPa)                                                                                  
 #' @param ustar     Friction velocity (m s-1)
 #' @param H         Sensible heat flux (W m-2)
+#' @param wind      Wind speed at height zr (m s-1); only used if \code{stab_correction = TRUE}
 #' @param zr        Instrument (reference) height (m)
 #' @param zh        Canopy height (m)
 #' @param d         Zero-plane displacement height (-)
 #' @param frac_d    Fraction of displacement height on canopy height (-);
 #'                  only used if \code{d} is not available
-#' @param z0m       Roughness length (m), optional; only used if stab_correction=FALSE (default=0.1) 
+#' @param z0m       Roughness length (m), optional; only used if \code{stab_correction = FALSE} (default=0.1) 
 #' @param frac_z0m  Fraction of roughness length on canopy height (-), optional; only used 
 #'                  if \code{stab_correction = FALSE} (default=0.1), only used if \code{z0m} is not available
+#' @param estimate_z0m Should \code{z0m} be estimated from the logarithmic wind profile? If \code{TRUE} (the default),
+#'                     arguments \code{z0m} and \code{frac_z0m} are ignored.
+#'                     See \code{\link{roughness.parameters}} for details. 
 #' @param stab_correction Should stability correction be applied? Defaults to \code{TRUE}
 #' @param stab_formulation Stability correction function used (If \code{stab_correction = TRUE}).
 #'                         Either \code{"Dyer_1970"} or \code{"Businger_1971"}.
@@ -231,7 +235,10 @@ roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","w
 #'            \deqn{u(z) = (ustar/k) * (ln((z - d) / z0m) - \psi{m}}
 #'          
 #'          The roughness parameters zero-plane displacement height (d) and roughness length (z0m)
-#'          can be approximated from \code{\link{roughness.parameters}}.         
+#'          can be approximated from \code{\link{roughness.parameters}}. \eqn{\psi{m}} is omitted
+#'          if \code{stab_correction = FALSE} (not recommended). If \code{estimate_z0m = TRUE},
+#'          z0m is first estimated from the wind profile equation and then used in the equation
+#'          above for the calculation of \code{u(z)} (see e.g. Newman & Klein 2014).        
 #'                                                             
 #' @note Note that this equation is only valid for z >= d + z0m, and it is not 
 #'       meaningful to calculate values closely above d + z0m. All values in \code{heights}
@@ -239,6 +246,12 @@ roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","w
 #'                                  
 #' @return A data.frame with rows representing time and columns representing heights 
 #'         as specified in \code{heights}.
+#'         
+#' @references Monteith, J.L., Unsworth, M.H., 2008: Principles of Environmental Physics.
+#'             3rd edition. Academic Press, London. 
+#'             
+#'             Newman, J.F., Klein, P.M., 2014: The impacts of atmospheric stability on
+#'             the accuracy of wind speed extrapolation methods. Resources 3, 81-105.
 #'         
 #' @seealso \code{\link{roughness.parameters}}
 #' 
@@ -248,50 +261,72 @@ roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","w
 #' 
 #' @export                                                                                                                          
 wind.profile <- function(data,heights,Tair="Tair",pressure="pressure",ustar="ustar",
-                         H="H",zr,zh,d=NULL,frac_d=0.7,z0m=NULL,frac_z0m=0.1,stab_correction=TRUE,
-                         stab_formulation=c("Dyer_1970","Businger_1971"),
+                         H="H",wind="wind",zr,zh,d=NULL,frac_d=0.7,z0m=NULL,frac_z0m=NULL,
+                         estimate_z0m=TRUE,stab_correction=TRUE,stab_formulation=c("Dyer_1970","Businger_1971"),
                          constants=bigleaf.constants()){
   
   stab_formulation <- match.arg(stab_formulation)
   
-  check.input(data,Tair,pressure,ustar,H)
+  check.input(data,ustar)
   
-  wind_heights <- data.frame(matrix(NA,ncol=length(heights),nrow=length(Tair)))
+  # data frame containing the results
+  wind_heights <- data.frame(matrix(NA,ncol=length(heights),nrow=length(ustar)))
   colnames(wind_heights) <- paste0(heights,"m")
   
-  if (stab_correction){
+  
+  ## determine roughness parameters
+  if (is.null(d)){
+    if (is.null(frac_d)){
+      stop("Either 'd' or 'frac_d' must be specified")
+    }
+    d <- frac_d * zh
+  }
+  
+  if (is.null(z0m) & !estimate_z0m){
+    if (is.null(frac_z0m)){
+      stop("Either 'z0m' or 'frac_z0m' must be specified if 'estimate_z0m' = FALSE")
+    }
+    z0m <- frac_z0m * zh
+  }
+  
+  
+  if (estimate_z0m){
     
-    if (is.null(d)){
-      d <- frac_d * zh
+    if (!is.null(z0m) | !is.null(frac_z0m)){
+      cat("Note that arguments 'z0m' and 'frac_z0m' are ignored if 'estimate_z0m' = TRUE. z0m is
+           calculated from the logarithmic wind_profile equation.",fill=TRUE)
     }
     
-    z0m <- roughness.parameters(method="wind_profile",zh=zh,zr=zr,d=d,data=data,
-                                stab_roughness=TRUE,constants=constants)[,"z0m"]
+    check.input(data,Tair,pressure,wind,ustar,H)
     
-    if ( any(heights < (d + z0m) & !is.na(d + z0m)) ){
-      warning("function is only valid for heights above d + z0m! Wind speed for heights below d + z0m will return 0!") 
-    } 
-  }  
+    z0m <- roughness.parameters(method="wind_profile",zh=zh,zr=zr,d=d,data=data,
+                                Tair=Tair,pressure=pressure,wind=wind,ustar=ustar,H=H,
+                                stab_roughness=TRUE,stab_formulation=stab_formulation,
+                                constants=constants)[,"z0m"]
+    
+    #cat("calculated z0m =",round(z0m,2),"m",fill=TRUE)
+  }
   
+
+  if ( any(heights < (d + z0m) & !is.na(d + z0m)) ){
+    warning("function is only valid for heights above d + z0m! Wind speed for heights below d + z0m will return 0!") 
+  }
+  
+  ## calculate wind speeds at given heights z
   for (z in heights){
     i <- which(heights == z)
     
     if (stab_correction){
+      
       zeta  <- stability.parameter(data=data,Tair=Tair,pressure=pressure,ustar=ustar,H=H,
                                    zr=z,d=d,constants=constants)
-      psi_m <- stability.correction(zeta)[,"psi_m"]
+      psi_m <- stability.correction(zeta,formulation=stab_formulation)[,"psi_m"]
       wind_heights[,i] <- pmax(0,(ustar / constants$k) * (log(pmax(0,(z - d)) / z0m) - psi_m))
       
     } else {
-      if (is.null(d)){
-        d <- frac_d * zh
-      }
-      
-      if (is.null(z0m)){
-        z0m <- frac_z0m * zh
-      }
       
       wind_heights[,i] <- pmax(0,(ustar / constants$k) * (log(pmax(0,(z - d)) / z0m)))
+      
     }
   }
   

@@ -4,13 +4,13 @@
 \alias{Esat.slope}
 \title{Saturation Vapor Pressure (Esat) and Slope of the Esat Curve}
 \usage{
-Esat.slope(Tair, formula = c("Sonntag_1990", "Alduchov_1996"))
+Esat.slope(Tair, formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"))
 }
 \arguments{
 \item{Tair}{Air temperature (deg C)}
 
-\item{formula}{Formula to be used. Either \code{"Sonntag_1990"} (Default) or 
-\code{"Alduchov_1996"}.}
+\item{formula}{Formula to be used. Either \code{"Sonntag_1990"} (Default), 
+\code{"Alduchov_1996"}, or \code{"Allen_1998"}.}
 }
 \value{
 A dataframe with the following columns: 
@@ -28,7 +28,9 @@ Esat (kPa) is calculated using the Magnus equation:
  
  where the coefficients a, b, c take different values depending on the formula used.
  The default values are from Sonntag 1990 (a=611.2, b=17.62, c=243.12). This version
- of the Magnus equation is recommended by the WMO (WMO 2008; p1.4-29).
+ of the Magnus equation is recommended by the WMO (WMO 2008; p1.4-29). Alternatively,
+ parameter values determined by Alduchov & Eskridge 1996 or Allen et al. 1998 can be 
+ used (see references).
  The slope of the Esat curve (\eqn{\Delta}) is calculated as the first derivative of the function:
  
    \deqn{\Delta = dEsat / dTair}
@@ -37,7 +39,7 @@ Esat (kPa) is calculated using the Magnus equation:
 }
 \examples{
 Esat.slope(seq(0,45,5))[,"Esat"]  # Esat in kPa
-Esat.slope(seq(0,45,5))[,"Delta"] # the corresponding slope of the Esat curve in kPa K-1
+Esat.slope(seq(0,45,5))[,"Delta"] # the corresponding slope of the Esat curve (Delta) in kPa K-1
        
 }
 \references{
@@ -45,10 +47,14 @@ Sonntag D. 1990: Important new values of the physical constants of 1986, vapor
             pressure formulations based on the ITS-90 and psychrometric formulae. 
             Zeitschrift fuer Meteorologie 70, 340-344.
             
-            Alduchov, O. A. & Eskridge, R. E., 1996: Improved Magnus form approximation of 
-            saturation vapor pressure. Journal of Applied Meteorology, 35, 601-609
-            
             World Meteorological Organization 2008: Guide to Meteorological Instruments
             and Methods of Observation (WMO-No.8). World Meteorological Organization,
             Geneva. 7th Edition.
+            
+            Alduchov, O. A. & Eskridge, R. E., 1996: Improved Magnus form approximation of 
+            saturation vapor pressure. Journal of Applied Meteorology, 35, 601-609
+            
+            Allen, R.G., Pereira, L.S., Raes, D., Smith, M., 1998: Crop evapotranspiration -
+            Guidelines for computing crop water requirements - FAO irrigation and drainage
+            paper 56, FAO, Rome.
 }

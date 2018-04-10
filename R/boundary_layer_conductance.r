@@ -5,50 +5,73 @@
 #' Boundary Layer Conductance according to Thom 1972
 #' 
 #' @description An empirical formulation for the canopy boundary layer conductance 
-#'              to heat/water vapor based on a simple ustar dependency.
+#'              for heat transfer based on a simple ustar dependency.
 #' 
 #' @param ustar     Friction velocity (m s-1)
-#' @param constants k - von-Karman constant (-) \cr
-#'                  Rbwc - Ratio of the transfer efficiency through the boundary layer for water vapor and CO2 (-)
+#' @param Sc        Optional: Schmidt number of additional quantities to be calculated
+#' @param Sc_name   Optional: Name of the additional quantities, has to be of same length than 
+#'                  \code{Sc_name}
+#' @param constants k - von-Karman constant \cr
+#'                  Sc_CO2 - Schmidt number for CO2 \cr 
+#'                  Pr - Prandtl number (if \code{Sc} is provided)
+#'
 #'  
-#' @details The empirical equation for Rb to water suggested by Thom 1972 is:
+#' @details The empirical equation for Rb suggested by Thom 1972 is:
 #'  
-#'    \deqn{Rb = 6.2ustar^-0.67}
+#'      \deqn{Rb = 6.2ustar^-0.67}
 #'  
-#'  Rb for water vapor and heat is assumed to be equal. Rb for CO2 (Rb_CO2) is given as:
+#'    Gb (=1/Rb) for water vapor and heat are assumed to be equal in this package.
+#'    Gb for other quantities x is calculated as (Hicks et al. 1987):
 #'  
-#'    \deqn{Rb_CO2 = 1.37 * Rb}
+#'      \deqn{Gb_x = Gb / (Sc_x / Pr)^0.67}
 #'  
-#'  The factor 1.37 arises due the lower molecular diffusivity of CO2 compared to water.
-#'  It is lower than the ratio of the molecular diffusivities (Dw/DCO2 = 1.6), as movement
-#'  across the boundary layer is assumed to be partly by diffusion and partly by turbulent
-#'  mixing (Nobel 2005).
+#'  where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
 #'  
 #' @return a data.frame with the following columns:
-#'  \item{Rb}{Boundary layer resistance for heat and water (s m-1)}
-#'  \item{Rb_CO2}{Boundary layer resistance for CO2 (s m-1)}
-#'  \item{Gb}{Boundary layer conductance (m s-1)}
-#'  \item{kB}{kB-1 parameter (-)}
-#' 
+#'  \item{Gb_h}{Boundary layer conductance for heat transfer (m s-1)}
+#'  \item{Rb_h}{Boundary layer resistance for heat transfer (s m-1)}
+#'  \item{kB_h}{kB-1 parameter for heat transfer}
+#'  \item{Gb_Sc_name}{Boundary layer conductance for \code{Sc_name} (m s-1). Only added if \code{Sc_name} and 
+#'                    \code{Sc_name} are provided}
+#'  
 #' @references Thom, A., 1972: Momentum, mass and heat exchange of vegetation.
 #'             Quarterly Journal of the Royal Meteorological Society 98, 124-134.
 #'             
-#'             Nobel, P. S., 2005: Physicochemical and Environmental Plant Physiology. Third 
-#'             Edition. Elsevier Academic Press, Burlington, USA.
+#'             Hicks, B.B., Baldocchi, D.D., Meyers, T.P., Hosker, J.R., Matt, D.R., 1987:
+#'             A preliminary multiple resistance routine for deriving dry deposition velocities
+#'             from measured quantities. Water, Air, and Soil Pollution 36, 311-330.
 #' 
 #' @seealso \code{\link{Gb.Choudhury}}, \code{\link{Gb.Su}}, \code{\link{aerodynamic.conductance}}
 #' 
 #' @examples 
 #' Gb.Thom(seq(0.1,1.4,0.1))
 #' 
+#' ## calculate Gb for SO2 as well
+#' Gb.Thom(seq(0.1,1.4,0.1),Sc=1.25,Sc_name="SO2")
+#' 
 #' @export
-Gb.Thom <- function(ustar,constants=bigleaf.constants()){
-  Rb     <- 6.2*ustar^-0.667
-  Gb     <- 1/Rb
-  kB     <- Rb*constants$k*ustar
-  Rb_CO2 <- constants$Rbwc * Rb
+Gb.Thom <- function(ustar,Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
   
-  return(data.frame(Rb,Rb_CO2,Gb,kB))
+  check.input(NULL,ustar)
+  
+  Rb_h <- 6.2*ustar^-0.667
+  Gb_h <- 1/Rb_h
+  kB_h <- Rb_h*constants$k*ustar
+  
+  if (!is.null(Sc) | !is.null(Sc_name)){
+    if (length(Sc) != length(Sc_name)){
+      stop("arguments 'Sc' and 'Sc_name' must have the same length")
+    }
+    if (!is.numeric(Sc)){
+      stop("argument 'Sc' must be numeric")
+    }
+  }
+  
+  Sc   <- c(constants$Sc_CO2,Sc)
+  Gb_x <- data.frame(lapply(Sc,function(x) Gb_h / (x/constants$Pr)^0.67))
+  colnames(Gb_x) <- paste0("Gb_",c("CO2",Sc_name))
+  
+  return(data.frame(Gb_h,Rb_h,kB_h,Gb_x))
 }
 
 
@@ -57,7 +80,7 @@ Gb.Thom <- function(ustar,constants=bigleaf.constants()){
 #' Boundary Layer Conductance according to Choudhury & Monteith 1988
 #' 
 #' @description A formulation for the canopy boundary layer conductance 
-#'              to heat/water vapor according to Choudhury & Monteith 1988.
+#'              for heat transfer according to Choudhury & Monteith 1988.
 #'              
 #' @param data             Data.frame or matrix containing all required variables
 #' @param Tair             Air temperature (degC)
@@ -72,19 +95,24 @@ Gb.Thom <- function(ustar,constants=bigleaf.constants()){
 #' @param d                Zero-plane displacement height (-), can be calculated using \code{roughness.parameters}
 #' @param stab_formulation Stability correction function used (If \code{stab_correction = TRUE}).
 #'                         Either \code{"Dyer_1970"} or \code{"Businger_1971"}.
-#' @param constants        k - von-Karman constant (-) \cr
-#'                         Rbwc - Ratio of the transfer efficiency through the boundary layer for water vapor and CO2 (-)
-#' 
+#' @param Sc               Optional: Schmidt number of additional quantities to be calculated
+#' @param Sc_name          Optional: Name of the additonal quantities, has to be of same length than 
+#'                         \code{Sc_name}
+#' @param constants        k - von-Karman constant \cr
+#'                         Sc_CO2 - Schmidt number for CO2 \cr 
+#'                         Pr - Prandtl number (if \code{Sc} is provided)
+#'                         
 #' @return A data frame with the following columns:
-#'     \item{Rb}{Boundary layer resistance for heat and water (s m-1)}
-#'     \item{Rb_CO2}{Boundary layer resistance for CO2 (s m-1)}
-#'     \item{Gb}{Boundary layer conductance (m s-1)}
-#'     \item{kB}{kB-1 parameter (-)}
+#'  \item{Gb_h}{Boundary layer conductance for heat transfer (m s-1)}
+#'  \item{Rb_h}{Boundary layer resistance for heat transfer (s m-1)}
+#'  \item{kB_h}{kB-1 parameter for heat transfer}
+#'  \item{Gb_Sc_name}{Boundary layer conductance for \code{Sc_name} (m s-1). Only added if \code{Sc_name} and 
+#'                    \code{Sc_name} are provided}
 #' 
 #' @details Boundary layer conductance according to Choudhury & Monteith 1988 is
 #'          given by:
 #'          
-#'            \deqn{Gb = LAI((2a/\alpha)*sqrt(u(h)/w)*(1-exp(-\alpha/2)))}
+#'            \deqn{Gb_h = LAI((2a/\alpha)*sqrt(u(h)/w)*(1-exp(-\alpha/2)))}
 #'          
 #'          where u(zh) is the wind speed at the canopy surface, approximated from
 #'          measured wind speed at sensor height zr and a wind extinction coefficient \eqn{\alpha}:
@@ -95,14 +123,12 @@ Gb.Thom <- function(ustar,constants=bigleaf.constants()){
 #'          
 #'            \deqn{\alpha = 4.39 - 3.97*exp(-0.258*LAI)}
 #'          
-#'          Rb for water vapor and heat is assumed to be equal. Rb for CO2 (Rb_CO2) is given as:
+#'          Gb (=1/Rb) for water vapor and heat are assumed to be equal in this package.
+#'          Gb for other quantities x is calculated as (Hicks et al. 1987):
 #'  
-#'            \deqn{Rb_CO2 = 1.37 * Rb}
+#'            \deqn{Gb_x = Gb / (Sc_x / Pr)^0.67}
 #'  
-#'          The factor 1.37 arises due the lower molecular diffusivity of CO2 compared to water.
-#'          It is lower than the ratio of the molecular diffusivities (Dw/DCO2 = 1.6), as movement
-#'          across the boundary layer is assumed to be partly by diffusion and partly by turbulent
-#'          mixing (Nobel 2005).
+#'          where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
 #'          
 #' @references Choudhury, B. J., Monteith J.L., 1988: A four-layer model for the heat
 #'             budget of homogeneous land surfaces. Q. J. R. Meteorol. Soc. 114, 373-398.
@@ -111,8 +137,9 @@ Gb.Thom <- function(ustar,constants=bigleaf.constants()){
 #'             the resistors in the two-layer model for calculating the energy budget of a
 #'             plant canopy. Boundary-Layer Meteorology 74, 261-288.
 #'             
-#'             Nobel, P. S., 2005: Physicochemical and Environmental Plant Physiology. Third 
-#'             Edition. Elsevier Academic Press, Burlington, USA.
+#'             Hicks, B.B., Baldocchi, D.D., Meyers, T.P., Hosker, J.R., Matt, D.R., 1987:
+#'             A preliminary multiple resistance routine for deriving dry deposition velocities
+#'             from measured quantities. Water, Air, and Soil Pollution 36, 311-330.
 #'             
 #' @seealso \code{\link{Gb.Thom}}, \code{\link{Gb.Su}}, \code{\link{aerodynamic.conductance}}
 #'    
@@ -128,7 +155,7 @@ Gb.Thom <- function(ustar,constants=bigleaf.constants()){
 #' @export                                                                                                                                                                                                                                                                                    
 Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar="ustar",H="H",
                          leafwidth,LAI,zh,zr,d,stab_formulation=c("Dyer_1970","Businger_1971"),
-                         constants=bigleaf.constants()){
+                         Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
   
   stab_formulation <- match.arg(stab_formulation)
   
@@ -142,12 +169,25 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
   ## avoid zero windspeed
   wind_zh <- pmax(0.01,wind_zh)
   
-  Gb      <- LAI*((0.02/alpha)*sqrt(wind_zh/leafwidth)*(1-exp(-alpha/2)))
-  Rb      <- 1/Gb
-  kB      <- Rb*constants$k*ustar
-  Rb_CO2  <- constants$Rbwc * Rb
+  if (!is.null(Sc) | !is.null(Sc_name)){
+    if (length(Sc) != length(Sc_name)){
+      stop("arguments 'Sc' and 'Sc_name' must have the same length")
+    }
+    if (!is.numeric(Sc)){
+      stop("argument 'Sc' must be numeric")
+    }
+  }
   
-  return(data.frame(Rb,Rb_CO2,Gb,kB))
+  Gb_h <- LAI*((0.02/alpha)*sqrt(wind_zh/leafwidth)*(1-exp(-alpha/2)))
+  Rb_h <- 1/Gb_h
+  kB_h <- Rb_h*constants$k*ustar
+  
+  Sc   <- c(constants$Sc_CO2,Sc)
+  Gb_x <- data.frame(lapply(Sc,function(x) Gb_h / (x/constants$Pr)^0.67))
+  colnames(Gb_x) <- paste0("Gb_",c("CO2",Sc_name))
+  
+  
+  return(data.frame(Gb_h,Rb_h,kB_h,Gb_x))
 }
 
 
@@ -158,7 +198,7 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
 #' Boundary Layer Conductance according to Su et al. 2001
 #' 
 #' @description A physically based formulation for the canopy boundary layer conductance
-#'              to heat/water vapor according to Su et al. 2001. 
+#'              to heat transfer according to Su et al. 2001. 
 #'
 #' @param data     Data.frame or matrix containing all required variables
 #' @param Tair     Air temperature (degC)
@@ -177,16 +217,21 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
 #' @param hs       Roughness height of the soil (m)
 #' @param stab_formulation Stability correction function used (If \code{stab_correction = TRUE}).
 #'                         Either \code{"Dyer_1970"} or \code{"Businger_1971"}.
+#' @param Sc        Optional: Schmidt number of additional quantities to be calculated
+#' @param Sc_name   Optional: Name of the additional quantities, has to be of same length than 
+#'                  \code{Sc_name}
 #' @param constants Kelvin - conversion degree Celsius to Kelvin \cr
 #'                  pressure0 - reference atmospheric pressure at sea level (Pa) \cr
 #'                  Tair0 - reference air temperature (K) \cr
-#'                  Rbwc - Ratio of the transfer efficiency through the boundary layer for water vapor and CO2 (-)
+#'                  Sc_CO2 - Schmidt number for CO2 \cr 
+#'                  Pr - Prandtl number (if \code{Sc} is provided)
 #' 
 #' @return A data.frame with the following columns:
-#'     \item{Rb}{Boundary layer resistance for heat and water (s m-1)}
-#'     \item{Rb_CO2}{Boundary layer resistance for CO2 (s m-1)}
-#'     \item{Gb}{Boundary layer conductance (m s-1)}
-#'     \item{kB}{kB-1 parameter (-)}
+#'  \item{Gb_h}{Boundary layer conductance for heat transfer (m s-1)}
+#'  \item{Rb_h}{Boundary layer resistance for heat transfer (s m-1)}
+#'  \item{kB_h}{kB-1 parameter for heat transfer}
+#'  \item{Gb_Sc_name}{Boundary layer conductance for \code{Sc_name} (m s-1). Only added if \code{Sc_name} and 
+#'                    \code{Sc_name} are provided}
 #'     
 #' @details The formulation is based on the kB-1 model developed by Massman 1999. 
 #'          Su et al. 2001 derived the following approximation:
@@ -206,21 +251,19 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
 #'          
 #'          where Pr is the Prandtl number (set to 0.71), and Reh is the Reynolds number for leaves:
 #'          
-#'            \deqn{Dl wind(zh) / v}
+#'            \deqn{Reh = Dl wind(zh) / v}
 #'           
 #'          kBs-1, the kB-1 value for bare soil surface, is calculated according 
 #'          to Su et al. 2001:
 #'          
 #'            \deqn{kBs^-1 = 2.46(Re)^0.25 - ln(7.4)}
 #'          
-#'          Rb for water vapor and heat is assumed to be equal. Rb for CO2 (Rb_CO2) is given as:
+#'          Gb (=1/Rb) for water vapor and heat are assumed to be equal in this package.
+#'          Gb for other quantities x is calculated as (Hicks et al. 1987):
 #'  
-#'            \deqn{Rb_CO2 = 1.37 * Rb}
+#'            \deqn{Gb_x = Gb / (Sc_x / Pr)^0.67}
 #'  
-#'          The factor 1.37 arises due the lower molecular diffusivity of CO2 compared to water.
-#'          It is lower than the ratio of the molecular diffusivities (Dw/DCO2 = 1.6), as movement
-#'          across the boundary layer is assumed to be partly by diffusion and partly by turbulent
-#'          mixing (Nobel 2005).
+#'          where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
 #' 
 #' @references Su, Z., Schmugge, T., Kustas, W. & Massman, W., 2001: An evaluation of
 #'             two models for estimation of the roughness height for heat transfer between
@@ -229,8 +272,9 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
 #'             Massman, W., 1999: A model study of kB H- 1 for vegetated surfaces using
 #'            'localized near-field' Lagrangian theory. Journal of Hydrology 223, 27-43.
 #'            
-#'             Nobel, P. S., 2005: Physicochemical and Environmental Plant Physiology. Third 
-#'             Edition. Elsevier Academic Press, Burlington, USA.
+#'             Hicks, B.B., Baldocchi, D.D., Meyers, T.P., Hosker, J.R., Matt, D.R., 1987:
+#'             A preliminary multiple resistance routine for deriving dry deposition velocities
+#'             from measured quantities. Water, Air, and Soil Pollution 36, 311-330.
 #' 
 #' @seealso \code{\link{Gb.Thom}}, \code{\link{Gb.Choudhury}}, \code{\link{aerodynamic.conductance}}
 #' 
@@ -250,7 +294,7 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
 Gb.Su <- function(data,Tair="Tair",pressure="pressure",ustar="ustar",wind="wind",
                   H="H",zh,zr,d,Dl,fc=NULL,LAI=NULL,N=2,Cd=0.2,hs=0.01,
                   stab_formulation=c("Dyer_1970","Businger_1971"),
-                  constants=bigleaf.constants()){
+                  Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
   
   stab_formulation <- match.arg(stab_formulation)
   
@@ -272,13 +316,24 @@ Gb.Su <- function(data,Tair="Tair",pressure="pressure",ustar="ustar",wind="wind"
   Re  <- Reynolds.Number(Tair,pressure,ustar,hs,constants)
   kBs <- 2.46 * (Re)^0.25 - log(7.4)
   Reh <- Dl * wind_zh / v
-  Ct  <- 1*0.71^-0.6667*Reh^-0.5*N   # 0.71 = Prandtl number
+  Ct  <- 1*constants$Pr^-0.6667*Reh^-0.5*N
   
-  kB     <- (constants$k*Cd)/(4*Ct*ustar/wind_zh)*fc^2 + kBs*(1 - fc)^2
-  Rb     <- kB/(constants$k*ustar)
-  Rb_CO2 <- constants$Rbwc * Rb
-  Gb     <- 1/Rb
+  kB_h <- (constants$k*Cd)/(4*Ct*ustar/wind_zh)*fc^2 + kBs*(1 - fc)^2
+  Rb_h <- kB_h/(constants$k*ustar)
+  Gb_h <- 1/Rb_h
   
+  if (!is.null(Sc) | !is.null(Sc_name)){
+    if (length(Sc) != length(Sc_name)){
+      stop("arguments 'Sc' and 'Sc_name' must have the same length")
+    }
+    if (!is.numeric(Sc)){
+      stop("argument 'Sc' must be numeric")
+    }
+  }
   
-  return(data.frame(Rb,Rb_CO2,Gb,kB))
+  Sc   <- c(constants$Sc_CO2,Sc)
+  Gb_x <- data.frame(lapply(Sc,function(x) Gb_h / (x/constants$Pr)^0.67))
+  colnames(Gb_x) <- paste0("Gb_",c("CO2",Sc_name))
+  
+  return(data.frame(Gb_h,Rb_h,kB_h,Gb_x))
 }

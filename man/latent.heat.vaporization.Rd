@@ -27,4 +27,6 @@ latent.heat.vaporization(seq(5,45,5))
 \references{
 Stull, B., 1988: An Introduction to Boundary Layer Meteorology (p.641)
             Kluwer Academic Publishers, Dordrecht, Netherlands
+            
+            Foken, T, 2008: Micrometeorology. Springer, Berlin, Germany.
 }

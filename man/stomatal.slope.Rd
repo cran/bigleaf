@@ -74,8 +74,10 @@ All stomatal models were developed at leaf-level, but its parameters
          
          Leuning 1995 suggested a revised version of the Ball&Berry model:
          
-            \deqn{gs = g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0))}
+            \deqn{gs = g0 + g1*GPP / ((Ca - \Gamma) * (1 + VPD/D0))}
          
+         where \eqn{\Gamma} is by default assumed to be constant, but likely varies with temperature and among
+         plant species. 
          The parameters in the models are estimated using nonlinear regression (\code{\link[stats]{nls}}) if
          \code{robust.nls = FALSE} and weighted nonlinear regression if \code{robust.nls = TRUE}.
          The weights are calculated from \code{\link[robustbase]{nlrob}}, and \code{\link[stats]{nls}}
@@ -133,9 +135,8 @@ Medlyn B.E., et al., 2011: Reconciling the optimal and empirical approaches to
             Leuning R., 1995: A critical appraisal of a combined stomatal-photosynthesis
             model for C3 plants. Plant, Cell and Environment 18, 339-355.
             
-            Knauer, J. et al., 2017: Towards physiologically meaningful water-
-            use efficiency estimates from eddy covariance data. Global Change Biology.
-            DOI: 10.1111/gcb.13893
+            Knauer, J. et al., 2018: Towards physiologically meaningful water-use efficiency estimates
+            from eddy covariance data. Global Change Biology 24, 694-710.
 }
 \seealso{
 \code{\link{surface.conductance}}

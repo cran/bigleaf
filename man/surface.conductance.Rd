@@ -8,6 +8,7 @@ surface.conductance(data, Tair = "Tair", pressure = "pressure", Rn = "Rn",
   G = NULL, S = NULL, VPD = "VPD", LE = "LE", Ga = "Ga",
   missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
   formulation = c("PenmanMonteith", "FluxGradient"),
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
 }
 \arguments{
@@ -38,6 +39,10 @@ Only used if \code{formulation = "PenmanMonteith"}.}
 \item{formulation}{Formulation used. Either \code{"PenmanMonteith"} (the default) 
 using the inverted Penman-Monteith equation, or \code{"FluxGradient"},
 for a simple flux-gradient approach requiring ET, pressure, and VPD only.}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}. 
+Only used if \code{formulation = "PenmanMonteith"}. See \code{\link{Esat.slope}}.}
 
 \item{constants}{cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 eps - ratio of the molecular weight of water vapor to dry air (-) \cr

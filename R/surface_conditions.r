@@ -18,7 +18,10 @@
 #' @param calc.surface.CO2 Calculate surface CO2 concentration? Defaults to \code{FALSE}.
 #' @param Ca               Atmospheric CO2 concentration (mol mol-1). Required if \code{calc.surface.CO2 = TRUE}.
 #' @param NEE              Net ecosystem exchange (umol m-2 s-1). Required if \code{calc.surface.CO2 = TRUE}.
-#' @param Ga_CO2           Aerodynamic conductance for CO2 (m s-1). Required if \code{calc.surface.CO2 = TRUE}.          
+#' @param Ga_CO2           Aerodynamic conductance for CO2 (m s-1). Required if \code{calc.surface.CO2 = TRUE}.
+#' @param Esat.formula     Optional: formula to be used for the calculation of esat and the slope of esat.
+#'                         One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#'                         See \code{\link{Esat.slope}}.           
 #' @param constants        cp - specific heat of air for constant pressure (J K-1 kg-1) \cr 
 #'                         eps - ratio of the molecular weight of water vapor to dry air (-) \cr
 #' 
@@ -75,38 +78,44 @@
 #' surface.conditions(Tair=25,pressure=100,LE=100,H=200,VPD=1.2,Ga=c(0.02,0.05,0.1),
 #'                    Ca=400,Ga_CO2=c(0.02,0.05,0.1),NEE=-20,calc.surface.CO2=TRUE)
 #'                    
-#' @references Knauer, J. et al., 2017: Towards physiologically meaningful water-
-#'             use efficiency estimates from eddy covariance data. Global Change Biology.
-#'             DOI: 10.1111/gcb.13893
+#' @references Knauer, J. et al., 2018: Towards physiologically meaningful water-use efficiency estimates
+#'             from eddy covariance data. Global Change Biology 24, 694-710.
+#'             
+#'             Blanken, P.D. & Black, T.A., 2004: The canopy conductance of a boreal aspen forest,
+#'             Prince Albert National Park, Canada. Hydrological Processes 18, 1561-1578.
+#'             
+#'             Shuttleworth, W. J., Wallace, J.S., 1985: Evaporation from sparse crops-
+#'             an energy combination theory. Quart. J. R. Met. Soc. 111, 839-855.
 #'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 #' @export 
 surface.conditions <- function(data,Tair="Tair",pressure="pressure",LE="LE",H="H",
                                VPD="VPD",Ga="Ga",calc.surface.CO2=FALSE,Ca="Ca",Ga_CO2="Ga_CO2",
-                               NEE="NEE",constants=bigleaf.constants()){
+                               NEE="NEE",Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                               constants=bigleaf.constants()){
   
   check.input(data,list(Tair,pressure,LE,H,VPD,Ga))
   
-  rho   <- air.density(Tair,pressure)
+  rho   <- air.density(Tair,pressure,constants)
   gamma <- psychrometric.constant(Tair,pressure,constants)
   
   # 1) Temperature
   Tsurf <- Tair + H / (rho * constants$cp * Ga)
   
   # 2) Humidity
-  esat      <- Esat.slope(Tair)[,"Esat"]
+  esat      <- Esat.slope(Tair,Esat.formula)[,"Esat"]
   e         <- esat - VPD
-  esat_surf <- Esat.slope(Tsurf)[,"Esat"]
+  esat_surf <- Esat.slope(Tsurf,Esat.formula)[,"Esat"]
   esurf     <- e + (LE * gamma)/(Ga * rho * constants$cp)
   VPD_surf  <- pmax(esat_surf - esurf,0)
-  qsurf     <- VPD.to.q(VPD_surf,Tsurf,pressure,constants)
-  rH_surf   <- VPD.to.rH(VPD_surf,Tsurf)
+  qsurf     <- VPD.to.q(VPD_surf,Tsurf,pressure,Esat.formula,constants)
+  rH_surf   <- VPD.to.rH(VPD_surf,Tsurf,Esat.formula)
   
   # 3) CO2 concentration
   if (calc.surface.CO2){
     check.input(data,Ca,NEE,Ga_CO2)
     Ca_surf <- surface.CO2(Ca,NEE,Ga_CO2,Tair,pressure)
   } else {
-    Ca_surf <- as.numeric(rep(NA,length(Tair)))
+    Ca_surf <- rep(NA_integer_,length(Tair))
   }
   
   return(data.frame(Tsurf,esat_surf,esurf,VPD_surf,qsurf,rH_surf,Ca_surf))
@@ -156,32 +165,54 @@ surface.CO2 <- function(Ca,NEE,Ga_CO2,Tair,pressure){
 
 #' Radiometric Surface Temperature
 #' 
-#' @description Radiometric surface temperature from longwave upward radiation
+#' @description Radiometric surface temperature from longwave radiation
 #'              measurements.
 #'              
-#' @param longwave_up Longwave upward radiation (W m-2)
-#' @param emissivity  Infrared emissivity of the surface (-)
+#' @param data        Data.frame or matrix containing all required input variables            
+#' @param LW_up       Longwave upward radiation (W m-2)
+#' @param LW_down     Longwave downward radiation (W m-2)
+#' @param emissivity  Emissivity of the surface (-)
 #' @param constants   sigma - Stefan-Boltzmann constant (W m-2 K-4) \cr
 #'                    Kelvin - conversion degree Celsius to Kelvin 
 #' 
 #' @details Radiometric surface temperature (Trad) is calculated as:
 #' 
-#'            \deqn{Trad = LW_up / (\sigma \epsilon)^(1/4)}   
+#'            \deqn{Trad = ((LW_up - (1 - \epsilon)*LW_down) / (\sigma \epsilon))^(1/4)}   
 #' 
 #' @return a data.frame with the following columns:
 #'         \item{Trad_K}{Radiometric surface temperature (K)} \cr
 #'         \item{Trad_degC}{Radiometric surface temperature (degC)} 
 #' 
 #' @examples 
-#' # determine radiative temperature of an object that has an emissivity of 0.98 
-#' # and emits longwave radiation of 400Wm-2  
-#' radiometric.surface.temp(400,0.98)
+#' # determine radiometric surface temperature for the site DE-Tha in June 2014 
+#' # assuming an emissivity of 0.98.
+#' # (Note that variable 'LW_down' was only included for the DE-Tha example dataset
+#' # and not for the others due restrictions on file size) 
+#' Trad <- radiometric.surface.temp(DE_Tha_Jun_2014,emissivity=0.98)
+#' summary(Trad)
+#' 
+#' @references Wang, W., Liang, S., Meyers, T. 2008: Validating MODIS land surface
+#'             temperature products using long-term nighttime ground measurements.
+#'             Remote Sensing of Environment 112, 623-635.
 #' 
 #' @export
-radiometric.surface.temp <- function(longwave_up,emissivity,constants=bigleaf.constants()){
+radiometric.surface.temp <- function(data,LW_up="LW_up",LW_down="LW_down",
+                                     emissivity,constants=bigleaf.constants()){
   
-  Trad.K    <- (longwave_up / (constants$sigma * emissivity))^(1/4)
-  Trad.degC <- Trad.K - constants$Kelvin
+  check.input(data,list(LW_up,LW_down))
   
-  return(data.frame(Trad.K,Trad.degC))
+  Trad_K    <- ((LW_up - (1 - emissivity)*LW_down) / (constants$sigma * emissivity))^(1/4)
+  Trad_degC <- Trad_K - constants$Kelvin
+  
+  return(data.frame(Trad_K,Trad_degC))
 }
+
+
+### can be added at some point, but the emissivity values seem to be fairly low
+# emissivity.from.albedo <- function(albedo){
+#   
+#   emissivity <- -0.16*albedo + 0.99
+#   
+#   return(emissivity)
+# }
+

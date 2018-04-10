@@ -7,6 +7,7 @@
 surface.conditions(data, Tair = "Tair", pressure = "pressure", LE = "LE",
   H = "H", VPD = "VPD", Ga = "Ga", calc.surface.CO2 = FALSE,
   Ca = "Ca", Ga_CO2 = "Ga_CO2", NEE = "NEE",
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
 }
 \arguments{
@@ -31,6 +32,10 @@ surface.conditions(data, Tair = "Tair", pressure = "pressure", LE = "LE",
 \item{Ga_CO2}{Aerodynamic conductance for CO2 (m s-1). Required if \code{calc.surface.CO2 = TRUE}.}
 
 \item{NEE}{Net ecosystem exchange (umol m-2 s-1). Required if \code{calc.surface.CO2 = TRUE}.}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 
 \item{constants}{cp - specific heat of air for constant pressure (J K-1 kg-1) \cr 
 eps - ratio of the molecular weight of water vapor to dry air (-) \cr}
@@ -98,7 +103,12 @@ surface.conditions(Tair=25,pressure=100,LE=100,H=200,VPD=1.2,Ga=c(0.02,0.05,0.1)
                    
 }
 \references{
-Knauer, J. et al., 2017: Towards physiologically meaningful water-
-            use efficiency estimates from eddy covariance data. Global Change Biology.
-            DOI: 10.1111/gcb.13893
+Knauer, J. et al., 2018: Towards physiologically meaningful water-use efficiency estimates
+            from eddy covariance data. Global Change Biology 24, 694-710.
+            
+            Blanken, P.D. & Black, T.A., 2004: The canopy conductance of a boreal aspen forest,
+            Prince Albert National Park, Canada. Hydrological Processes 18, 1561-1578.
+            
+            Shuttleworth, W. J., Wallace, J.S., 1985: Evaporation from sparse crops-
+            an energy combination theory. Quart. J. R. Met. Soc. 111, 839-855.
 }

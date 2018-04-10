@@ -4,7 +4,7 @@
 \alias{wetbulb.solver}
 \title{Solver Function for Wet-Bulb Temperature}
 \usage{
-wetbulb.solver(ea, Tair, gamma, accuracy)
+wetbulb.solver(ea, Tair, gamma, accuracy, Esat.formula)
 }
 \arguments{
 \item{ea}{Air vapor pressure (kPa)}
@@ -14,11 +14,15 @@ wetbulb.solver(ea, Tair, gamma, accuracy)
 \item{gamma}{Psychrometric constant (kPa K-1)}
 
 \item{accuracy}{Accuracy of the result (degC)}
+
+\item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
+One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+See \code{\link{Esat.slope}}.}
 }
 \description{
 Solver function used in wetbulb.temp()
 }
 \note{
-\code{accuracy} is passed to this function by wetbulb.temp().
+Arguments \code{accuracy} and \code{Esat.formula} are passed to this function by wetbulb.temp().
 }
 \keyword{internal}

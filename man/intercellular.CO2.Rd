@@ -5,31 +5,18 @@
 \title{Bulk Intercellular CO2 Concentration}
 \usage{
 intercellular.CO2(data, Ca = "Ca", GPP = "GPP", Gs = "Gs", Rleaf = NULL,
-  calc.surface.CO2 = FALSE, Ga_CO2 = "Ga_CO2", NEE = "NEE",
-  Tair = "Tair", pressure = "pressure", missing.Rleaf.as.NA = FALSE,
-  constants = bigleaf.constants())
+  missing.Rleaf.as.NA = FALSE, constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.Frame or matrix with all required columns}
 
-\item{Ca}{Atmospheric CO2 concentration (umol mol-1)}
+\item{Ca}{Atmospheric or surface CO2 concentration (umol mol-1)}
 
 \item{GPP}{Gross primary productivity (umol CO2 m-2 s-1)}
 
 \item{Gs}{Surface conductance to water vapor (mol m-2 s-1)}
 
 \item{Rleaf}{Ecosystem respiration stemming from leaves (umol CO2 m-2 s-1); defaults to 0}
-
-\item{calc.surface.CO2}{Should the derived surface CO2 concentration be used instead of 
-measured atmospheric CO2? If \code{TRUE}, Ca is derived as shown in \code{Details}.}
-
-\item{Ga_CO2}{Aerodynamic conductance to CO2 (m s-1)}
-
-\item{NEE}{Net ecosystem exchange (umol CO2 m-2 s-1), negative values indicate CO2 uptake by the ecosystem}
-
-\item{Tair}{Air temperature (degC); ignored if \code{calc.surface.CO2 = FALSE}.}
-
-\item{pressure}{Atmospheric pressure (kPa); ignored if \code{calc.surface.CO2 = FALSE}.}
 
 \item{missing.Rleaf.as.NA}{if Rleaf is provided, should missing values be treated as \code{NA} (\code{TRUE})
 or set to 0 (\code{FALSE}, the default)?}
@@ -52,6 +39,8 @@ Bulk intercellular CO2 concentration (Ci) is given by:
          where Gs/1.6 (mol m-2 s-1) represents the surface conductance to CO2.
          Note that Gs is required in mol m-2 s-1 for water vapor. Gs is converted to
          its value for CO2 internally.
+         Ca can either be atmospheric CO2 concentration (as measured), or surface
+         CO2 concentration as calculated from \code{\link{surface.CO2}}.
 }
 \note{
 The equation is based on Fick's law of diffusion and is equivalent to the
@@ -69,13 +58,7 @@ The equation is based on Fick's law of diffusion and is equivalent to the
 \examples{
 # calculate bulk canopy Ci of a productive ecosystem
 intercellular.CO2(Ca=400,GPP=40,Gs=0.7)
-
-# now calculate bulk canopy Ci, but with Ca at the canopy surface (Ga and NEE are needed)
-# The function aerodynamic.conductance() can be used to calculate Ga_CO2.
-# Here, Ga_CO2 of 0.05 m s-1 is assumed.
-
-intercellular.CO2(Ca=400,GPP=40,Gs=0.7,calc.surface.CO2=TRUE,Ga_CO2=0.05,NEE=-55,
-                  Tair=25,pressure=100) 
+ 
 # note the sign convention for NEE
 
 }

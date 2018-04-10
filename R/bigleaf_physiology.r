@@ -9,16 +9,10 @@
 #'              atmospheric CO2 concentration (Ca).
 #'                            
 #' @param data             Data.Frame or matrix with all required columns                            
-#' @param Ca               Atmospheric CO2 concentration (umol mol-1)              
+#' @param Ca               Atmospheric or surface CO2 concentration (umol mol-1)              
 #' @param GPP              Gross primary productivity (umol CO2 m-2 s-1)
 #' @param Gs               Surface conductance to water vapor (mol m-2 s-1)
 #' @param Rleaf            Ecosystem respiration stemming from leaves (umol CO2 m-2 s-1); defaults to 0          
-#' @param calc.surface.CO2 Should the derived surface CO2 concentration be used instead of 
-#'                         measured atmospheric CO2? If \code{TRUE}, Ca is derived as shown in \code{Details}.
-#' @param Ga_CO2           Aerodynamic conductance to CO2 (m s-1) 
-#' @param NEE              Net ecosystem exchange (umol CO2 m-2 s-1), negative values indicate CO2 uptake by the ecosystem
-#' @param Tair             Air temperature (degC); ignored if \code{calc.surface.CO2 = FALSE}.
-#' @param pressure         Atmospheric pressure (kPa); ignored if \code{calc.surface.CO2 = FALSE}.
 #' @param missing.Rleaf.as.NA if Rleaf is provided, should missing values be treated as \code{NA} (\code{TRUE})
 #'                            or set to 0 (\code{FALSE}, the default)?
 #' @param constants        DwDc - Ratio of the molecular diffusivities for water vapor and CO2 (-)
@@ -30,6 +24,8 @@
 #'          where Gs/1.6 (mol m-2 s-1) represents the surface conductance to CO2.
 #'          Note that Gs is required in mol m-2 s-1 for water vapor. Gs is converted to
 #'          its value for CO2 internally.
+#'          Ca can either be atmospheric CO2 concentration (as measured), or surface
+#'          CO2 concentration as calculated from \code{\link{surface.CO2}}.
 #'          
 #' @note The equation is based on Fick's law of diffusion and is equivalent to the
 #'       often used equation at leaf level (ci = ca - An/gs).
@@ -56,18 +52,11 @@
 #' @examples 
 #' # calculate bulk canopy Ci of a productive ecosystem
 #' intercellular.CO2(Ca=400,GPP=40,Gs=0.7)
-#' 
-#' # now calculate bulk canopy Ci, but with Ca at the canopy surface (Ga and NEE are needed)
-#' # The function aerodynamic.conductance() can be used to calculate Ga_CO2.
-#' # Here, Ga_CO2 of 0.05 m s-1 is assumed.
-#' 
-#' intercellular.CO2(Ca=400,GPP=40,Gs=0.7,calc.surface.CO2=TRUE,Ga_CO2=0.05,NEE=-55,
-#'                   Tair=25,pressure=100) 
+#'  
 #' # note the sign convention for NEE
 #' 
 #' @export
-intercellular.CO2 <- function(data,Ca="Ca",GPP="GPP",Gs="Gs",Rleaf=NULL,calc.surface.CO2=FALSE,
-                              Ga_CO2="Ga_CO2",NEE="NEE",Tair="Tair",pressure="pressure",
+intercellular.CO2 <- function(data,Ca="Ca",GPP="GPP",Gs="Gs",Rleaf=NULL,
                               missing.Rleaf.as.NA=FALSE,constants=bigleaf.constants()){
   
   check.input(data,list(Ca,GPP,Gs))
@@ -273,8 +262,7 @@ intercellular.CO2 <- function(data,Ca="Ca",GPP="GPP",Gs="Gs",Rleaf=NULL,calc.sur
 #'                              formulation="PenmanMonteith")[,"Gs_mol"]
 #' 
 #' # calculate Ci 
-#' Ci <- intercellular.CO2(DE_Tha_Jun_2014_2,Ca="Ca",GPP="GPP",Gs=Gs_PM,
-#'                         calc.surface.CO2=FALSE) 
+#' Ci <- intercellular.CO2(DE_Tha_Jun_2014_2,Ca="Ca",GPP="GPP",Gs=Gs_PM) 
 #' 
 #' # calculate Vcmax25 and Jmax25
 #' photosynthetic.capacity(DE_Tha_Jun_2014_2,Temp="Tair",Ci=Ci,PPFD_j=c(200,500),PPFD_c=1000)
@@ -509,8 +497,10 @@ Arrhenius.temp.response <- function(param,Temp,Ha,Hd,dS,constants=bigleaf.consta
 #'          
 #'          Leuning 1995 suggested a revised version of the Ball&Berry model:
 #'          
-#'             \deqn{gs = g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0))}
+#'             \deqn{gs = g0 + g1*GPP / ((Ca - \Gamma) * (1 + VPD/D0))}
 #'          
+#'          where \eqn{\Gamma} is by default assumed to be constant, but likely varies with temperature and among
+#'          plant species. 
 #'          The parameters in the models are estimated using nonlinear regression (\code{\link[stats]{nls}}) if
 #'          \code{robust.nls = FALSE} and weighted nonlinear regression if \code{robust.nls = TRUE}.
 #'          The weights are calculated from \code{\link[robustbase]{nlrob}}, and \code{\link[stats]{nls}}
@@ -533,9 +523,8 @@ Arrhenius.temp.response <- function(param,Temp,Ha,Hd,dS,constants=bigleaf.consta
 #'             Leuning R., 1995: A critical appraisal of a combined stomatal-photosynthesis
 #'             model for C3 plants. Plant, Cell and Environment 18, 339-355.
 #'             
-#'             Knauer, J. et al., 2017: Towards physiologically meaningful water-
-#'             use efficiency estimates from eddy covariance data. Global Change Biology.
-#'             DOI: 10.1111/gcb.13893
+#'             Knauer, J. et al., 2018: Towards physiologically meaningful water-use efficiency estimates
+#'             from eddy covariance data. Global Change Biology 24, 694-710.
 #' 
 #' @seealso \code{\link{surface.conductance}}
 #' 
@@ -608,7 +597,13 @@ stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs
   
   GPP <- (GPP - Rleaf)
   
-  nr_data <- sum(!is.na(GPP) & !is.na(Gs) & !is.na(VPD) & !is.na(Ca))
+  
+  if (model == "Leuning"){
+    nr_data <- sum(!is.na(GPP) & !is.na(Gs) & !is.na(VPD) & !is.na(Ca) & !is.na(Gamma))
+  } else {
+    nr_data <- sum(!is.na(GPP) & !is.na(Gs) & !is.na(VPD) & !is.na(Ca))
+  }
+  
   
   if (nr_data < nmin){
     stop("number of data is less than 'nmin'. g1 is not fitted to the data.")
@@ -619,19 +614,19 @@ stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs
       if (fitg0){
         if (robust.nls){
           mod_weights <- nlrob(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,data=df,start=list(g0=0,g1=3),
-                               na.action=na.exclude)$w
-          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g0=0,g1=3),weights=mod_weights)
+                               na.action=na.exclude,...)$w
+          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g0=0,g1=3),weights=mod_weights,...)
         } else {
-          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g0=0,g1=3))
+          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g0=0,g1=3),...)
         }
       } else {
         if (robust.nls){
           df$g0   <- rep(g0,nrow(df)) # g0 as constant does not work in the nlrob function...
           mod_weights <- nlrob(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,data=df,start=list(g1=3),
-                               na.action=na.exclude)$w
-          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g1=3),weights=mod_weights)
+                               na.action=na.exclude,...)$w
+          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g1=3),weights=mod_weights,...)
         } else {
-          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g1=3))
+          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g1=3),...)
         }
       }
       
@@ -641,21 +636,21 @@ stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs
         if (fitD0){
           if (robust.nls){
             mod_weights <- nlrob(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),data=df,
-                                 start=list(g0=0,g1=9,D0=1.5),na.action=na.exclude)$w
+                                 start=list(g0=0,g1=9,D0=1.5),na.action=na.exclude,...)$w
             mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g0=0,g1=9,D0=1.5),
-                       weights=mod_weights)
+                       weights=mod_weights,...)
           } else {
-            mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g0=0,g1=9,D0=1.5))
+            mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g0=0,g1=9,D0=1.5),...)
           }
         } else {
           if (robust.nls){
             df$D0  <- rep(D0,nrow(df))
             mod_weights <- nlrob(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),data=df,
-                                 start=list(g0=0,g1=9),na.action=na.exclude)$w
+                                 start=list(g0=0,g1=9),na.action=na.exclude,...)$w
             mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g0=0,g1=9),
-                       weights=mod_weights)
+                       weights=mod_weights,...)
           } else {
-            mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g0=0,g1=9))
+            mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g0=0,g1=9),...)
           }
         }
       } else {
@@ -663,22 +658,22 @@ stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs
           if (robust.nls){
             df$g0    <- rep(g0,nrow(df))
             mod_weights <- nlrob(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),data=df,
-                                 start=list(g1=9,D0=1.5),na.action=na.exclude)$w
+                                 start=list(g1=9,D0=1.5),na.action=na.exclude,...)$w
             mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g1=9,D0=1.5),
-                       weights=mod_weights)
+                       weights=mod_weights,...)
           } else {
-            mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g1=9,D0=1.5))
+            mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g1=9,D0=1.5),...)
           }
         } else {
           if (robust.nls){
             df$g0  <- rep(g0,nrow(df))
             df$D0  <- rep(D0,nrow(df))
             mod_weights <- nlrob(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),data=df,
-                                 start=list(g1=9),na.action=na.exclude)$w
+                                 start=list(g1=9),na.action=na.exclude,...)$w
             mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g1=9),
-                       weights=mod_weights)
+                       weights=mod_weights,...)
           } else {
-            mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g1=9))
+            mod <- nls(Gs ~ g0 + g1*GPP / ((Ca - Gamma) * (1 + VPD/D0)),start=list(g1=9),...)
           }
         }
       }
@@ -691,19 +686,19 @@ stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs
       if (fitg0){
         if (robust.nls){
           mod_weights <- nlrob(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g0=0,g1=9),data=df,
-                               na.action=na.exclude)$w
-          mod <- nls(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g0=0,g1=9),weights=mod_weights)
+                               na.action=na.exclude,...)$w
+          mod <- nls(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g0=0,g1=9),weights=mod_weights,...)
         } else {
-          mod <- nls(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g0=0,g1=9))
+          mod <- nls(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g0=0,g1=9),...)
         }
       } else {
         if (robust.nls){
           df$g0   <- rep(g0,nrow(df))
           mod_weights <- nlrob(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g1=9),data=df,
-                               na.action=na.exclude)$w
-          mod <- nls(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g1=9),weights=mod_weights)
+                               na.action=na.exclude,...)$w
+          mod <- nls(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g1=9),weights=mod_weights,...)
         } else {
-          mod <- nls(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g1=9))
+          mod <- nls(Gs ~ g0 + g1 * (GPP * rH) / Ca,start=list(g1=9),...)
         }
       }
       
@@ -722,43 +717,52 @@ stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs
 
 #' Ecosystem Light Response
 #' 
-#' @description calculates GPPmax at a reference (mostly saturating) PPFD and 
-#'              ecosystem quantum yield using a rectangular light response curve.
+#' @description calculates GPP_ref at a reference (usually saturating) PPFD and 
+#'              ecosystem quantum yield (alpha) using a rectangular light response curve.
 #' 
 #' @param data      Data.frame or matrix containing all required columns
 #' @param NEE       Net ecosystem exchange (umol CO2 m-2 s-1)
 #' @param Reco      Ecosystem respiration (umol CO2 m-2 s-1)
 #' @param PPFD      Photosynthetic photon flux density (umol m-2 s-1)
-#' @param PPFD_ref  Reference PPFD (umol m-2 s-1) for which GPPmax is estimated.
+#' @param PPFD_ref  Reference PPFD (umol m-2 s-1) for which GPP_ref is estimated.
 #'                  Default is 2000 umol m-2 s-1.
 #' @param ...       Additional arguments to \code{\link[stats]{nls}}
 #' 
 #' @details A rectangular light response curve is fitted to NEE data. The curve
 #'          takes the form as described in Falge et al. 2001:
 #'          
-#'             \deqn{NEE = \alpha PPFD / (1 - (PPFD / PPFD_ref) + \alpha 
-#'                         PPFD / GPPmax)- Reco}
+#'             \deqn{-NEE = \alpha PPFD / (1 - (PPFD / PPFD_ref) + \alpha 
+#'                          PPFD / GPP_ref) - Reco}
 #'                       
 #'          where \eqn{\alpha} is the ecosystem quantum yield (umol CO2 m-2 s-1) (umol quanta m-2 s-1)-1, 
-#'          and GPPmax is the GPP at the reference PPFD (usually at saturating light). \eqn{\alpha} 
+#'          and GPP_ref is the GPP at the reference PPFD (usually at saturating light). \eqn{\alpha} 
 #'          represents the slope of the light response curve, and is a measure for the light use
 #'          efficiency of the canopy. 
 #'          
 #'          The advantage of this equation over the standard rectangular light response
-#'          curve is that GPPmax at PPFD_ref is more readily interpretable
+#'          curve is that GPP_ref at PPFD_ref is more readily interpretable
 #'          as it constitutes a value observed in the ecosystem, in contrast to 
-#'          GPPmax (mostly named 'beta') in the standard model that occurs at infinite light.
+#'          GPP_ref (mostly named 'beta') in the standard model that occurs at infinite light.
 #'          \code{PPFD_ref} defaults to 2000 umol m-2 s-1, but other values can be used. For 
 #'          further details refer to Falge et al. 2001.
 #' 
 #' @note   Note the sign convention. Negative NEE indicates that carbon is taken up
 #'         by the ecosystem. Reco has to be 0 or larger.
 #' 
-#' @return A \code{nls} model object containing estimates (+/- SE) for alpha and GPPmax.
+#' @return A \code{nls} model object containing estimates (+/- SE) for alpha and GPP_ref.
 #' 
 #' @references Falge E., et al. 2001: Gap filling strategies for defensible annual
 #'             sums of net ecosystem exchange. Agricultural and Forest Meteorology 107,
 #'             43-69.
+#'             
+#'             Gilmanov T.G., et al. 2003: Gross primary production and light response
+#'             parameters of four Southern Plains ecosystems estimated using long-term
+#'             CO2-flux tower measurements. Global Biogeochemical Cycles 17, 1071.
+#'             
+#'             Reichstein M., Stoy P.C., Desai A.R., Lasslop G., Richardson A. 2012: 
+#'             Partitioning of net fluxes. In: Eddy Covariance. A practical guide to
+#'             measurement and data analysis. Aubinet M., Vesala T., Papale D. (Eds.).
+#'             Springer.
 #' 
 #' @importFrom stats nls
 #' 
@@ -767,11 +771,13 @@ light.response <- function(data,NEE="NEE",Reco="Reco",PPFD="PPFD",PPFD_ref=2000,
 
   check.input(data,list(NEE,Reco,PPFD))
   
-  mod <- nls(-NEE ~ alpha * PPFD / (1 - (PPFD / PPFD_ref) + (alpha * PPFD / GPP_max)) + Reco,
-             start=list(alpha=0.02,GPP_max=30))
+  mod <- nls(-NEE ~ alpha * PPFD / (1 - (PPFD / PPFD_ref) + (alpha * PPFD / GPP_ref)) - Reco,
+             start=list(alpha=0.05,GPP_ref=30),...)
   
   return(mod)
 }  
+
+
 
 
   
@@ -866,7 +872,7 @@ stomatal.sensitivity <- function(data,Gs="Gs",VPD="VPD",...){
   
   check.input(data,list(Gs,VPD))
   
-  mod <- nls(Gs ~ -m * log(VPD) + b,start=list(m=0.1,b=0.2),...)
+  mod <- nls(Gs ~ -m * log(VPD) + b,start=list(m=0.05,b=0.2),...)
   
   return(mod)
 }

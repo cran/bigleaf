@@ -19,32 +19,37 @@
 #' @param z0m               Roughness length for momentum (m)
 #' @param Dl                Characteristic leaf dimension (m); only used if \code{Rb_model} is \code{"Choudhury_1988"} or \code{"Su_2001"}.
 #' @param N                 Number of leaf sides participating in heat exchange (1 or 2); only used if \code{Rb_model = "Su_2001"}.
+#'                          Defaults to 2.
 #' @param fc                Fractional vegetation cover (-); only used if \code{Rb_model = "Su_2001"}. See Details.
 #' @param LAI               One-sided leaf area index (m2 m-2); only used if \code{Rb_model} is \code{"Choudhury_1988"} or \code{"Su_2001"}.
 #' @param Cd                Foliage drag coefficient (-); only used if \code{Rb_model = "Su_2001"}. 
 #' @param hs                Roughness length of bare soil (m); only used if \code{Rb_model = "Su_2001"}.
-#' @param wind_profile      Should Ga for resistance be calculated based on the logarithmic wind profile equation? 
+#' @param wind_profile      Should Ga for momentum be calculated based on the logarithmic wind profile equation? 
 #'                          Defaults to \code{FALSE}.
 #' @param stab_correction   Should stability correction be applied? Defaults to \code{TRUE}. Ignored if \code{wind_profile = FALSE}.                         
 #' @param stab_formulation  Stability correction function. Either \code{"Dyer_1970"} (default) or
 #'                          \code{"Businger_1971"}. Ignored if \code{wind_profile = FALSE} or if \code{stab_correction = FALSE}.
 #' @param Rb_model          Boundary layer resistance formulation. One of \code{"Thom_1972","Choudhury_1988","Su_2001","constant_kB-1"}.
-#' @param kB                kB-1 value; only used if \code{Rb_model = "constant_kB-1"}
-#' @param constants         k - von Karman constant (-) \cr
-#'                          Rbwc - Ratio of the transfer efficiency through the boundary layer for water vapor and CO2 (-) \cr
+#' @param kB_h              kB-1 value for heat transfer; only used if \code{Rb_model = "constant_kB-1"}
+#' @param Sc                Optional: Schmidt number of additional quantities to be calculated
+#' @param Sc_name           Optional: Name of the additonal quantities, has to be of same length than 
+#'                          \code{Sc_name}
+#' @param constants         k - von Karman constant \cr
 #'                          cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                          Kelvin - conversion degree Celsius to Kelvin \cr
 #'                          g - gravitational acceleration (m s-2) \cr
 #'                          pressure0 - reference atmospheric pressure at sea level (Pa) \cr
 #'                          Tair0 - reference air temperature (K) \cr
+#'                          Sc_CO2 - Schmidt number for CO2 \cr 
+#'                          Pr - Prandtl number (if \code{Sc} is provided)
 #'
 #' @details
 #' 
 #' Aerodynamic conductance for heat (Ga_h) is calculated as:
 #' 
-#'     \deqn{Ga_h = 1 / (Ra_m + Rb)}
+#'     \deqn{Ga_h = 1 / (Ra_m + Rb_h)}
 #'  
-#'  where Ra_m is the aerodynamic resistance for momentum and Rb the canopy boundary
+#'  where Ra_m is the aerodynamic resistance for momentum and Rb the (quasi-laminar) canopy boundary
 #'  layer resistance ('excess resistance').
 #'  
 #'  The aerodynamic resistance for momentum Ra_m is given by:
@@ -68,52 +73,51 @@
 #'  The stability correction function is chosen by the argument \code{stab_formulation}. Options are 
 #'  \code{"Dyer_1970"} and \code{"Businger_1971"}.
 #'  
-#'  The model used to determine the canopy boundary layer resistance (Rb) is specified by 
+#'  The model used to determine the canopy boundary layer resistance for heat (Rb_h) is specified by 
 #'  the argument \code{Rb_model}. The following options are implemented:
 #'  \code{"Thom_1972"} is an empirical formulation based on the friction velocity (ustar) (Thom 1972):
 #'  
-#'    \deqn{Rb = 6.2ustar^-0.667}
+#'    \deqn{Rb_h = 6.2ustar^-0.667}
 #'    
-#'  The model by Choudhury 1988 (\code{"Choudhury_1988"}), calculates Rb
+#'  The model by Choudhury 1988 (\code{"Choudhury_1988"}), calculates Rb_h
 #'  based on leaf width, LAI and ustar (Note that in the original formulation leaf width
 #'  instead of the characteristic leaf dimension (Dl) is taken):
 #'   
-#'     \deqn{Gb = LAI((2a/\alpha)*sqrt(u(h)/w)*(1-exp(-\alpha/2)))}
+#'     \deqn{Gb_h = LAI((2a/\alpha)*sqrt(u(h)/w)*(1-exp(-\alpha/2)))}
 #'     
-#'  The option \code{"Su_2001"} calculates Rb based on the physically-based Rb model by Su et al. 2001,
+#'  The option \code{"Su_2001"} calculates Rb_h based on the physically-based Rb model by Su et al. 2001,
 #'  a simplification of the model developed by Massman 1999:
 #'  
 #'     \deqn{kB-1 = (k Cd fc^2) / (4Ct ustar/u(zh)) + kBs-1(1 - fc)^2}
 #'  
-#'  The models calculate the parameter kB-1, which is related to Rb:
+#'  The models calculate the parameter kB-1, which is related to Rb_h:
 #'  
-#'     \deqn{kB-1 = Rb * (k * ustar)}
+#'     \deqn{kB-1 = Rb_h * (k * ustar)}
 #'  
-#'  Both kB-1 and Rb, as well as Gb are given in the output.
+#'  Rb (and Gb) for water vapor and heat are assumed to be equal in this package.
+#'  Gb for other quantities x is calculated as (Hicks et al. 1987):
 #'  
-#'  Rb (and Gb) for water vapor and heat are assumed to be equal. Rb for CO2 (Rb_CO2) is given as:
+#'     \deqn{Gb_x = Gb / (Sc_x / Pr)^0.67}
 #'  
-#'     \deqn{Rb_CO2 = 1.37 * Rb}
-#'  
-#'  The factor 1.37 arises due the lower molecular diffusivity of CO2 compared to water.
-#'  It is lower than the ratio of the molecular diffusivities (Dw/DCO2 = 1.6), as movement
-#'  across the boundary layer is assumed to be partly by diffusion and partly by turbulent
-#'  mixing (Nobel 2005).
-#'  
+#'  where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
 #'  
 #' @return a dataframe with the following columns:
-#'         \item{Ga_m}{Aerodynamic conductance for momentum (m s-1)}
-#'         \item{Ga_h}{Aerodynamic conductance for heat and water vapor (m s-1)}
-#'         \item{Ga_CO2}{Aerodynamic conductance for CO2 (m s-1)}
-#'         \item{Ra_m}{Aerodynamic resistance for momentum (s m-1)}
-#'         \item{Ra_h}{Aerodynamic resistance for heat and water vapor (s m-1)}
-#'         \item{Ra_CO2}{Aerodynamic resistance for CO2 (s m-1)}
-#'         \item{Gb}{Canopy boundary layer conductance for heat and water vapor (m s-1)}
-#'         \item{Rb}{Canopy boundary layer resistance for heat and water vapor (s m-1)}
-#'         \item{Rb_CO2}{Canopy boundary layer resistance for CO2 (s m-1)}
-#'         \item{kB}{kB-1 parameter (-)}
-#'         \item{zeta}{Stability parameter 'zeta' (-)}
-#'         \item{psi_h}{Integrated stability correction function (-)}
+#'         \item{Ga_m}{Aerodynamic conductance for momentum transfer (m s-1)}
+#'         \item{Ra_m}{Aerodynamic resistance for momentum transfer (s m-1)}
+#'         \item{Ga_h}{Aerodynamic conductance for heat transfer (m s-1)}
+#'         \item{Ra_h}{Aerodynamic resistance for heat transfer (s m-1)}
+#'         \item{Gb_h}{Canopy boundary layer conductance for heat transfer (m s-1)}
+#'         \item{Rb_h}{Canopy boundary layer resistance for heat transfer (s m-1)}
+#'         \item{kB_h}{kB-1 parameter for heat transfer}
+#'         \item{zeta}{Stability parameter 'zeta' (NA if \code{wind_profile = FALSE})}
+#'         \item{psi_h}{Integrated stability correction function (NA if \code{wind_profile = FALSE})}
+#'         \item{Ra_CO2}{Aerodynamic resistance for CO2 transfer (s m-1)}
+#'         \item{Ga_CO2}{Aerodynamic conductance for CO2 transfer (m s-1)}
+#'         \item{Gb_CO2}{Canopy boundary layer conductance for CO2 transfer (m s-1)}
+#'         \item{Ga_Sc_name}{Aerodynamic conductance for \code{Sc_name} (m s-1). Only added if \code{Sc_name} and 
+#'                           \code{Sc_name} are provided}
+#'         \item{Gb_Sc_name}{Boundary layer conductance for \code{Sc_name} (m s-1). Only added if \code{Sc_name} and 
+#'                           \code{Sc_name} are provided}
 #'        
 #' @note The roughness length for water and heat (z0h) is not returned by this function, but 
 #'       it can be calculated from the following relationship (e.g. Verma 1989):
@@ -126,8 +130,12 @@
 #'       
 #'       \code{kB-1} is an output of this function.
 #'       
-#'       Note that input variables such as LAI, Dl, or zh can be either constants, or
-#'       time varying (i.e. vectors of the same length as \code{data}).
+#'       Input variables such as LAI, Dl, or zh can be either constants, or
+#'       vary with time (i.e. vectors of the same length as \code{data}).
+#'       
+#'       Note that boundary layer conductance to water vapor transfer (Gb_w) is often 
+#'       assumed to equal Gb_h. This assumption is also made in this R package, for 
+#'       example in the function \code{\link{surface.conductance}}.
 #'         
 #' @references Verma, S., 1989: Aerodynamic resistances to transfers of heat, mass and momentum.
 #'             In: Estimation of areal evapotranspiration, IAHS Pub, 177, 13-20.
@@ -135,8 +143,9 @@
 #'             Verhoef, A., De Bruin, H., Van Den Hurk, B., 1997: Some practical notes on the parameter kB-1
 #'             for sparse vegetation. Journal of Applied Meteorology, 36, 560-572.
 #'             
-#'             Nobel, P. S., 2005: Physicochemical and Environmental Plant Physiology. Third 
-#'             Edition. Elsevier Academic Press, Burlington, USA.
+#'             Hicks, B.B., Baldocchi, D.D., Meyers, T.P., Hosker, J.R., Matt, D.R., 1987:
+#'             A preliminary multiple resistance routine for deriving dry deposition velocities
+#'             from measured quantities. Water, Air, and Soil Pollution 36, 311-330.
 #'             
 #'             Monteith, J.L., Unsworth, M.H., 2008: Principles of environmental physics.
 #'             Third Edition. Elsevier Academic Press, Burlington, USA. 
@@ -157,62 +166,82 @@
 #' 
 #' @export
 aerodynamic.conductance <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar="ustar",H="H",
-                                    zr,zh,d,z0m,Dl,N,fc=NULL,LAI,Cd=0.2,hs=0.01,wind_profile=FALSE,
+                                    zr,zh,d,z0m,Dl,N=2,fc=NULL,LAI,Cd=0.2,hs=0.01,wind_profile=FALSE,
                                     stab_correction=TRUE,stab_formulation=c("Dyer_1970","Businger_1971"),
                                     Rb_model=c("Thom_1972","Choudhury_1988","Su_2001","constant_kB-1"),
-                                    kB=NULL,constants=bigleaf.constants()){
+                                    kB_h=NULL,Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
   
   Rb_model         <- match.arg(Rb_model)
   stab_formulation <- match.arg(stab_formulation)
   
   check.input(data,list(Tair,pressure,wind,ustar,H))
 
-  ## calculate boundary layer conductance (Gb)
-  if (Rb_model != "constant_kB-1"){
+  ## calculate canopy boundary layer conductance (Gb)
+  if (Rb_model %in% c("Thom_1972","Choudhury_1988","Su_2001")){
     
     if (Rb_model == "Thom_1972"){
       
-      Gb_mod <- Gb.Thom(ustar=ustar,constants=constants)
+      Gb_mod <- Gb.Thom(ustar=ustar,Sc=Sc,Sc_name=Sc_name,constants=constants)
       
     } else if (Rb_model == "Choudhury_1988"){
       
-      Gb_mod <- Gb.Choudhury(data,leafwidth=Dl,LAI=LAI,zh=zh,zr=zr,d=d,
-                             stab_formulation=stab_formulation,constants=constants)
+      Gb_mod <- Gb.Choudhury(data,Tair=Tair,pressure=pressure,wind=wind,ustar=ustar,
+                             H=H,leafwidth=Dl,LAI=LAI,zh=zh,zr=zr,d=d,
+                             stab_formulation=stab_formulation,Sc=Sc,Sc_name=Sc_name,
+                             constants=constants)
       
     } else if (Rb_model == "Su_2001"){
       
-      Gb_mod <- Gb.Su(data=data,zh=zh,zr=zr,d=d,Dl=Dl,N=N,fc=fc,LAI=LAI,
-                      Cd=Cd,hs=hs,stab_formulation=stab_formulation,constants=constants)  
+      Gb_mod <- Gb.Su(data=data,Tair=Tair,pressure=pressure,ustar=ustar,wind=wind,
+                      H=H,zh=zh,zr=zr,d=d,Dl=Dl,N=N,fc=fc,LAI=LAI,Cd=Cd,hs=hs,
+                      stab_formulation=stab_formulation,Sc=Sc,Sc_name=Sc_name,
+                      constants=constants)  
       
     }
     
-    kB     <- Gb_mod[,"kB"]
-    Rb     <- Gb_mod[,"Rb"]
-    Rb_CO2 <- Gb_mod[,"Rb_CO2"]
-    Gb     <- Gb_mod[,"Gb"]
+    kB_h <- Gb_mod[,"kB_h"]
+    Rb_h <- Gb_mod[,"Rb_h"]
+    Gb_h <- Gb_mod[,"Gb_h"]
+    Gb_x <- data.frame(Gb_mod[,grep(colnames(Gb_mod),pattern="Gb_")[-1]])
+    colnames(Gb_x) <- grep(colnames(Gb_mod),pattern="Gb_",value=TRUE)[-1]
+
     
-  } else {
+  } else if (Rb_model == "constant_kB-1"){
     
-    if(is.null(kB)){
+    if(is.null(kB_h)){
       stop("value of kB-1 has to be specified if Rb_model is set to 'constant_kB-1'!")
     } else {
-      Rb     <- kB / (constants$k * ustar)
-      Rb_CO2 <- constants$Rbwc * Rb
-      Gb     <- 1 / Rb
+      Rb_h <- kB_h/(constants$k * ustar)
+      Gb_h <- 1/Rb_h
+      
+      if (!is.null(Sc) | !is.null(Sc_name)){
+        if (length(Sc) != length(Sc_name)){
+          stop("arguments 'Sc' and 'Sc_name' must have the same length")
+        }
+        if (!is.numeric(Sc)){
+          stop("argument 'Sc' must be numeric")
+        }
+      }
+      
+      Sc   <- c(constants$Sc_CO2,Sc)
+      Gb_x <- data.frame(lapply(Sc,function(x) Gb_h / (x/constants$Pr)^0.67))
+      colnames(Gb_x) <- paste0("Gb_",c("CO2",Sc_name))
+      
     }
     
-  }
+  } 
   
   ## calculate aerodynamic conductance for momentum (Ga_m)
   if (wind_profile){
     
     if (stab_correction){
       
-      zeta  <-  stability.parameter(data=data,zr=zr,d=d,constants=constants)
+      zeta  <-  stability.parameter(data=data,Tair=Tair,pressure=pressure,ustar=ustar,
+                                    H=H,zr=zr,d=d,constants=constants)
       
       if (stab_formulation %in% c("Dyer_1970","Businger_1971")){
         
-        psi_h <- stability.correction(zeta)[,"psi_h"]
+        psi_h <- stability.correction(zeta,formulation=stab_formulation)[,"psi_h"]
         
       } else {
         stop("'stab_formulation' has to be one of 'Dyer_1970' or 'Businger_1971'.
@@ -240,11 +269,15 @@ aerodynamic.conductance <- function(data,Tair="Tair",pressure="pressure",wind="w
   }
   
   Ga_m   <- 1/Ra_m
-  Ra_h   <- Ra_m + Rb
-  Ra_CO2 <- Ra_m + Rb_CO2
+  Ra_h   <- Ra_m + Rb_h
   Ga_h   <- 1/Ra_h
-  Ga_CO2 <- 1/Ra_CO2
+  Ga_x   <- 1/(Ra_m + 1/Gb_x)
+  Ra_CO2 <- 1/Ga_x[,1]
+  colnames(Ga_x) <- paste0("Ga_",c("CO2",Sc_name))
   
-  return(data.frame(Ga_m,Ra_m,Ga_h,Ra_h,Ga_CO2,Ra_CO2,Rb,Rb_CO2,Gb,kB,zeta,psi_h))
+  Gab_x <- cbind(Ga_x,Gb_x)
+  Gab_x <- Gab_x[rep(c(1,ncol(Gab_x)-(ncol(Gab_x)/2-1)),ncol(Gab_x)/2) + sort(rep(0:(ncol(Gab_x)/2-1),2))] # reorder columns
+
+  return(data.frame(Ga_m,Ra_m,Ga_h,Ra_h,Gb_h,Rb_h,kB_h,zeta,psi_h,Ra_CO2,Gab_x))
   
 }
