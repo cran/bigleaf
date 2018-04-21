@@ -33,14 +33,15 @@ aerodynamic.conductance(data, Tair = "Tair", pressure = "pressure",
 
 \item{z0m}{Roughness length for momentum (m)}
 
-\item{Dl}{Characteristic leaf dimension (m); only used if \code{Rb_model} is \code{"Choudhury_1988"} or \code{"Su_2001"}.}
+\item{Dl}{Characteristic leaf dimension (m) (if \code{Rb_model} = \code{"Su_2001"}) 
+or leaf width (if \code{Rb_model} = \code{"Choudhury_1988"}); ignored otherwise.}
 
 \item{N}{Number of leaf sides participating in heat exchange (1 or 2); only used if \code{Rb_model = "Su_2001"}.
 Defaults to 2.}
 
 \item{fc}{Fractional vegetation cover (-); only used if \code{Rb_model = "Su_2001"}. See Details.}
 
-\item{LAI}{One-sided leaf area index (m2 m-2); only used if \code{Rb_model} is \code{"Choudhury_1988"} or \code{"Su_2001"}.}
+\item{LAI}{One-sided leaf area index (m2 m-2); only used if \code{Rb_model} = \code{"Choudhury_1988"} or \code{"Su_2001"}.}
 
 \item{Cd}{Foliage drag coefficient (-); only used if \code{Rb_model = "Su_2001"}.}
 
@@ -130,16 +131,27 @@ Aerodynamic conductance for heat (Ga_h) is calculated as:
  
    \deqn{Rb_h = 6.2ustar^-0.667}
    
- The model by Choudhury 1988 (\code{"Choudhury_1988"}), calculates Rb_h
- based on leaf width, LAI and ustar (Note that in the original formulation leaf width
- instead of the characteristic leaf dimension (Dl) is taken):
+ The model by Choudhury & Monteith 1988 (\code{Rb_model = "Choudhury_1988"}),
+ calculates Rb_h based on leaf width, LAI and ustar (Note that function argument \code{Dl}
+ represents leaf width (w) and not characteristic leaf dimension (Dl)
+ if \code{Rb_model} = \code{"Choudhury_1988"}):
   
-    \deqn{Gb_h = LAI((2a/\alpha)*sqrt(u(h)/w)*(1-exp(-\alpha/2)))}
+    \deqn{Gb_h = LAI((0.02/\alpha)*sqrt(u(zh)/w)*(1-exp(-\alpha/2)))}
     
- The option \code{"Su_2001"} calculates Rb_h based on the physically-based Rb model by Su et al. 2001,
+ where \eqn{\alpha} is a canopy attenuation coefficient modeled in dependence on LAI,
+ u(zh) is wind speed at canopy height (calculated from \code{\link{wind.profile}}),
+ and w is leaf width (m). See \code{\link{Gb.Choudhury}} for further details.
+    
+ The option \code{Rb_model = "Su_2001"} calculates Rb_h based on the physically-based Rb model by Su et al. 2001,
  a simplification of the model developed by Massman 1999:
  
     \deqn{kB-1 = (k Cd fc^2) / (4Ct ustar/u(zh)) + kBs-1(1 - fc)^2}
+    
+ where Cd is a foliage drag coefficient (defaults to 0.2), fc is fractional
+ vegetation cover, Bs-1 is the inverse Stanton number for bare soil surface,
+ and Ct is a heat transfer coefficient. See \code{\link{Gb.Su}} for 
+ details on the model.
+    
  
  The models calculate the parameter kB-1, which is related to Rb_h:
  

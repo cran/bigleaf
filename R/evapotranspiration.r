@@ -4,30 +4,49 @@
 
 #' Potential Evapotranspiration
 #' 
-#' @description Potential evapotranspiration according to Priestley & Taylor 1972.
+#' @description Potential evapotranspiration according to Priestley & Taylor 1972 or
+#'              the Penman-Monteith equation with a prescribed surface conductance.
 #' 
 #' @param data      Data.frame or matrix containing all required variables; optional
-#' @param Tair      Air temperature (deg C)
+#' @param Tair      Air temperature (degC)
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param Rn        Net radiation (W m-2)
 #' @param G         Ground heat flux (W m-2); optional
 #' @param S         Sum of all storage fluxes (W m-2); optional
-#' @param alpha     Priestley-Taylor coefficient (-)
+#' @param VPD       Vapor pressure deficit (kPa); only used if \code{approach = "Penman-Monteith"}.
+#' @param Ga        Aerodynamic conductance (m s-1); only used if \code{approach = "Penman-Monteith"}.
+#' @param approach  Approach used. Either \code{"Priestley-Taylor} (default), or \code{"Penman-Monteith}.
+#' @param alpha     Priestley-Taylor coefficient; only used if \code{approach = "Priestley-Taylor"}.
+#' @param Gs_pot    Potential/maximum surface conductance (mol m-2 s-1); defaults to 0.6 mol m-2 s-1;
+#'                  only used if \code{approach = "Penman-Monteith"}.
 #' @param missing.G.as.NA  if \code{TRUE}, missing G are treated as \code{NA}s, otherwise set to 0. 
 #' @param missing.S.as.NA  if \code{TRUE}, missing S are treated as \code{NA}s, otherwise set to 0. 
 #' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
 #'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
-#'                  eps - ratio of the molecular weight of water vapor to dry air (-)
+#'                  eps - ratio of the molecular weight of water vapor to dry air \cr
+#'                  Rd - gas constant of dry air (J kg-1 K-1) (only used if \code{approach = "Penman-Monteith"}) \cr
+#'                  Rgas - universal gas constant (J mol-1 K-1) (only used if \code{approach = "Penman-Monteith"}) \cr
+#'                  Kelvin - conversion degree Celsius to Kelvin (only used if \code{approach = "Penman-Monteith"}) \cr
 #' 
-#' @details Potential evapotranspiration is calculated according to Priestley & Taylor, 1972:
+#' @details Potential evapotranspiration is calculated according to Priestley & Taylor, 1972
+#'          if \code{approach = "Priestley-Taylor"} (the default):
 #' 
-#'            \deqn{LE_pot = (\alpha * \Delta * (Rn - G - S)) / (\Delta + \gamma)}
+#'            \deqn{LE_pot,PT = (\alpha * \Delta * (Rn - G - S)) / (\Delta + \gamma)}
 #'
 #'          \eqn{\alpha} is the Priestley-Taylor coefficient, \eqn{\Delta} is the slope 
-#'          of the saturation vapor pressure curve (kPa K-1),
-#'          and \eqn{\gamma} is the psychrometric constant (kPa K-1).
+#'          of the saturation vapor pressure curve (kPa K-1), and \eqn{\gamma} is the 
+#'          psychrometric constant (kPa K-1).
+#'          if \code{approach = "Penman-Monteith"}, potential evapotranspiration is calculated according
+#'          to the Penman-Monteith equation:
+#' 
+#'          \deqn{LE_pot,PM = (\Delta * (Rn - G - S) * \rho * cp * VPD * Ga) / (\Delta + \gamma * (1 + Ga/Gs_pot)}
+#'          
+#'          where \eqn{\Delta} is the slope of the saturation vapor pressure curve (kPa K-1),
+#'          \eqn{\rho} is the air density (kg m-3), and \eqn{\gamma} is the psychrometric constant (kPa K-1).
+#'          The value of \code{Gs_pot} is typically a maximum value of Gs observed at the site, e.g. the 90th
+#'          percentile of Gs within the growing season.
 #'          
 #' @return a data.frame with the following columns:
 #'         \item{ET_pot}{Potential evapotranspiration (kg m-2 s-1)}
@@ -41,18 +60,37 @@
 #'   
 #' @references Priestley, C.H.B., Taylor, R.J., 1972: On the assessment of surface heat flux
 #'             and evaporation using large-scale parameters. Monthly Weather Review 100, 81-92.  
-#'          
-#' @seealso \code{\link{reference.ET}}
+#'             
+#'             Allen, R.G., Pereira L.S., Raes D., Smith M., 1998: Crop evapotranspiration -
+#'             Guidelines for computing crop water requirements - FAO Irrigation and drainage
+#'             paper 56.
+#'              
+#'             Novick, K.A., et al. 2016: The increasing importance of atmospheric demand
+#'             for ecosystem water and carbon fluxes. Nature Climate Change 6, 1023 - 1027.
+#'             
+#' @seealso \code{\link{surface.conductance}}
 #'                                
 #' @examples 
-#' # Calculate potential ET from a surface that receives Rn of 400 Wm-2
-#' potential.ET(Tair=30,pressure=100,Rn=400,alpha=1.26)    
+#' # Calculate potential ET of a surface that receives a net radiation of 500 Wm-2
+#' # using Priestley-Taylor:
+#' potential.ET(Tair=30,pressure=100,Rn=500,alpha=1.26,approach="Priestley-Taylor")    
 #' 
+#' # Calculate potential ET for a surface with known Gs (0.5 mol m-2 s-1) and Ga (0.1 m s-1)
+#' # using Penman-Monteith:
+#' LE_pot_PM <- potential.ET(Gs_pot=0.5,Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400,
+#'                           approach="Penman-Monteith")[,"LE_pot"]
+#' LE_pot_PM
+#' 
+#' # now cross-check with the inverted equation
+#' surface.conductance(Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400,LE=LE_pot_PM)
 #' @export
-potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=NULL,alpha=1.26,
-                         missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
+potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=NULL,
+                         VPD="VPD",Ga="Ga",approach=c("Priestley-Taylor","Penman-Monteith"),
+                         alpha=1.26,Gs_pot=0.6,missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
                          Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                          constants=bigleaf.constants()){
+  
+  approach <- match.arg(approach)
   
   check.input(data,list(Tair,pressure,Rn,G,S))
   
@@ -73,10 +111,26 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
   gamma  <- psychrometric.constant(Tair,pressure,constants)
   Delta  <- Esat.slope(Tair,Esat.formula)[,"Delta"]
   
-  LE_pot <- (alpha * Delta * (Rn - G - S)) / (Delta + gamma)
-  ET_pot <- LE.to.ET(LE_pot,Tair)
+  
+  if (approach == "Priestley-Taylor"){
+    
+    LE_pot <- (alpha * Delta * (Rn - G - S)) / (Delta + gamma)
+    ET_pot <- LE.to.ET(LE_pot,Tair)
+    
+  } else if (approach == "Penman-Monteith"){
+    
+    check.input(data,list(Gs_pot,VPD,Ga))
+    
+    Gs_pot <- mol.to.ms(Gs_pot,Tair=Tair,pressure=pressure,constants=constants)
+    rho    <- air.density(Tair,pressure,constants)
+    
+    LE_pot <- (Delta * (Rn - G - S) + rho * constants$cp * VPD * Ga) / 
+      (Delta + gamma * (1 + Ga / Gs_pot))
+    ET_pot <- LE.to.ET(LE_pot,Tair)
+  }
   
   return(data.frame(ET_pot,LE_pot))
+  
 }
 
 
@@ -86,10 +140,11 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
 #' 
 #' @description Reference evapotranspiration calculated from the Penman-Monteith
 #'              equation with a prescribed surface conductance.
+#'              This function is deprecated. Use potential.ET(...,approach="Penman-Monteith") instead.
 #' 
-#' @param data      Data.frame or matrix containing all required variables
-#' @param Gs_ref    Reference surface conductance (m s-1); defaults to 0.0143 m s-1 (~ 0.58 mol m-2 s-1)
-#' @param Tair      Air temperature (deg C)
+#' @param data      Data.frame or matrix containing all required variables; optional
+#' @param Gs_ref    Reference surface conductance (m s-1); defaults to 0.0143 m s-1.
+#' @param Tair      Air temperature (degC)
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param VPD       Vapor pressure deficit (kPa)
 #' @param Ga        Aerodynamic conductance (m s-1)
@@ -98,84 +153,22 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
 #' @param S         Sum of all storage fluxes (W m-2); optional
 #' @param missing.G.as.NA  if \code{TRUE}, missing G are treated as \code{NA}s, otherwise set to 0. 
 #' @param missing.S.as.NA  if \code{TRUE}, missing S are treated as \code{NA}s, otherwise set to 0. 
-#' @param Esat.formula  Optional: formula used for the calculation of esat and the slope of esat.
+#' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
 #'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
-#'                  eps - ratio of the molecular weight of water vapor to dry air (-) \cr
-#'                  Rd - gas constant of dry air (J kg-1 K-1) \cr
-#'                  Rgas - universal gas constant (J mol-1 K-1) \cr
-#'                  Kelvin - conversion degree Celsius to Kelvin \cr
-#'                                
-#' @details Reference evapotranspiration is calculated according to the Penman-Monteith
-#'          equation:
+#'                  eps - ratio of the molecular weight of water vapor to dry air \cr
+#'                  Rd - gas constant of dry air (J kg-1 K-1) (only if \code{approach = "Penman-Monteith"}) \cr
+#'                  Rgas - universal gas constant (J mol-1 K-1) (only if \code{approach = "Penman-Monteith"}) \cr
+#'                  Kelvin - conversion degree Celsius to Kelvin (only if \code{approach = "Penman-Monteith"}) \cr
 #' 
-#'          \deqn{LE_ref = (\Delta * (Rn - G - S) * \rho * cp * VPD * Ga) / (\Delta + \gamma * (1 + Ga/Gs_ref)}
-#'          
-#'          where \eqn{\Delta} is the slope of the saturation vapor pressure curve (kPa K-1),
-#'          \eqn{\rho} is the air density (kg m-3), and \eqn{\gamma} is the psychrometric constant (kPa K-1).
-#'          The reference evapotranspiration is calculated with respect to a 'reference surface',
-#'          which is typically a well-watered grass/crop of 0.12m height, an albedo of 0.23 and 
-#'          a surface conductance of ~ 0.6 mol m-2 s-1 (Allen et al. 1998), but can be calculated for any other
-#'          surface (i.e. any EC site).
-#'          The value of \code{Gs_ref} is typically a maximum value of Gs observed at the site, e.g. the 90th
-#'          percentile of Gs within the growing season.
-#'
-#' @return a data.frame with the following columns:
-#'         \item{ET_ref}{Reference evapotranspiration (kg m-2 s-1)}
-#'         \item{LE_ref}{Reference latent heat flux (W m-2)}              
-#'                  
-#' @references Allen, R.G., Pereira L.S., Raes D., Smith M., 1998: Crop evapotranspiration -
-#'             Guidelines for computing crop water requirements - FAO Irrigation and drainage
-#'             paper 56.
-#'              
-#'             Novick, K.A., et al. 2016: The increasing importance of atmospheric demand
-#'             for ecosystem water and carbon fluxes. Nature Climate Change 6, 1023 - 1027.
-#' 
-#' @seealso \code{\link{potential.ET}}
-#' 
-#' @examples 
-#' # Calculate LE_ref for a surface with known Gs (0.5 mol m-2 s-1) and Ga (0.1 m s-1)
-#' 
-#' # Gs is required in m s-1
-#' Gs_ms <- mol.to.ms(0.5,Tair=20,pressure=100)
-#' LE_ref <- reference.ET(Gs_ref=Gs_ms,Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400)[,"LE_ref"]
-#' 
-#' # now cross-check with the inverted equation
-#' surface.conductance(Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400,LE=LE_ref)
-#' 
-#' @export                 
+#' @export                            
 reference.ET <- function(data,Gs_ref=0.0143,Tair="Tair",pressure="pressure",VPD="VPD",Rn="Rn",Ga="Ga",
                          G=NULL,S=NULL,missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
                          Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                          constants=bigleaf.constants()){
   
-  check.input(data,list(Gs_ref,Tair,pressure,VPD,Rn,Ga,G,S))
-  
-  if(!is.null(G)){
-    if (!missing.G.as.NA){G[is.na(G)] <- 0}
-  } else {
-    cat("Ground heat flux G is not provided and set to 0.",fill=TRUE)
-    G <- 0
-  }
-  
-  if(!is.null(S)){
-    if(!missing.S.as.NA){S[is.na(S)] <- 0 }
-  } else {
-    cat("Energy storage fluxes S are not provided and set to 0.",fill=TRUE)
-    S <- 0
-  }
-  
-  gamma  <- psychrometric.constant(Tair,pressure,constants)
-  Delta  <- Esat.slope(Tair,Esat.formula)[,"Delta"]
-  rho    <- air.density(Tair,pressure,constants)
-  
-  LE_ref <- (Delta * (Rn - G - S) + rho * constants$cp * VPD * Ga) / 
-            (Delta + gamma * (1 + Ga / Gs_ref))
-  
-  ET_ref <- LE.to.ET(LE_ref,Tair)
-  
-  return(data.frame(ET_ref,LE_ref))
+  stop("this function is deprecated (since bigleaf version 0.6.0). For the calculation of potential ET from the Penman-Monteith equation (as formerly calculated with this function), use function potential.ET() with the argument approach='Penman-Monteith'. Note that the default value for argument 'Gs_pot' is expressed now in mol m-2 s-1 for simplicity (0.6 mol m-2 s-1).")
   
 }
 

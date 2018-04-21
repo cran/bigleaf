@@ -2,7 +2,7 @@
 % Please edit documentation in R/bigleaf_physiology.r
 \name{light.use.efficiency}
 \alias{light.use.efficiency}
-\title{Light Use Efficiency (LUE)}
+\title{Light-Use Efficiency (LUE)}
 \usage{
 light.use.efficiency(GPP, PPFD)
 }

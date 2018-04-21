@@ -27,7 +27,7 @@ a named vector with the following elements:
         \item{WUE}{Water-use efficiency (gC (kg H20)-1)}
         \item{WUE_NEE}{Water-use efficiency based on NEE (gC (kg H20)-1)}
         \item{IWUE}{Inherent water-use efficiency (gC kPa (kg H20)-1)}
-        \item{uWUE}{Underlying water-use efficiency (gC kPa (kg H20)-1)}
+        \item{uWUE}{Underlying water-use efficiency (gC kPa^0.5 (kg H20)-1)}
 }
 \description{
 Calculation of various water use efficiency (WUE) metrics.

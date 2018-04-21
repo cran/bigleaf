@@ -104,7 +104,7 @@ Ga <- aerodynamic.conductance(DE_Tha_Jun_2014_2,Rb_model="Thom_1972")[,"Ga_h"]
 # if G and/or S are available, don't forget to indicate (they are ignored by default).
 Gs_PM <- surface.conductance(DE_Tha_Jun_2014_2,Tair="Tair",pressure="pressure",
                              Rn="Rn",G="G",S=NULL,VPD="VPD",Ga=Ga,
-                             formulation="PenmanMonteith")[,"Gs_mol"]
+                             formulation="Penman-Monteith")[,"Gs_mol"]
                              
 ### Estimate the stomatal slope parameter g1 using the USO model
 mod_USO <- stomatal.slope(DE_Tha_Jun_2014_2,model="USO",GPP="GPP",Gs=Gs_PM,

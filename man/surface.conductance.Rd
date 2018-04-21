@@ -7,7 +7,7 @@
 surface.conductance(data, Tair = "Tair", pressure = "pressure", Rn = "Rn",
   G = NULL, S = NULL, VPD = "VPD", LE = "LE", Ga = "Ga",
   missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
-  formulation = c("PenmanMonteith", "FluxGradient"),
+  formulation = c("Penman-Monteith", "Flux-Gradient"),
   Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
 }
@@ -31,18 +31,18 @@ surface.conductance(data, Tair = "Tair", pressure = "pressure", Rn = "Rn",
 \item{Ga}{Aerodynamic conductance (m s-1)}
 
 \item{missing.G.as.NA}{if \code{TRUE}, missing G are treated as \code{NA}s, otherwise they are set to 0.
-Only used if \code{formulation = "PenmanMonteith"}.}
+Only used if \code{formulation = "Penman-Monteith"}.}
 
 \item{missing.S.as.NA}{if \code{TRUE}, missing S are treated as \code{NA}s, otherwise they are set to 0. 
-Only used if \code{formulation = "PenmanMonteith"}.}
+Only used if \code{formulation = "Penman-Monteith"}.}
 
-\item{formulation}{Formulation used. Either \code{"PenmanMonteith"} (the default) 
-using the inverted Penman-Monteith equation, or \code{"FluxGradient"},
+\item{formulation}{Formulation used. Either \code{"Penman-Monteith"} (the default) 
+using the inverted Penman-Monteith equation, or \code{"Flux-Gradient"},
 for a simple flux-gradient approach requiring ET, pressure, and VPD only.}
 
 \item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
 One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}. 
-Only used if \code{formulation = "PenmanMonteith"}. See \code{\link{Esat.slope}}.}
+Only used if \code{formulation = "Penman-Monteith"}. See \code{\link{Esat.slope}}.}
 
 \item{constants}{cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 eps - ratio of the molecular weight of water vapor to dry air (-) \cr
@@ -61,7 +61,7 @@ Calculates surface conductance to water vapor from the inverted Penman-Monteith
              equation (by default) or from a simple flux-gradient approach.
 }
 \details{
-If \code{formulation = "PenmanMonteith"} (the default), surface conductance (Gs) in m s-1 
+If \code{formulation = "Penman-Monteith"} (the default), surface conductance (Gs) in m s-1 
          is calculated from the inverted Penman-Monteith equation:
 
     \deqn{Gs = ( LE * Ga * \gamma ) / ( \Delta * A + \rho * cp * Ga * VPD - LE * ( \Delta + \gamma ) )}
@@ -73,7 +73,7 @@ If \code{formulation = "PenmanMonteith"} (the default), surface conductance (Gs)
  By default, any missing data in G and S are set to 0. If \code{missing.S.as.NA = TRUE}
  or \code{missing.S.as.NA = TRUE}, Gs will give \code{NA} for these timesteps.
  
- If \code{formulation="FluxGradient"}, Gs (in mol m-2 s-1) is calculated from VPD and ET only:
+ If \code{formulation="Flux-Gradient"}, Gs (in mol m-2 s-1) is calculated from VPD and ET only:
  
     \deqn{Gs = ET/pressure * VPD}
  
@@ -103,7 +103,7 @@ DE_Tha_Jun_2014_2 <- filter.data(DE_Tha_Jun_2014,quality.control=FALSE,
 
 # calculate Gs based on a simple gradient approach
 Gs_gradient <- surface.conductance(DE_Tha_Jun_2014_2,Tair="Tair",pressure="pressure",
-                                   VPD="VPD",formulation="FluxGradient")
+                                   VPD="VPD",formulation="Flux-Gradient")
 summary(Gs_gradient)
 
 # calculate Gs from the the inverted PM equation (now Rn, and Ga are needed),
@@ -114,7 +114,7 @@ Ga <- aerodynamic.conductance(DE_Tha_Jun_2014_2,Rb_model="Thom_1972")[,"Ga_h"]
 # Note that Ga is not added to the data.frame 'DE_Tha_Jun_2014'
 Gs_PM <- surface.conductance(DE_Tha_Jun_2014_2,Tair="Tair",pressure="pressure",
                              Rn="Rn",G="G",S=NULL,VPD="VPD",Ga=Ga,
-                             formulation="PenmanMonteith")
+                             formulation="Penman-Monteith")
 summary(Gs_PM)
 
                               
@@ -122,7 +122,7 @@ summary(Gs_PM)
 DE_Tha_Jun_2014_2$Ga <- Ga
 Gs_PM2 <- surface.conductance(DE_Tha_Jun_2014_2,Tair="Tair",pressure="pressure",
                               Rn="Rn",G="G",S=NULL,VPD="VPD",Ga="Ga",
-                              formulation="PenmanMonteith")
+                              formulation="Penman-Monteith")
 # note the difference to the previous version (Ga="Ga")
 summary(Gs_PM2)
 

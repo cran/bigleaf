@@ -32,7 +32,7 @@ check.input <- function(data,...){
     
     var     <- vars[[v]]
     varname <- ifelse(varnames[v] %in% c("var","var_qc"),gsub("\"","",deparse(substitute(var))),varnames[v])
-    
+   
     if (is.character(var)){
       if (!missing(data) & !is.null(data)){
         if (length(var) == 1){
@@ -63,9 +63,11 @@ check.input <- function(data,...){
     } else {
       if (length(var) < 2){
         if (is.null(var)){
-          return()
+          assign(varname,var,pos=sys.frame(-1))
+          next
         } else if (is.na(var)){
-          return()
+          assign(varname,var,pos=sys.frame(-1))
+          next
         }
       }
       if (!missing(data) & !is.null(data)){

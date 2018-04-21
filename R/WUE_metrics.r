@@ -39,7 +39,7 @@
 #'         \item{WUE}{Water-use efficiency (gC (kg H20)-1)}
 #'         \item{WUE_NEE}{Water-use efficiency based on NEE (gC (kg H20)-1)}
 #'         \item{IWUE}{Inherent water-use efficiency (gC kPa (kg H20)-1)}
-#'         \item{uWUE}{Underlying water-use efficiency (gC kPa (kg H20)-1)}
+#'         \item{uWUE}{Underlying water-use efficiency (gC kPa^0.5 (kg H20)-1)}
 #' 
 #' @note Units for VPD can also be hPa. Units change accordingly.
 #'       WUE_NEE is calculated based on the absolute value of NEE (the sign convention does not matter here).

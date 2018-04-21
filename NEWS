@@ -1,5 +1,20 @@
 NEWS for Package 'bigleaf'
 
+version 0.6.1 (2018-04-18)
+
+ - default names for 'formulation' arguments changed for clarity in surface.conductance() 
+   and decoupling(). "PenmanMonteith" is changed to "Penman-Monteith", "FluxGradient" to 
+   "Flux-Gradient", and "JarvisMcNaughton_1986" to "Jarvis&McNaughton_1986".
+
+
+version 0.6.0 (2018-04-18)
+
+ - function reference.ET() is now covered by potential.ET(). If 'approach=Penman-Monteith',
+   potential ET is calculated according to the Penman-Monteith equation (as previously
+   in reference.ET()). Argument 'Gs_pot' (formerly 'Gs_ref') is given in mol m-2 s-1
+   and defaults to 0.6 mol m-2 s-1.
+   
+
 version 0.5.2 (2018-04-10)
   - Gb output in aerodynamic.conductance and Gb functions renamed to Gb_h to clarify
     that values correspond to heat transfer. Same for Rb and kB.

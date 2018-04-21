@@ -196,7 +196,7 @@ Ga <- aerodynamic.conductance(DE_Tha_Jun_2014_2,Rb_model="Thom_1972")[,"Ga_h"]
 # calculate Gs from the the inverted PM equation
 Gs_PM <- surface.conductance(DE_Tha_Jun_2014_2,Tair="Tair",pressure="pressure",
                              Rn="Rn",G="G",S=NULL,VPD="VPD",Ga=Ga,
-                             formulation="PenmanMonteith")[,"Gs_mol"]
+                             formulation="Penman-Monteith")[,"Gs_mol"]
 
 # calculate Ci 
 Ci <- intercellular.CO2(DE_Tha_Jun_2014_2,Ca="Ca",GPP="GPP",Gs=Gs_PM) 

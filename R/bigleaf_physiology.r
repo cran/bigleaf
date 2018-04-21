@@ -259,7 +259,7 @@ intercellular.CO2 <- function(data,Ca="Ca",GPP="GPP",Gs="Gs",Rleaf=NULL,
 #' # calculate Gs from the the inverted PM equation
 #' Gs_PM <- surface.conductance(DE_Tha_Jun_2014_2,Tair="Tair",pressure="pressure",
 #'                              Rn="Rn",G="G",S=NULL,VPD="VPD",Ga=Ga,
-#'                              formulation="PenmanMonteith")[,"Gs_mol"]
+#'                              formulation="Penman-Monteith")[,"Gs_mol"]
 #' 
 #' # calculate Ci 
 #' Ci <- intercellular.CO2(DE_Tha_Jun_2014_2,Ca="Ca",GPP="GPP",Gs=Gs_PM) 
@@ -547,7 +547,7 @@ Arrhenius.temp.response <- function(param,Temp,Ha,Hd,dS,constants=bigleaf.consta
 #' # if G and/or S are available, don't forget to indicate (they are ignored by default).
 #' Gs_PM <- surface.conductance(DE_Tha_Jun_2014_2,Tair="Tair",pressure="pressure",
 #'                              Rn="Rn",G="G",S=NULL,VPD="VPD",Ga=Ga,
-#'                              formulation="PenmanMonteith")[,"Gs_mol"]
+#'                              formulation="Penman-Monteith")[,"Gs_mol"]
 #'                              
 #' ### Estimate the stomatal slope parameter g1 using the USO model
 #' mod_USO <- stomatal.slope(DE_Tha_Jun_2014_2,model="USO",GPP="GPP",Gs=Gs_PM,
@@ -782,7 +782,7 @@ light.response <- function(data,NEE="NEE",Reco="Reco",PPFD="PPFD",PPFD_ref=2000,
 
   
 
-#' Light Use Efficiency (LUE)
+#' Light-Use Efficiency (LUE)
 #' 
 #' @description Amount of carbon fixed (GPP) per incoming light.
 #' 

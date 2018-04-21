@@ -11,7 +11,7 @@
 #' @param pressure    Atmospheric pressure (kPa)
 #' @param Ga          Aerodynamic conductance (m s-1)
 #' @param Gs          Surface conductance (m s-1)
-#' @param approach    Approach used to calculate omega. Either \code{"JarvisMcNaughton_1986"} (default)
+#' @param approach    Approach used to calculate omega. Either \code{"Jarvis&McNaughton_1986"} (default)
 #'                    or \code{"Martin_1989"}.
 #' @param LAI         Leaf area index (m2 m-2), only used if \code{approach = "Martin_1989"}.
 #' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
@@ -29,7 +29,7 @@
 #'          and similar conditions at the canopy surface compared to the atmosphere above
 #'          the canopy. Values close to 1 indicate the opposite, i.e. decoupled conditions and 
 #'          a low stomatal control on transpiration (Jarvis & McNaughton 1986). \cr
-#'          The \code{"JarvisMcNaughton_1986"} approach (default option) is the original
+#'          The \code{"Jarvis&McNaughton_1986"} approach (default option) is the original
 #'          formulation for the decoupling coefficient, given by (for an amphistomatous 
 #'          canopy):
 #'          
@@ -61,14 +61,14 @@
 #' # Omega calculated following Jarvis & McNaughton 1986
 #' set.seed(3)
 #' df <- data.frame(Tair=rnorm(20,25,1),pressure=100,Ga=rnorm(20,0.06,0.01),Gs=rnorm(20,0.005,0.001))
-#' decoupling(df,approach="JarvisMcNaughton_1986")
+#' decoupling(df,approach="Jarvis&McNaughton_1986")
 #' 
 #' # Omega calculated following Martin 1989 (requires LAI)
 #' decoupling(df,approach="Martin_1989",LAI=4)
 #' 
 #' @export
 decoupling <- function(data,Tair="Tair",pressure="pressure",Ga="Ga",Gs="Gs",
-                       approach=c("JarvisMcNaughton_1986","Martin_1989"),
+                       approach=c("Jarvis&McNaughton_1986","Martin_1989"),
                        LAI,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                        constants=bigleaf.constants()){
   
@@ -80,7 +80,7 @@ decoupling <- function(data,Tair="Tair",pressure="pressure",Ga="Ga",Gs="Gs",
   gamma   <- psychrometric.constant(Tair,pressure,constants)
   epsilon <- Delta/gamma
   
-  if (approach == "JarvisMcNaughton_1986"){
+  if (approach == "Jarvis&McNaughton_1986"){
     
     Omega <- (epsilon + 1) / (epsilon + 1 + Ga/Gs)
     
