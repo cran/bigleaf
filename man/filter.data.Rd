@@ -10,7 +10,8 @@ filter.data(data, quality.control = TRUE, filter.growseas = FALSE,
   quality.ext = "_qc", good.quality = c(0, 1), missing.qc.as.bad = TRUE,
   GPP = "GPP", doy = "doy", year = "year", tGPP = 0.5, ws = 15,
   min.int = 5, precip = "precip", tprecip = 0.01, precip.hours = 24,
-  records.per.hour = 2, filtered.data.to.NA = TRUE)
+  records.per.hour = 2, filtered.data.to.NA = TRUE,
+  constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required input variables in 
@@ -76,6 +77,8 @@ determined by \code{filter.vals.min} and \code{filter.vals.max}).
 If \code{FALSE}, values are not filtered, and an additional column 'valid'
 is added to the data.frame/matrix, indicating if any value of a row
 did (1) or did not fulfill the filter criteria (0).}
+
+\item{constants}{frac2percent - conversion between fraction and percent}
 }
 \value{
 If \code{filtered.data.to.NA = TRUE} (default), the input data.frame/matrix with 

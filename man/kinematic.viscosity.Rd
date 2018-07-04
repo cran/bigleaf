@@ -13,7 +13,8 @@ kinematic.viscosity(Tair, pressure, constants = bigleaf.constants())
 
 \item{constants}{Kelvin - conversion degree Celsius to Kelvin \cr
 pressure0 - reference atmospheric pressure at sea level (Pa) \cr
-Tair0 - reference air temperature (K)}
+Tair0 - reference air temperature (K) \cr
+kPa2Pa - conversion kilopascal (kPa) to pascal (Pa)}
 }
 \value{
 \item{v -}{kinematic viscosity of air (m2 s-1)}

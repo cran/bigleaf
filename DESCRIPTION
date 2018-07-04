@@ -1,7 +1,7 @@
 Package: bigleaf
 Type: Package
-Version: 0.6.1
-Date: 2018-04-18
+Version: 0.6.5
+Date: 2018-07-03
 Title: Physical and Physiological Ecosystem Properties from Eddy
         Covariance Data
 Authors@R: c( person("Juergen", "Knauer", role=c("aut","cre"), email="jknauer@bgc-jena.mpg.de"),
@@ -21,11 +21,13 @@ Imports: robustbase
 License: GPL (>= 2)
 LazyData: yes
 RoxygenNote: 6.0.1
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2018-04-21 08:15:57 UTC; jknauer
+Packaged: 2018-07-03 23:10:53 UTC; jknauer
 Author: Juergen Knauer [aut, cre],
   Soenke Zaehle [ctb],
   Tarek El-Madany [ctb],
   Mirco Migliavacca [ctb]
 Repository: CRAN
-Date/Publication: 2018-04-21 08:25:01 UTC
+Date/Publication: 2018-07-04 08:00:03 UTC

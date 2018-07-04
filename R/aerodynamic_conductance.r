@@ -127,9 +127,9 @@
 #'         \item{Ga_CO2}{Aerodynamic conductance for CO2 transfer (m s-1)}
 #'         \item{Gb_CO2}{Canopy boundary layer conductance for CO2 transfer (m s-1)}
 #'         \item{Ga_Sc_name}{Aerodynamic conductance for \code{Sc_name} (m s-1). Only added if \code{Sc_name} and 
-#'                           \code{Sc_name} are provided}
+#'                           the respective \code{Sc} are provided}
 #'         \item{Gb_Sc_name}{Boundary layer conductance for \code{Sc_name} (m s-1). Only added if \code{Sc_name} and 
-#'                           \code{Sc_name} are provided}
+#'                           the respective \code{Sc} are provided}
 #'        
 #' @note The roughness length for water and heat (z0h) is not returned by this function, but 
 #'       it can be calculated from the following relationship (e.g. Verma 1989):

@@ -17,7 +17,8 @@ pressure.from.elevation(elev, Tair, VPD = NULL,
 \item{constants}{Kelvin- conversion degC to Kelvin \cr
 pressure0 - reference atmospheric pressure at sea level (Pa) \cr
 Rd - gas constant of dry air (J kg-1 K-1) \cr
-g -  gravitational acceleration (m s-2) \cr}
+g -  gravitational acceleration (m s-2) \cr
+Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
 }
 \value{
 \item{pressure -}{Atmospheric pressure (kPa)}

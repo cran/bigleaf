@@ -5,15 +5,16 @@
 \title{Stomatal Slope Parameter "g1"}
 \usage{
 stomatal.slope(data, Tair = "Tair", pressure = "pressure", GPP = "GPP",
-  Gs = "Gs", VPD = "VPD", Ca = "Ca", Rleaf = NULL, model = c("USO",
-  "Ball&Berry", "Leuning"), robust.nls = FALSE, nmin = 40, fitg0 = FALSE,
-  g0 = 0, fitD0 = FALSE, D0 = 1.5, Gamma = 50,
-  missing.Rleaf.as.NA = FALSE, constants = bigleaf.constants(), ...)
+  Gs = "Gs_mol", VPD = "VPD", Ca = "Ca", Rleaf = NULL,
+  model = c("USO", "Ball&Berry", "Leuning"), robust.nls = FALSE,
+  nmin = 40, fitg0 = FALSE, g0 = 0, fitD0 = FALSE, D0 = 1.5,
+  Gamma = 50, missing.Rleaf.as.NA = FALSE,
+  constants = bigleaf.constants(), ...)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required columns}
 
-\item{Tair}{Air temperature (deg C)}
+\item{Tair}{Air (or surface) temperature (deg C)}
 
 \item{pressure}{Atmospheric pressure (kPa)}
 
@@ -23,7 +24,7 @@ stomatal.slope(data, Tair = "Tair", pressure = "pressure", GPP = "GPP",
 
 \item{VPD}{Vapor pressure deficit (kPa)}
 
-\item{Ca}{Atmospheric CO2 concentration (umol mol-1)}
+\item{Ca}{Atmospheric CO2 concentration (air or surface) (umol mol-1)}
 
 \item{Rleaf}{Ecosystem respiration stemming from leaves (umol CO2 m-2 s-1); defaults to 0}
 
@@ -48,7 +49,8 @@ Can be a constant or a variable. Defaults to 50 umol mol-1.}
 or set to 0 (\code{FALSE}, the default)?}
 
 \item{constants}{Kelvin - conversion degree Celsius to Kelvin \cr
-Rgas - universal gas constant (J mol-1 K-1)}
+Rgas - universal gas constant (J mol-1 K-1) \cr
+DwDc - Ratio of the molecular diffusivities for water vapor and CO2}
 
 \item{...}{Additional arguments to \code{\link[stats]{nls}} or \code{\link[robustbase]{nlrob}} if \code{robust.nls = TRUE}.}
 }
@@ -66,18 +68,20 @@ All stomatal models were developed at leaf-level, but its parameters
          
          The unified stomatal optimization (USO) model is given by (Medlyn et al. 2011):
      
-            \deqn{gs = g0 + 1.6*(1.0 + g1/sqrt(VPD)) * GPP/Ca}
+            \deqn{gs = g0 + 1.6*(1.0 + g1/sqrt(VPD)) * An/ca}
          
          The semi-empirical model by Ball et al. 1987 is defined as:
          
-            \deqn{gs = g0 + g1* ((An * rH) / Ca)}
+            \deqn{gs = g0 + g1* ((An * rH) / ca)}
          
          Leuning 1995 suggested a revised version of the Ball&Berry model:
          
-            \deqn{gs = g0 + g1*GPP / ((Ca - \Gamma) * (1 + VPD/D0))}
+            \deqn{gs = g0 + g1*An / ((ca - \Gamma) * (1 + VPD/D0))}
          
          where \eqn{\Gamma} is by default assumed to be constant, but likely varies with temperature and among
          plant species. 
+         The equations above are valid at leaf-level. At ecosystem level, An is replaced by GPP (or GPP - Rleaf,
+         where Rleaf is leaf respiration), and gs (stomatal conductance) by Gs (surface conductance). 
          The parameters in the models are estimated using nonlinear regression (\code{\link[stats]{nls}}) if
          \code{robust.nls = FALSE} and weighted nonlinear regression if \code{robust.nls = TRUE}.
          The weights are calculated from \code{\link[robustbase]{nlrob}}, and \code{\link[stats]{nls}}

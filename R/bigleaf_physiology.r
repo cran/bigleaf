@@ -56,7 +56,7 @@
 #' # note the sign convention for NEE
 #' 
 #' @export
-intercellular.CO2 <- function(data,Ca="Ca",GPP="GPP",Gs="Gs",Rleaf=NULL,
+intercellular.CO2 <- function(data,Ca="Ca",GPP="GPP",Gs="Gs_mol",Rleaf=NULL,
                               missing.Rleaf.as.NA=FALSE,constants=bigleaf.constants()){
   
   check.input(data,list(Ca,GPP,Gs))
@@ -115,7 +115,10 @@ intercellular.CO2 <- function(data,Ca="Ca",GPP="GPP",Gs="Gs",Rleaf=NULL,
 #'                     is considered to be CO2-limited (umol mol-1), ignored
 #'                     if \code{C3 = TRUE}. 
 #' @param constants    Kelvin - conversion degree Celsius to Kelvin \cr
-#'                     Rgas - universal gas constant (J mol-1 K-1)
+#'                     Rgas - universal gas constant (J mol-1 K-1) \cr
+#'                     kJ2J - conversion kilojoule (kJ) to joule (J) \cr
+#'                     J2kJ - conversion joule (J) to kilojoule (kJ) \cr
+#'                     se_median - conversion standard error (SE) of the mean to SE of the median
 #'                  
 #' @details The maximum carboxylation rate at 25degC (Vcmax25) and the maximum electron
 #'          transport rate at 25degC (Jmax25), which characterize photosynthetic capacity,
@@ -283,15 +286,15 @@ photosynthetic.capacity <- function(data,C3=TRUE,Temp,GPP="GPP",Ci,PPFD="PPFD",P
   Tref <- 25.0 + constants$Kelvin
   
   if (C3){  # C3 vegetation
-    Kc_Ha    <- Kc_Ha * 1000
-    Ko_Ha    <- Ko_Ha * 1000
-    Gam_Ha   <- Gam_Ha * 1000
+    Kc_Ha    <- Kc_Ha * constants$kJ2J
+    Ko_Ha    <- Ko_Ha * constants$kJ2J
+    Gam_Ha   <- Gam_Ha * constants$kJ2J
     
     # Temperature dependencies of photosynthetic parameters 
     Kc  <- Kc25 * exp(Kc_Ha * (Temp - Tref) / (Tref*constants$Rgas*Temp))
     Ko  <- Ko25 * exp(Ko_Ha * (Temp - Tref) / (Tref*constants$Rgas*Temp))
     Gam <- Gam25 * exp(Gam_Ha * (Temp - Tref) / (Tref*constants$Rgas*Temp))
-    Ko  <- Ko / 1000
+    Ko  <- Ko * constants$J2kJ
     
     # basic filtering on Ci 
     Ci[Ci < 80 | is.na(Ci)] <- NA
@@ -354,9 +357,9 @@ photosynthetic.capacity <- function(data,C3=TRUE,Temp,GPP="GPP",Ci,PPFD="PPFD",P
   
   # calculate medians and standard errors of the median
   Vcmax25_Median <- median(Vcmax25,na.rm=TRUE)
-  Vcmax25_SE     <- 1.253 * sd(Vcmax25,na.rm=TRUE)/sqrt((sum(!is.na(Vcmax25))))
+  Vcmax25_SE     <- constants$se_median * sd(Vcmax25,na.rm=TRUE)/sqrt((sum(!is.na(Vcmax25))))
   Jmax25_Median  <- median(Jmax25,na.rm=TRUE)
-  Jmax25_SE      <- 1.253 * sd(Jmax25,na.rm=TRUE)/sqrt((sum(!is.na(Jmax25))))
+  Jmax25_SE      <- constants$se_median * sd(Jmax25,na.rm=TRUE)/sqrt((sum(!is.na(Jmax25))))
   
   return(c("Vcmax25"=round(Vcmax25_Median,2),"Vcmax25_SE"=round(Vcmax25_SE,2),
            "Jmax25"=round(Jmax25_Median,2),"Jmax25_SE"=round(Jmax25_SE,2)))
@@ -377,7 +380,8 @@ photosynthetic.capacity <- function(data,C3=TRUE,Temp,GPP="GPP",Ci,PPFD="PPFD",P
 #' @param Hd    Deactivation energy for param (kJ mol-1)
 #' @param dS    Entropy term for param (kJ mol-1 K-1)
 #' @param constants Kelvin - conversion degree Celsius to Kelvin \cr
-#'                  Rgas - universal gas constant (J mol-1 K-1)
+#'                  Rgas - universal gas constant (J mol-1 K-1) \cr
+#'                  kJ2J - conversion kilojoule (kJ) to joule (J)
 #'                  
 #' @details The function returns the biochemical rate at a reference
 #'          temperature of 25degC given a predefined temperature response function.
@@ -418,9 +422,9 @@ Arrhenius.temp.response <- function(param,Temp,Ha,Hd,dS,constants=bigleaf.consta
   Temp <- Temp + constants$Kelvin
   Tref <- 25.0 + constants$Kelvin
   
-  Ha <- ifelse(missing(Ha),NA,Ha*1000)
-  Hd <- ifelse(missing(Hd),NA,Hd*1000)
-  dS <- ifelse(missing(dS),NA,dS*1000)
+  Ha <- ifelse(missing(Ha),NA,Ha*constants$kJ2J)
+  Hd <- ifelse(missing(Hd),NA,Hd*constants$kJ2J)
+  dS <- ifelse(missing(dS),NA,dS*constants$kJ2J)
   
   if (is.na(Ha)){
     
@@ -462,12 +466,12 @@ Arrhenius.temp.response <- function(param,Temp,Ha,Hd,dS,constants=bigleaf.consta
 #'              from nonlinear regression.
 #' 
 #' @param data       Data.frame or matrix containing all required columns
-#' @param Tair       Air temperature (deg C)
+#' @param Tair       Air (or surface) temperature (deg C)
 #' @param pressure   Atmospheric pressure (kPa)
 #' @param GPP        Gross primary productivity (umol CO2 m-2 s-1)
 #' @param Gs         Surface conductance to water vapor (mol m-2 s-1)
 #' @param VPD        Vapor pressure deficit (kPa)
-#' @param Ca         Atmospheric CO2 concentration (umol mol-1)
+#' @param Ca         Atmospheric CO2 concentration (air or surface) (umol mol-1)
 #' @param Rleaf      Ecosystem respiration stemming from leaves (umol CO2 m-2 s-1); defaults to 0 
 #' @param model      Stomatal model used. One of \code{"USO","Ball&Berry","Leuning"}.
 #' @param robust.nls Use robust nonlinear regression (\code{\link[robustbase]{nlrob}})? Default is \code{FALSE}.
@@ -479,7 +483,8 @@ Arrhenius.temp.response <- function(param,Temp,Ha,Hd,dS,constants=bigleaf.consta
 #' @param Gamma      Canopy CO2 compensation point (umol mol-1); only used if \code{model = "Leuning"}. 
 #'                   Can be a constant or a variable. Defaults to 50 umol mol-1.
 #' @param constants  Kelvin - conversion degree Celsius to Kelvin \cr
-#'                   Rgas - universal gas constant (J mol-1 K-1)
+#'                   Rgas - universal gas constant (J mol-1 K-1) \cr
+#'                   DwDc - Ratio of the molecular diffusivities for water vapor and CO2
 #' @param missing.Rleaf.as.NA if Rleaf is provided, should missing values be treated as \code{NA} (\code{TRUE})
 #'                            or set to 0 (\code{FALSE}, the default)?
 #' @param ...        Additional arguments to \code{\link[stats]{nls}} or \code{\link[robustbase]{nlrob}} if \code{robust.nls = TRUE}.
@@ -489,18 +494,20 @@ Arrhenius.temp.response <- function(param,Temp,Ha,Hd,dS,constants=bigleaf.consta
 #'          
 #'          The unified stomatal optimization (USO) model is given by (Medlyn et al. 2011):
 #'      
-#'             \deqn{gs = g0 + 1.6*(1.0 + g1/sqrt(VPD)) * GPP/Ca}
+#'             \deqn{gs = g0 + 1.6*(1.0 + g1/sqrt(VPD)) * An/ca}
 #'          
 #'          The semi-empirical model by Ball et al. 1987 is defined as:
 #'          
-#'             \deqn{gs = g0 + g1* ((An * rH) / Ca)}
+#'             \deqn{gs = g0 + g1* ((An * rH) / ca)}
 #'          
 #'          Leuning 1995 suggested a revised version of the Ball&Berry model:
 #'          
-#'             \deqn{gs = g0 + g1*GPP / ((Ca - \Gamma) * (1 + VPD/D0))}
+#'             \deqn{gs = g0 + g1*An / ((ca - \Gamma) * (1 + VPD/D0))}
 #'          
 #'          where \eqn{\Gamma} is by default assumed to be constant, but likely varies with temperature and among
 #'          plant species. 
+#'          The equations above are valid at leaf-level. At ecosystem level, An is replaced by GPP (or GPP - Rleaf,
+#'          where Rleaf is leaf respiration), and gs (stomatal conductance) by Gs (surface conductance). 
 #'          The parameters in the models are estimated using nonlinear regression (\code{\link[stats]{nls}}) if
 #'          \code{robust.nls = FALSE} and weighted nonlinear regression if \code{robust.nls = TRUE}.
 #'          The weights are calculated from \code{\link[robustbase]{nlrob}}, and \code{\link[stats]{nls}}
@@ -569,7 +576,7 @@ Arrhenius.temp.response <- function(param,Temp,Ha,Hd,dS,constants=bigleaf.consta
 #' @importFrom robustbase nlrob
 #' 
 #' @export 
-stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs",
+stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs_mol",
                            VPD="VPD",Ca="Ca",Rleaf=NULL,model=c("USO","Ball&Berry","Leuning"),
                            robust.nls=FALSE,nmin=40,fitg0=FALSE,g0=0,fitD0=FALSE,
                            D0=1.5,Gamma=50,missing.Rleaf.as.NA=FALSE,
@@ -579,7 +586,9 @@ stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs
   
   check.input(data,list(Tair,pressure,GPP,Gs,VPD,Ca))
 
-  df <- data.frame(Tair,pressure,GPP,Gs,VPD,Ca)
+  df   <- data.frame(Tair,pressure,GPP,Gs,VPD,Ca)
+  DwDc <- constants$DwDc  # ...to work within nls()
+  
   
   if (model == "Leuning"){
     check.input(data,Gamma)
@@ -613,20 +622,22 @@ stomatal.slope <- function(data,Tair="Tair",pressure="pressure",GPP="GPP",Gs="Gs
       
       if (fitg0){
         if (robust.nls){
-          mod_weights <- nlrob(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,data=df,start=list(g0=0,g1=3),
+          df$DwDc <- rep(DwDc,nrow(df))
+          mod_weights <- nlrob(Gs ~ g0 + DwDc*(1.0 + g1/sqrt(VPD))*GPP/Ca,data=df,start=list(g0=0,g1=3),
                                na.action=na.exclude,...)$w
-          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g0=0,g1=3),weights=mod_weights,...)
+          mod <- nls(Gs ~ g0 + DwDc*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g0=0,g1=3),weights=mod_weights,...)
         } else {
-          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g0=0,g1=3),...)
+          mod <- nls(Gs ~ g0 + DwDc*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g0=0,g1=3),...)
         }
       } else {
         if (robust.nls){
-          df$g0   <- rep(g0,nrow(df)) # g0 as constant does not work in the nlrob function...
-          mod_weights <- nlrob(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,data=df,start=list(g1=3),
+          df$g0   <- rep(g0,nrow(df))    # g0 as constant does not work in the nlrob function...
+          df$DwDc <- rep(DwDc,nrow(df))  # same with constants$DwDc
+          mod_weights <- nlrob(Gs ~ g0 + DwDc*(1.0 + g1/sqrt(VPD))*GPP/Ca,data=df,start=list(g1=3),
                                na.action=na.exclude,...)$w
-          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g1=3),weights=mod_weights,...)
+          mod <- nls(Gs ~ g0 + DwDc*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g1=3),weights=mod_weights,...)
         } else {
-          mod <- nls(Gs ~ g0 + 1.6*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g1=3),...)
+          mod <- nls(Gs ~ g0 + DwDc*(1.0 + g1/sqrt(VPD))*GPP/Ca,start=list(g1=3),...)
         }
       }
       
@@ -822,7 +833,7 @@ light.use.efficiency <- function(GPP,PPFD){
 #' @description Sensitivity of surface conductance to vapor pressure deficit.
 #' 
 #' @param data  Data.frame or matrix containing all required columns
-#' @param Gs    Surface conductance (mol m-2 s-1)
+#' @param Gs    Surface conductance to water vapor (mol m-2 s-1)
 #' @param VPD   Vapor pressure deficit (kPa)
 #' @param ...   Additional arguments to \code{\link[stats]{nls}}
 #' 
@@ -868,7 +879,7 @@ light.use.efficiency <- function(GPP,PPFD){
 #' @importFrom stats nls
 #' 
 #' @export
-stomatal.sensitivity <- function(data,Gs="Gs",VPD="VPD",...){
+stomatal.sensitivity <- function(data,Gs="Gs_mol",VPD="VPD",...){
   
   check.input(data,list(Gs,VPD))
   

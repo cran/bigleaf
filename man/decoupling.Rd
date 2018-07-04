@@ -4,8 +4,8 @@
 \alias{decoupling}
 \title{Canopy-Atmosphere Decoupling Coefficient}
 \usage{
-decoupling(data, Tair = "Tair", pressure = "pressure", Ga = "Ga",
-  Gs = "Gs", approach = c("Jarvis&McNaughton_1986", "Martin_1989"), LAI,
+decoupling(data, Tair = "Tair", pressure = "pressure", Ga = "Ga_h",
+  Gs = "Gs_ms", approach = c("Jarvis&McNaughton_1986", "Martin_1989"), LAI,
   Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
 }
@@ -16,7 +16,7 @@ decoupling(data, Tair = "Tair", pressure = "pressure", Ga = "Ga",
 
 \item{pressure}{Atmospheric pressure (kPa)}
 
-\item{Ga}{Aerodynamic conductance (m s-1)}
+\item{Ga}{Aerodynamic conductance to heat/water vapor (m s-1)}
 
 \item{Gs}{Surface conductance (m s-1)}
 
@@ -32,7 +32,8 @@ See \code{\link{Esat.slope}}.}
 \item{constants}{Kelvin - conversion degree Celsius to Kelvin \cr
 cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 eps - ratio of the molecular weight of water vapor to dry air (-) \cr
-sigma - Stefan-Boltzmann constant (W m-2 K-4) \cr}
+sigma - Stefan-Boltzmann constant (W m-2 K-4) \cr
+Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
 }
 \value{
 \item{\eqn{\Omega} -}{the decoupling coefficient Omega (-)}
@@ -68,7 +69,8 @@ The decoupling coefficient Omega ranges from 0 to 1 and quantifies the
 \examples{
 # Omega calculated following Jarvis & McNaughton 1986
 set.seed(3)
-df <- data.frame(Tair=rnorm(20,25,1),pressure=100,Ga=rnorm(20,0.06,0.01),Gs=rnorm(20,0.005,0.001))
+df <- data.frame(Tair=rnorm(20,25,1),pressure=100,Ga_h=rnorm(20,0.06,0.01),
+                 Gs_ms=rnorm(20,0.005,0.001))
 decoupling(df,approach="Jarvis&McNaughton_1986")
 
 # Omega calculated following Martin 1989 (requires LAI)

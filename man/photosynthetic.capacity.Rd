@@ -72,7 +72,10 @@ is considered to be CO2-limited (umol mol-1), ignored
 if \code{C3 = TRUE}.}
 
 \item{constants}{Kelvin - conversion degree Celsius to Kelvin \cr
-Rgas - universal gas constant (J mol-1 K-1)}
+Rgas - universal gas constant (J mol-1 K-1) \cr
+kJ2J - conversion kilojoule (kJ) to joule (J) \cr
+J2kJ - conversion joule (J) to kilojoule (kJ) \cr
+se_median - conversion standard error (SE) of the mean to SE of the median}
 }
 \value{
 a data.frame with the following columns:

@@ -19,7 +19,8 @@ Arrhenius.temp.response(param, Temp, Ha, Hd, dS,
 \item{dS}{Entropy term for param (kJ mol-1 K-1)}
 
 \item{constants}{Kelvin - conversion degree Celsius to Kelvin \cr
-Rgas - universal gas constant (J mol-1 K-1)}
+Rgas - universal gas constant (J mol-1 K-1) \cr
+kJ2J - conversion kilojoule (kJ) to joule (J)}
 }
 \value{
 param25 - value of the input parameter at the reference temperature of 25degC (umol m-2 s-1)

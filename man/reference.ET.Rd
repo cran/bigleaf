@@ -5,7 +5,7 @@
 \title{Reference Evapotranspiration}
 \usage{
 reference.ET(data, Gs_ref = 0.0143, Tair = "Tair", pressure = "pressure",
-  VPD = "VPD", Rn = "Rn", Ga = "Ga", G = NULL, S = NULL,
+  VPD = "VPD", Rn = "Rn", Ga = "Ga_h", G = NULL, S = NULL,
   missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
   Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
@@ -23,7 +23,7 @@ reference.ET(data, Gs_ref = 0.0143, Tair = "Tair", pressure = "pressure",
 
 \item{Rn}{Net radiation (W m-2)}
 
-\item{Ga}{Aerodynamic conductance (m s-1)}
+\item{Ga}{Aerodynamic conductance to heat/water vapor (m s-1)}
 
 \item{G}{Ground heat flux (W m-2); optional}
 

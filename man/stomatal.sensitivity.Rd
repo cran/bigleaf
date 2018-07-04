@@ -4,12 +4,12 @@
 \alias{stomatal.sensitivity}
 \title{Stomatal Sensitivity to VPD}
 \usage{
-stomatal.sensitivity(data, Gs = "Gs", VPD = "VPD", ...)
+stomatal.sensitivity(data, Gs = "Gs_mol", VPD = "VPD", ...)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required columns}
 
-\item{Gs}{Surface conductance (mol m-2 s-1)}
+\item{Gs}{Surface conductance to water vapor (mol m-2 s-1)}
 
 \item{VPD}{Vapor pressure deficit (kPa)}
 

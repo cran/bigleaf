@@ -12,16 +12,16 @@
 \title{Conversions between Humidity Measures}
 \usage{
 VPD.to.rH(VPD, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"))
+  "Allen_1998"), constants = bigleaf.constants())
 
 rH.to.VPD(rH, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"))
+  "Allen_1998"), constants = bigleaf.constants())
 
 VPD.to.e(VPD, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"))
+  "Allen_1998"), constants = bigleaf.constants())
 
 e.to.VPD(e, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"))
+  "Allen_1998"), constants = bigleaf.constants())
 
 e.to.q(e, pressure, constants = bigleaf.constants())
 
@@ -42,13 +42,14 @@ VPD.to.q(VPD, Tair, pressure, Esat.formula = c("Sonntag_1990",
 One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 See \code{\link{Esat.slope}}.}
 
+\item{constants}{eps - ratio of the molecular weight of water vapor to dry air (-) \cr
+Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
+
 \item{rH}{Relative humidity (-)}
 
 \item{e}{Vapor pressure (kPa)}
 
 \item{pressure}{Atmospheric pressure (kPa)}
-
-\item{constants}{eps - ratio of the molecular weight of water vapor to dry air (-)}
 
 \item{q}{Specific humidity (kg kg-1)}
 }

@@ -4,13 +4,16 @@
 \alias{Esat.slope}
 \title{Saturation Vapor Pressure (Esat) and Slope of the Esat Curve}
 \usage{
-Esat.slope(Tair, formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"))
+Esat.slope(Tair, formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants())
 }
 \arguments{
 \item{Tair}{Air temperature (deg C)}
 
 \item{formula}{Formula to be used. Either \code{"Sonntag_1990"} (Default), 
 \code{"Alduchov_1996"}, or \code{"Allen_1998"}.}
+
+\item{constants}{Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
 }
 \value{
 A dataframe with the following columns: 

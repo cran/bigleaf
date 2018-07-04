@@ -18,7 +18,8 @@ mol.to.ms(G_mol, Tair, pressure, constants = bigleaf.constants())
 \item{pressure}{Atmospheric pressure (kPa)}
 
 \item{constants}{Kelvin - conversion degree Celsius to Kelvin \cr
-Rgas - universal gas constant (J mol-1 K-1)}
+Rgas - universal gas constant (J mol-1 K-1) \cr
+kPa2Pa - conversion kilopascal (kPa) to pascal (Pa)}
 
 \item{G_mol}{Conductance (mol m-2 s-1)}
 }

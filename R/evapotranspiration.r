@@ -14,8 +14,8 @@
 #' @param G         Ground heat flux (W m-2); optional
 #' @param S         Sum of all storage fluxes (W m-2); optional
 #' @param VPD       Vapor pressure deficit (kPa); only used if \code{approach = "Penman-Monteith"}.
-#' @param Ga        Aerodynamic conductance (m s-1); only used if \code{approach = "Penman-Monteith"}.
-#' @param approach  Approach used. Either \code{"Priestley-Taylor} (default), or \code{"Penman-Monteith}.
+#' @param Ga        Aerodynamic conductance to heat/water vapor (m s-1); only used if \code{approach = "Penman-Monteith"}.
+#' @param approach  Approach used. Either \code{"Priestley-Taylor"} (default), or \code{"Penman-Monteith"}.
 #' @param alpha     Priestley-Taylor coefficient; only used if \code{approach = "Priestley-Taylor"}.
 #' @param Gs_pot    Potential/maximum surface conductance (mol m-2 s-1); defaults to 0.6 mol m-2 s-1;
 #'                  only used if \code{approach = "Penman-Monteith"}.
@@ -26,6 +26,7 @@
 #'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                  eps - ratio of the molecular weight of water vapor to dry air \cr
+#'                  Pa2kPa - conversion pascal (Pa) to kilopascal (kPa) \cr
 #'                  Rd - gas constant of dry air (J kg-1 K-1) (only used if \code{approach = "Penman-Monteith"}) \cr
 #'                  Rgas - universal gas constant (J mol-1 K-1) (only used if \code{approach = "Penman-Monteith"}) \cr
 #'                  Kelvin - conversion degree Celsius to Kelvin (only used if \code{approach = "Penman-Monteith"}) \cr
@@ -41,7 +42,7 @@
 #'          if \code{approach = "Penman-Monteith"}, potential evapotranspiration is calculated according
 #'          to the Penman-Monteith equation:
 #' 
-#'          \deqn{LE_pot,PM = (\Delta * (Rn - G - S) * \rho * cp * VPD * Ga) / (\Delta + \gamma * (1 + Ga/Gs_pot)}
+#'          \deqn{LE_pot,PM = (\Delta * (Rn - G - S) + \rho * cp * VPD * Ga) / (\Delta + \gamma * (1 + Ga/Gs_pot)}
 #'          
 #'          where \eqn{\Delta} is the slope of the saturation vapor pressure curve (kPa K-1),
 #'          \eqn{\rho} is the air density (kg m-3), and \eqn{\gamma} is the psychrometric constant (kPa K-1).
@@ -85,7 +86,7 @@
 #' surface.conductance(Tair=20,pressure=100,VPD=2,Ga=0.1,Rn=400,LE=LE_pot_PM)
 #' @export
 potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=NULL,
-                         VPD="VPD",Ga="Ga",approach=c("Priestley-Taylor","Penman-Monteith"),
+                         VPD="VPD",Ga="Ga_h",approach=c("Priestley-Taylor","Penman-Monteith"),
                          alpha=1.26,Gs_pot=0.6,missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
                          Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                          constants=bigleaf.constants()){
@@ -109,7 +110,7 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
   }
   
   gamma  <- psychrometric.constant(Tair,pressure,constants)
-  Delta  <- Esat.slope(Tair,Esat.formula)[,"Delta"]
+  Delta  <- Esat.slope(Tair,Esat.formula,constants)[,"Delta"]
   
   
   if (approach == "Priestley-Taylor"){
@@ -147,7 +148,7 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
 #' @param Tair      Air temperature (degC)
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param VPD       Vapor pressure deficit (kPa)
-#' @param Ga        Aerodynamic conductance (m s-1)
+#' @param Ga        Aerodynamic conductance to heat/water vapor (m s-1)
 #' @param Rn        Net radiation (W m-2)
 #' @param G         Ground heat flux (W m-2); optional
 #' @param S         Sum of all storage fluxes (W m-2); optional
@@ -163,7 +164,7 @@ potential.ET <- function(data,Tair="Tair",pressure="pressure",Rn="Rn",G=NULL,S=N
 #'                  Kelvin - conversion degree Celsius to Kelvin (only if \code{approach = "Penman-Monteith"}) \cr
 #' 
 #' @export                            
-reference.ET <- function(data,Gs_ref=0.0143,Tair="Tair",pressure="pressure",VPD="VPD",Rn="Rn",Ga="Ga",
+reference.ET <- function(data,Gs_ref=0.0143,Tair="Tair",pressure="pressure",VPD="VPD",Rn="Rn",Ga="Ga_h",
                          G=NULL,S=NULL,missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
                          Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                          constants=bigleaf.constants()){
@@ -184,7 +185,7 @@ reference.ET <- function(data,Gs_ref=0.0143,Tair="Tair",pressure="pressure",VPD=
 #' @param Tair      Air temperature (deg C)
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param VPD       Air vapor pressure deficit (kPa)
-#' @param Gs        surface conductance (m s-1)
+#' @param Gs        surface conductance to water vapor (m s-1)
 #' @param Rn        Net radiation (W m-2)
 #' @param G         Ground heat flux (W m-2); optional
 #' @param S         Sum of all storage fluxes (W m-2); optional
@@ -194,7 +195,8 @@ reference.ET <- function(data,Gs_ref=0.0143,Tair="Tair",pressure="pressure",VPD=
 #'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
-#'                  eps - ratio of the molecular weight of water vapor to dry air (-)
+#'                  eps - ratio of the molecular weight of water vapor to dry air (-) \cr
+#'                  Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #'                  
 #' @details Total evapotranspiration can be written in the form (Jarvis & McNaughton 1986):
 #' 
@@ -236,11 +238,11 @@ reference.ET <- function(data,Gs_ref=0.0143,Tair="Tair",pressure="pressure",VPD=
 #'             
 #' @examples 
 #' df <- data.frame(Tair=20,pressure=100,VPD=seq(0.5,4,0.5),
-#'                  Gs=seq(0.01,0.002,length.out=8),Rn=seq(50,400,50))            
+#'                  Gs_ms=seq(0.01,0.002,length.out=8),Rn=seq(50,400,50))            
 #' equilibrium.imposed.ET(df)            
 #'             
 #' @export
-equilibrium.imposed.ET <- function(data,Tair="Tair",pressure="pressure",VPD="VPD",Gs="Gs",
+equilibrium.imposed.ET <- function(data,Tair="Tair",pressure="pressure",VPD="VPD",Gs="Gs_ms",
                                    Rn="Rn",G=NULL,S=NULL,missing.G.as.NA=FALSE,missing.S.as.NA=FALSE,
                                    Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                                    constants=bigleaf.constants()){
@@ -263,7 +265,7 @@ equilibrium.imposed.ET <- function(data,Tair="Tair",pressure="pressure",VPD="VPD
   
   rho    <- air.density(Tair,pressure,constants)
   gamma  <- psychrometric.constant(Tair,pressure,constants)
-  Delta  <- Esat.slope(Tair,Esat.formula)[,"Delta"]
+  Delta  <- Esat.slope(Tair,Esat.formula,constants)[,"Delta"]
   
   LE_eq  <- (Delta * (Rn - G - S)) / (gamma + Delta)
   LE_imp <- (rho * constants$cp * Gs * VPD) / gamma

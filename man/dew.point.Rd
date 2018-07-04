@@ -5,7 +5,7 @@
 \title{Dew Point}
 \usage{
 dew.point(Tair, VPD, accuracy = 0.001, Esat.formula = c("Sonntag_1990",
-  "Alduchov_1996", "Allen_1998"))
+  "Alduchov_1996", "Allen_1998"), constants = bigleaf.constants())
 }
 \arguments{
 \item{Tair}{Air temperature (degC)}
@@ -17,6 +17,8 @@ dew.point(Tair, VPD, accuracy = 0.001, Esat.formula = c("Sonntag_1990",
 \item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
 One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 See \code{\link{Esat.slope}}.}
+
+\item{constants}{Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
 }
 \value{
 \item{Td -}{dew point temperature (degC)}

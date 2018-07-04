@@ -4,7 +4,7 @@
 \alias{dew.point.solver}
 \title{Solver function for dew point temperature}
 \usage{
-dew.point.solver(ea, accuracy, Esat.formula)
+dew.point.solver(ea, accuracy, Esat.formula, constants = bigleaf.constants())
 }
 \arguments{
 \item{ea}{Air vapor pressure (kPa)}
@@ -14,6 +14,8 @@ dew.point.solver(ea, accuracy, Esat.formula)
 \item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
 One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 See \code{\link{Esat.slope}}.}
+
+\item{constants}{Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
 }
 \description{
 Solver function used in dew.point()

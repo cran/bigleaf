@@ -1,5 +1,29 @@
 NEWS for Package 'bigleaf'
 
+
+version 0.6.5 (2018-06-17)
+
+  - Vignette "Tutorial on bigleaf" added 
+
+  
+version 0.6.4 (2018-06-15)
+
+  - bug fix to energy.closure(): G and S were previously always ignored in the calculation of the intercept and slope.  
+
+  
+version 0.6.3 (2018-06-13)
+
+ - rownames corrected in the example datasets (starting at 1 now)
+ - second part of output in filter.data() function is only shown if at least one variable is actually filtered.
+ - default values for several arguments changed (e.g. "Ga" to "Ga_h") to ensure internal consistency
+
+
+version 0.6.2 (2018-06-11)
+
+ - hard-coded conversion factors replaced by constants (e.g. g2kg, Pa2kPa, umol2mol, etc.)
+   which were added to the bigleaf.constants() list.
+ 
+ 
 version 0.6.1 (2018-04-18)
 
  - default names for 'formulation' arguments changed for clarity in surface.conductance() 

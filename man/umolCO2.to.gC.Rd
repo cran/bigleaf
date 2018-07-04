@@ -12,7 +12,12 @@ gC.to.umolCO2(C_flux, constants = bigleaf.constants())
 \arguments{
 \item{CO2_flux}{CO2 flux (umol CO2 m-2 s-1)}
 
-\item{constants}{Cmol - molar mass of carbon (kg mol-1)}
+\item{constants}{Cmol - molar mass of carbon (kg mol-1) \cr
+umol2mol - conversion micromole (umol) to mol (mol) \cr
+mol2umol - conversion mole (mol) to micromole (umol)  \cr
+kg2g - conversion kilogram (kg) to gram (g) \cr
+g2kg - conversion gram (g) to kilogram (kg) \cr
+days2seconds - seconds per day}
 
 \item{C_flux}{Carbon (C) flux (gC m-2 d-1)}
 }

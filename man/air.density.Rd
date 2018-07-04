@@ -12,7 +12,8 @@ air.density(Tair, pressure, constants = bigleaf.constants())
 \item{pressure}{Atmospheric pressure (kPa)}
 
 \item{constants}{Kelvin - conversion degC to Kelvin \cr
-Rd - gas constant of dry air (J kg-1 K-1)}
+Rd - gas constant of dry air (J kg-1 K-1) \cr
+kPa2Pa - conversion kilopascal (kPa) to pascal (Pa)}
 }
 \value{
 \item{\eqn{\rho}}{air density (kg m-3)}

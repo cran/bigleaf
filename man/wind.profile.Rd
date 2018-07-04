@@ -52,7 +52,7 @@ Either \code{"Dyer_1970"} or \code{"Businger_1971"}.}
 \item{constants}{k - von-Karman constant (-) \cr
 Kelvin - conversion degree Celsius to Kelvin \cr
 cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
-g - gravitational acceleration (m s-2) \cr}
+g - gravitational acceleration (m s-2)}
 }
 \value{
 A data.frame with rows representing time and columns representing heights 

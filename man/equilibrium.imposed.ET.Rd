@@ -5,7 +5,7 @@
 \title{Equilibrium and Imposed Evapotranspiration}
 \usage{
 equilibrium.imposed.ET(data, Tair = "Tair", pressure = "pressure",
-  VPD = "VPD", Gs = "Gs", Rn = "Rn", G = NULL, S = NULL,
+  VPD = "VPD", Gs = "Gs_ms", Rn = "Rn", G = NULL, S = NULL,
   missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
   Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
   constants = bigleaf.constants())
@@ -19,7 +19,7 @@ equilibrium.imposed.ET(data, Tair = "Tair", pressure = "pressure",
 
 \item{VPD}{Air vapor pressure deficit (kPa)}
 
-\item{Gs}{surface conductance (m s-1)}
+\item{Gs}{surface conductance to water vapor (m s-1)}
 
 \item{Rn}{Net radiation (W m-2)}
 
@@ -36,7 +36,8 @@ One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_
 See \code{\link{Esat.slope}}.}
 
 \item{constants}{cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
-eps - ratio of the molecular weight of water vapor to dry air (-)}
+eps - ratio of the molecular weight of water vapor to dry air (-) \cr
+Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
 }
 \value{
 A data.frame with the following columns:
@@ -76,7 +77,7 @@ Surface conductance (Gs) can be calculated with \code{\link{surface.conductance}
 }
 \examples{
 df <- data.frame(Tair=20,pressure=100,VPD=seq(0.5,4,0.5),
-                 Gs=seq(0.01,0.002,length.out=8),Rn=seq(50,400,50))            
+                 Gs_ms=seq(0.01,0.002,length.out=8),Rn=seq(50,400,50))            
 equilibrium.imposed.ET(df)            
             
 }

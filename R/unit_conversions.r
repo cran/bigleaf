@@ -61,7 +61,8 @@ ET.to.LE <- function(ET,Tair){
 #' @param Tair       Air temperature (deg C)
 #' @param pressure   Atmospheric pressure (kPa)
 #' @param constants  Kelvin - conversion degree Celsius to Kelvin \cr
-#'                   Rgas - universal gas constant (J mol-1 K-1)
+#'                   Rgas - universal gas constant (J mol-1 K-1) \cr
+#'                   kPa2Pa - conversion kilopascal (kPa) to pascal (Pa)
 #' 
 #' @details 
 #' The conversions are given by:
@@ -82,7 +83,7 @@ ET.to.LE <- function(ET,Tair){
 ms.to.mol <- function(G_ms,Tair,pressure,constants=bigleaf.constants()){
   
   Tair     <- Tair + constants$Kelvin
-  pressure <- pressure * 1000
+  pressure <- pressure * constants$kPa2Pa
   
   G_mol  <- G_ms * pressure / (constants$Rgas * Tair)
   
@@ -95,7 +96,7 @@ ms.to.mol <- function(G_ms,Tair,pressure,constants=bigleaf.constants()){
 mol.to.ms <- function(G_mol,Tair,pressure,constants=bigleaf.constants()){
   
   Tair     <- Tair + constants$Kelvin
-  pressure <- pressure * 1000
+  pressure <- pressure * constants$kPa2Pa
   
   G_ms  <- G_mol * (constants$Rgas * Tair) / (pressure)
   
@@ -118,15 +119,18 @@ mol.to.ms <- function(G_mol,Tair,pressure,constants=bigleaf.constants()){
 #' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
 #'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                      See \code{\link{Esat.slope}}. 
-#' @param constants eps - ratio of the molecular weight of water vapor to dry air (-)
+#' @param constants eps - ratio of the molecular weight of water vapor to dry air (-) \cr
+#'                  Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #' 
 #' @family humidity conversion
 #' 
 #' @references Foken, T, 2008: Micrometeorology. Springer, Berlin, Germany.
 #' 
 #' @export
-VPD.to.rH <- function(VPD,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998")){
-  esat <- Esat.slope(Tair,Esat.formula)[,"Esat"]
+VPD.to.rH <- function(VPD,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                      constants=bigleaf.constants()){
+  
+  esat <- Esat.slope(Tair,Esat.formula,constants)[,"Esat"]
   rH   <- 1 - VPD/esat
   return(rH)
 } 
@@ -135,11 +139,13 @@ VPD.to.rH <- function(VPD,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Al
 #' @rdname VPD.to.rH
 #' @family humidity conversion
 #' @export
-rH.to.VPD <- function(rH,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998")){
+rH.to.VPD <- function(rH,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                      constants=bigleaf.constants()){
+  
   if(any(rH > 1 & !is.na(rH))){
     warning("relative humidity (rH) has to be between 0 and 1.")
   }
-  esat <- Esat.slope(Tair,Esat.formula)[,"Esat"]
+  esat <- Esat.slope(Tair,Esat.formula,constants)[,"Esat"]
   VPD  <- esat - rH*esat
   return(VPD)
 } 
@@ -148,8 +154,10 @@ rH.to.VPD <- function(rH,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","All
 #' @rdname VPD.to.rH
 #' @family humidity conversion
 #' @export
-VPD.to.e <- function(VPD,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998")){
-  esat <- Esat.slope(Tair,Esat.formula)[,"Esat"]
+VPD.to.e <- function(VPD,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                     constants=bigleaf.constants()){
+  
+  esat <- Esat.slope(Tair,Esat.formula,constants)[,"Esat"]
   e    <- esat - VPD
   return(e)
 }
@@ -158,8 +166,10 @@ VPD.to.e <- function(VPD,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","All
 #' @rdname VPD.to.rH
 #' @family humidity conversion
 #' @export
-e.to.VPD <- function(e,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998")){
-  esat <- Esat.slope(Tair,Esat.formula)[,"Esat"]
+e.to.VPD <- function(e,Tair,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                     constants=bigleaf.constants()){
+  
+  esat <- Esat.slope(Tair,Esat.formula,constants)[,"Esat"]
   VPD  <- esat - e 
   return(VPD)
 }
@@ -188,7 +198,8 @@ q.to.e <- function(q,pressure,constants=bigleaf.constants()){
 #' @export
 q.to.VPD <- function(q,Tair,pressure,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                      constants=bigleaf.constants()){
-  esat <- Esat.slope(Tair,Esat.formula)[,"Esat"]
+  
+  esat <- Esat.slope(Tair,Esat.formula,constants)[,"Esat"]
   e    <- q.to.e(q,pressure,constants)
   VPD  <- esat - e
   return(VPD)
@@ -200,7 +211,8 @@ q.to.VPD <- function(q,Tair,pressure,Esat.formula=c("Sonntag_1990","Alduchov_199
 #' @export
 VPD.to.q <- function(VPD,Tair,pressure,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                      constants=bigleaf.constants()){
-  esat <- Esat.slope(Tair,Esat.formula)[,"Esat"]
+  
+  esat <- Esat.slope(Tair,Esat.formula,constants)[,"Esat"]
   e    <- esat - VPD
   q    <- e.to.q(e,pressure,constants)
   return(q) 
@@ -256,7 +268,12 @@ PPFD.to.Rg <- function(PPFD,J_to_mol=4.6,frac_PAR=0.5){
 #' 
 #' @param CO2_flux  CO2 flux (umol CO2 m-2 s-1)
 #' @param C_flux    Carbon (C) flux (gC m-2 d-1)
-#' @param constants Cmol - molar mass of carbon (kg mol-1)
+#' @param constants Cmol - molar mass of carbon (kg mol-1) \cr
+#'                  umol2mol - conversion micromole (umol) to mol (mol) \cr
+#'                  mol2umol - conversion mole (mol) to micromole (umol)  \cr
+#'                  kg2g - conversion kilogram (kg) to gram (g) \cr
+#'                  g2kg - conversion gram (g) to kilogram (kg) \cr
+#'                  days2seconds - seconds per day 
 #' 
 #' @examples 
 #' umolCO2.to.gC(20)  # gC m-2 d-1
@@ -264,7 +281,7 @@ PPFD.to.Rg <- function(PPFD,J_to_mol=4.6,frac_PAR=0.5){
 #' @export
 umolCO2.to.gC <- function(CO2_flux,constants=bigleaf.constants()){
   
-  C_flux <- CO2_flux * 1e-06 * constants$Cmol * 1000 * 86400
+  C_flux <- CO2_flux * constants$umol2mol * constants$Cmol * constants$kg2g * constants$days2seconds
   
   return(C_flux)
 }
@@ -274,7 +291,7 @@ umolCO2.to.gC <- function(CO2_flux,constants=bigleaf.constants()){
 #' @export
 gC.to.umolCO2 <- function(C_flux,constants=bigleaf.constants()){
   
-  CO2_flux <- (C_flux / 1000 / 86400) / constants$Cmol * 1e06
+  CO2_flux <- (C_flux * constants$g2kg / constants$days2seconds) / constants$Cmol * constants$mol2umol
   
   return(CO2_flux)
 }

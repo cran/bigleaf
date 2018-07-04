@@ -12,7 +12,9 @@
 #' @param LE        Latent heat flux (W m-2)
 #' @param VPD       Vapor pressure deficit (kPa)
 #' @param Tair      Air temperature (deg C)
-#' @param constants Cmol - molar mass of carbon (kg mol-1)
+#' @param constants Cmol - molar mass of carbon (kg mol-1) \cr
+#'                  umol2mol - conversion micromole (umol) to mole (mol) \cr
+#'                  kg2g - conversion kilogram (kg) to gram (g)
 #'
 #' @details the following metrics are calculated:
 #' 
@@ -76,8 +78,8 @@ WUE.metrics <- function(data,GPP="GPP",NEE="NEE",LE="LE",VPD="VPD",Tair="Tair",
   check.input(data,list(GPP,NEE,LE,VPD,Tair))
   
   ET  <- LE.to.ET(LE,Tair)                 # kg H2O s-1
-  GPP <- (GPP/1e06 * constants$Cmol)*1000  # gC m-2 s-1
-  NEE <- (NEE/1e06 * constants$Cmol)*1000  # gC m-2 s-1
+  GPP <- (GPP * constants$umol2mol * constants$Cmol) * constants$kg2g  # gC m-2 s-1
+  NEE <- (NEE * constants$umol2mol * constants$Cmol) * constants$kg2g  # gC m-2 s-1
   
   WUE     <- median(GPP/ET,na.rm=TRUE)
   WUE_NEE <- median(abs(NEE)/ET,na.rm=TRUE)

@@ -72,6 +72,7 @@ Reynolds.Number <- function(Tair,pressure,ustar,z0m,constants=bigleaf.constants(
 #'                  Kelvin - conversion degree Celsius to Kelvin \cr
 #'                  cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                  g - gravitational acceleration (m s-2) \cr
+#'                  se_median - conversion standard error (SE) of the mean to SE of the median
 #'                  
 #' 
 #' @details The two main roughness parameters, the displacement height (d)
@@ -186,7 +187,7 @@ roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","w
     z0m_all[z0m_all > zh] <- NA
     
     z0m    <- median(z0m_all,na.rm=TRUE)
-    z0m_se <- 1.253 * (sd(z0m_all,na.rm=TRUE) / sqrt(length(z0m_all[complete.cases(z0m_all)])))
+    z0m_se <- constants$se_median * (sd(z0m_all,na.rm=TRUE) / sqrt(length(z0m_all[complete.cases(z0m_all)])))
     
   }
   
@@ -225,7 +226,7 @@ roughness.parameters <- function(method=c("canopy_height","canopy_height&LAI","w
 #' @param constants k - von-Karman constant (-) \cr
 #'                  Kelvin - conversion degree Celsius to Kelvin \cr
 #'                  cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
-#'                  g - gravitational acceleration (m s-2) \cr
+#'                  g - gravitational acceleration (m s-2)
 #'
 #' @details The underlying assumption is the existence of a logarithmic wind profile
 #'          above the height d + z0m (the height at which wind speed mathematically reaches zero

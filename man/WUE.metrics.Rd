@@ -20,7 +20,9 @@ WUE.metrics(data, GPP = "GPP", NEE = "NEE", LE = "LE", VPD = "VPD",
 
 \item{Tair}{Air temperature (deg C)}
 
-\item{constants}{Cmol - molar mass of carbon (kg mol-1)}
+\item{constants}{Cmol - molar mass of carbon (kg mol-1) \cr
+umol2mol - conversion micromole (umol) to mole (mol) \cr
+kg2g - conversion kilogram (kg) to gram (g)}
 }
 \value{
 a named vector with the following elements:

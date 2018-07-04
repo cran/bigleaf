@@ -24,6 +24,7 @@
 #'                         See \code{\link{Esat.slope}}.           
 #' @param constants        cp - specific heat of air for constant pressure (J K-1 kg-1) \cr 
 #'                         eps - ratio of the molecular weight of water vapor to dry air (-) \cr
+#'                         Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #' 
 #' @details Canopy surface temperature and humidity are calculated by inverting bulk transfer equations of
 #'          sensible and latent heat, respectively. 'Canopy surface' in this case refers to 
@@ -89,7 +90,7 @@
 #'                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 #' @export 
 surface.conditions <- function(data,Tair="Tair",pressure="pressure",LE="LE",H="H",
-                               VPD="VPD",Ga="Ga",calc.surface.CO2=FALSE,Ca="Ca",Ga_CO2="Ga_CO2",
+                               VPD="VPD",Ga="Ga_h",calc.surface.CO2=FALSE,Ca="Ca",Ga_CO2="Ga_CO2",
                                NEE="NEE",Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
                                constants=bigleaf.constants()){
   
@@ -102,9 +103,9 @@ surface.conditions <- function(data,Tair="Tair",pressure="pressure",LE="LE",H="H
   Tsurf <- Tair + H / (rho * constants$cp * Ga)
   
   # 2) Humidity
-  esat      <- Esat.slope(Tair,Esat.formula)[,"Esat"]
+  esat      <- Esat.slope(Tair,Esat.formula,constants)[,"Esat"]
   e         <- esat - VPD
-  esat_surf <- Esat.slope(Tsurf,Esat.formula)[,"Esat"]
+  esat_surf <- Esat.slope(Tsurf,Esat.formula,constants)[,"Esat"]
   esurf     <- e + (LE * gamma)/(Ga * rho * constants$cp)
   VPD_surf  <- pmax(esat_surf - esurf,0)
   qsurf     <- VPD.to.q(VPD_surf,Tsurf,pressure,Esat.formula,constants)

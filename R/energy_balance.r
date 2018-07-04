@@ -155,7 +155,7 @@ energy.closure <- function(data,Rn="Rn",G=NULL,S=NULL,LE="LE",H="H",instantaneou
     
     EBR <- sum(LE[comp] + H[comp]) / sum(Rn[comp] - G[comp] - S[comp])
     
-    emod <- lm((LE + H) ~ (Rn - G - S))
+    emod <- lm(c(LE + H) ~ c(Rn - G - S))
     intercept <- summary(emod)$coef[1,1]
     slope     <- summary(emod)$coef[2,1]
     r_squared <- summary(emod)$r.squared

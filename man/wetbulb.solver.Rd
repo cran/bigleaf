@@ -4,7 +4,8 @@
 \alias{wetbulb.solver}
 \title{Solver Function for Wet-Bulb Temperature}
 \usage{
-wetbulb.solver(ea, Tair, gamma, accuracy, Esat.formula)
+wetbulb.solver(ea, Tair, gamma, accuracy, Esat.formula,
+  constants = bigleaf.constants())
 }
 \arguments{
 \item{ea}{Air vapor pressure (kPa)}
@@ -18,6 +19,8 @@ wetbulb.solver(ea, Tair, gamma, accuracy, Esat.formula)
 \item{Esat.formula}{Optional: formula to be used for the calculation of esat and the slope of esat.
 One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 See \code{\link{Esat.slope}}.}
+
+\item{constants}{Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
 }
 \description{
 Solver function used in wetbulb.temp()

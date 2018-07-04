@@ -9,7 +9,8 @@
 #' @param Tair      Air temperature (deg C)
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param constants Kelvin - conversion degC to Kelvin \cr
-#'                  Rd - gas constant of dry air (J kg-1 K-1)
+#'                  Rd - gas constant of dry air (J kg-1 K-1) \cr
+#'                  kPa2Pa - conversion kilopascal (kPa) to pascal (Pa)
 #' 
 #' @details Air density (\eqn{\rho}) is calculated as:
 #' 
@@ -27,7 +28,7 @@
 air.density <- function(Tair,pressure,constants=bigleaf.constants()){
   
   Tair     <- Tair + constants$Kelvin
-  pressure <- pressure*1000
+  pressure <- pressure * constants$kPa2Pa
   
   rho <- pressure / (constants$Rd * Tair) 
   
@@ -48,6 +49,7 @@ air.density <- function(Tair,pressure,constants=bigleaf.constants()){
 #'                  pressure0 - reference atmospheric pressure at sea level (Pa) \cr
 #'                  Rd - gas constant of dry air (J kg-1 K-1) \cr
 #'                  g -  gravitational acceleration (m s-2) \cr
+#'                  Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #' 
 #' @details Atmospheric pressure is approximated by the hypsometric equation:
 #' 
@@ -80,13 +82,13 @@ pressure.from.elevation <- function(elev,Tair,VPD=NULL,constants=bigleaf.constan
   } else {
     
     pressure1   <- constants$pressure0 / exp(constants$g * elev / (constants$Rd*Tair))
-    Tv          <- virtual.temp(Tair - constants$Kelvin,pressure1 / 1000,VPD,Esat.formula="Sonntag_1990",
-                                constants) + constants$Kelvin
+    Tv          <- virtual.temp(Tair - constants$Kelvin,pressure1 * constants$Pa2kPa,
+                                VPD,Esat.formula="Sonntag_1990",constants) + constants$Kelvin
     
     pressure    <- constants$pressure0 / exp(constants$g * elev / (constants$Rd*Tv))
   }
   
-  pressure <- pressure/1000
+  pressure <- pressure * constants$Pa2kPa
   return(pressure)
 } 
 
@@ -98,9 +100,10 @@ pressure.from.elevation <- function(elev,Tair,VPD=NULL,constants=bigleaf.constan
 #' @description Calculates saturation vapor pressure (Esat) over water and the
 #'              corresponding slope of the saturation vapor pressure curve.
 #' 
-#' @param Tair     Air temperature (deg C)
-#' @param formula  Formula to be used. Either \code{"Sonntag_1990"} (Default), 
-#'                 \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#' @param Tair      Air temperature (deg C)
+#' @param formula   Formula to be used. Either \code{"Sonntag_1990"} (Default), 
+#'                  \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
+#' @param constants Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #' 
 #' @details Esat (kPa) is calculated using the Magnus equation:
 #' 
@@ -142,7 +145,8 @@ pressure.from.elevation <- function(elev,Tair,VPD=NULL,constants=bigleaf.constan
 #'        
 #' @importFrom stats D                  
 #' @export
-Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996","Allen_1998")){
+Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                       constants=bigleaf.constants()){
   
   formula <- match.arg(formula)
   
@@ -162,12 +166,11 @@ Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996","Allen_1998
   
   # saturation vapor pressure
   Esat <- a * exp((b * Tair) / (c + Tair))
-  Esat <- Esat/1000
+  Esat <- Esat * constants$Pa2kPa
   
   # slope of the saturation vapor pressure curve
   Delta <- eval(D(expression(a * exp((b * Tair) / (c + Tair))),name="Tair"))
-  Delta <- Delta/1000
-  
+  Delta <- Delta * constants$Pa2kPa
   
   return(data.frame(Esat,Delta))
 }
@@ -255,14 +258,15 @@ latent.heat.vaporization <- function(Tair) {
 #' @param Esat.formula Optional: formula to be used for the calculation of esat and the slope of esat.
 #'                     One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                     See \code{\link{Esat.slope}}. 
+#' @param constants    Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #' 
 #' @note Arguments \code{accuracy} and \code{Esat.formula} are passed to this function by wetbulb.temp().
 #' 
 #' @importFrom stats optimize 
 #' 
 #' @keywords internal
-wetbulb.solver <- function(ea,Tair,gamma,accuracy,Esat.formula){
-  wetbulb.optim <- optimize(function(Tw){abs(ea - c((Esat.slope(Tw,Esat.formula)[,"Esat"] - 0.93*gamma*(Tair - Tw))))},
+wetbulb.solver <- function(ea,Tair,gamma,accuracy,Esat.formula,constants=bigleaf.constants()){
+  wetbulb.optim <- optimize(function(Tw){abs(ea - c((Esat.slope(Tw,Esat.formula,constants)[,"Esat"] - 0.93*gamma*(Tair - Tw))))},
                             interval=c(-100,100),tol=accuracy)
   return(wetbulb.optim)
 }
@@ -282,7 +286,8 @@ wetbulb.solver <- function(ea,Tair,gamma,accuracy,Esat.formula){
 #'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                      See \code{\link{Esat.slope}}. 
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
-#'                  eps - ratio of the molecular weight of water vapor to dry air (-) 
+#'                  eps - ratio of the molecular weight of water vapor to dry air (-) \cr
+#'                  Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #' 
 #' @details Wet-bulb temperature (Tw) is calculated from the following expression:
 #'          
@@ -323,7 +328,7 @@ wetbulb.temp <- function(Tair,pressure,VPD,accuracy=1e-03,Esat.formula=c("Sonnta
   ea     <- VPD.to.e(VPD,Tair,Esat.formula)
   
   Tw <- sapply(seq_along(ea),function(i) round(wetbulb.solver(ea[i],Tair[i],gamma[i],
-                                                              accuracy=accuracy,Esat.formula)$minimum,ndigits))
+                                                              accuracy=accuracy,Esat.formula,constants)$minimum,ndigits))
   
   return(Tw)
   
@@ -348,15 +353,16 @@ wetbulb.temp <- function(Tair,pressure,VPD,accuracy=1e-03,Esat.formula=c("Sonnta
 #' @param Esat.formula Optional: formula to be used for the calculation of esat and the slope of esat.
 #'                     One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                     See \code{\link{Esat.slope}}. 
+#' @param constants    Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #' 
 #' @note Arguments \code{accuracy} and \code{Esat.formula} are passed to this function by dew.point().
 #' 
 #' @importFrom stats optimize 
 #' 
 #' @keywords internal
-dew.point.solver <- function(ea,accuracy,Esat.formula){
+dew.point.solver <- function(ea,accuracy,Esat.formula,constants=bigleaf.constants()){
   
-  Td.optim <- optimize(function(Td){abs(ea - Esat.slope(Td,Esat.formula)[,"Esat"])},
+  Td.optim <- optimize(function(Td){abs(ea - Esat.slope(Td,Esat.formula,constants)[,"Esat"])},
                        interval=c(-100,100),tol=accuracy)
   return(Td.optim)
 }
@@ -374,6 +380,7 @@ dew.point.solver <- function(ea,accuracy,Esat.formula){
 #' @param Esat.formula  Optional: formula to be used for the calculation of esat and the slope of esat.
 #'                      One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                      See \code{\link{Esat.slope}}. 
+#' @param constants Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
 #' 
 #' @details Dew point temperature (Td) is defined by:
 #' 
@@ -392,7 +399,8 @@ dew.point.solver <- function(ea,accuracy,Esat.formula){
 #' 
 #' @importFrom stats optimize 
 #' @export              
-dew.point <- function(Tair,VPD,accuracy=1e-03,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998")){
+dew.point <- function(Tair,VPD,accuracy=1e-03,Esat.formula=c("Sonntag_1990","Alduchov_1996","Allen_1998"),
+                      constants=bigleaf.constants()){
   
   if (!is.numeric(accuracy)){
     stop("'accuracy' must be numeric!")
@@ -409,7 +417,7 @@ dew.point <- function(Tair,VPD,accuracy=1e-03,Esat.formula=c("Sonntag_1990","Ald
   
   ea <- VPD.to.e(VPD,Tair,Esat.formula)
   Td <- sapply(seq_along(ea),function(i) round(dew.point.solver(ea[i],accuracy=accuracy,
-                                                                Esat.formula)$minimum,ndigits))
+                                                                Esat.formula,constants)$minimum,ndigits))
   
   return(Td)
 }
@@ -472,7 +480,8 @@ virtual.temp <- function(Tair,pressure,VPD,Esat.formula=c("Sonntag_1990","Alduch
 #' @param pressure  Atmospheric pressure (kPa)
 #' @param constants Kelvin - conversion degree Celsius to Kelvin \cr
 #'                  pressure0 - reference atmospheric pressure at sea level (Pa) \cr
-#'                  Tair0 - reference air temperature (K)
+#'                  Tair0 - reference air temperature (K) \cr
+#'                  kPa2Pa - conversion kilopascal (kPa) to pascal (Pa)
 #' 
 #' @details where v is the kinematic viscosity of the air (m2 s-1), 
 #'          given by (Massman 1999b):
@@ -492,7 +501,7 @@ virtual.temp <- function(Tair,pressure,VPD,Esat.formula=c("Sonntag_1990","Alduch
 kinematic.viscosity <- function(Tair,pressure,constants=bigleaf.constants()){
   
   Tair     <- Tair + constants$Kelvin
-  pressure <- pressure * 1000
+  pressure <- pressure * constants$kPa2Pa
   
   v  <- 1.327e-05*(constants$pressure0/pressure)*(Tair/constants$Tair0)^1.81
   return(v)
