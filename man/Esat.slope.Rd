@@ -4,8 +4,8 @@
 \alias{Esat.slope}
 \title{Saturation Vapor Pressure (Esat) and Slope of the Esat Curve}
 \usage{
-Esat.slope(Tair, formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
-  constants = bigleaf.constants())
+Esat.slope(Tair, formula = c("Sonntag_1990", "Alduchov_1996",
+  "Allen_1998"), constants = bigleaf.constants())
 }
 \arguments{
 \item{Tair}{Air temperature (deg C)}

@@ -4,8 +4,8 @@
 \alias{isothermal.Rn}
 \title{Isothermal Net Radiation}
 \usage{
-isothermal.Rn(data, Rn = "Rn", Tair = "Tair", Tsurf = "Tsurf", emissivity,
-  constants = bigleaf.constants())
+isothermal.Rn(data, Rn = "Rn", Tair = "Tair", Tsurf = "Tsurf",
+  emissivity, constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}

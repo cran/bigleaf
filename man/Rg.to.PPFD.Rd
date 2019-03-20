@@ -14,7 +14,7 @@ PPFD.to.Rg(PPFD, J_to_mol = 4.6, frac_PAR = 0.5)
 
 \item{J_to_mol}{Conversion factor from J m-2 s-1 (= W m-2) to umol (quanta) m-2 s-1}
 
-\item{frac_PAR}{Fraction of incoming solar irradiance that is photosynthetically 
+\item{frac_PAR}{Fraction of incoming solar irradiance that is photosynthetically
 active radiation (PAR); defaults to 0.5}
 
 \item{PPFD}{Photosynthetic photon flux density (umol m-2 s-1)}
@@ -26,11 +26,11 @@ Converts radiation from W m-2 to umol m-2 s-1 and vice versa.
 The conversion is given by:
 
  \deqn{PPFD = Rg * frac_PAR * J_to_mol}
- 
+
 by default, the combined conversion factor (\code{frac_PAR * J_to_mol}) is 2.3
 }
 \examples{
-# convert a measured incoming short-wave radiation of 500 Wm-2 to 
+# convert a measured incoming short-wave radiation of 500 Wm-2 to
 # PPFD in umol m-2 s-1 and backwards
 Rg.to.PPFD(500)
 PPFD.to.Rg(1150)

@@ -3,7 +3,6 @@
 \name{LE.to.ET}
 \alias{LE.to.ET}
 \alias{ET.to.LE}
-\alias{ET.to.LE}
 \title{Conversion between Latent Heat Flux and Evapotranspiration}
 \usage{
 LE.to.ET(LE, Tair)

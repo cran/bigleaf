@@ -1,15 +1,16 @@
 Package: bigleaf
 Type: Package
-Version: 0.6.5
-Date: 2018-07-03
+Version: 0.7.0
+Date: 2019-03-15
 Title: Physical and Physiological Ecosystem Properties from Eddy
         Covariance Data
-Authors@R: c( person("Juergen", "Knauer", role=c("aut","cre"), email="jknauer@bgc-jena.mpg.de"),
+Authors@R: c( person("Juergen", "Knauer", role=c("aut","cre"), email="Juergen.Knauer@csiro.au"),
               person("Soenke", "Zaehle", role=c("ctb"), email="szaehle@bgc-jena.mpg.de"),
-			  person("Tarek", "El-Madany", role=c("ctb"), email="telmad@bgc-jena.mpg.de"),
-			  person("Mirco", "Migliavacca", role=c("ctb"), email="mmiglia@bgc-jena.mpg.de")
-			)	
-Maintainer: Juergen Knauer <jknauer@bgc-jena.mpg.de>
+			        person("Tarek", "El-Madany", role=c("ctb"), email="telmad@bgc-jena.mpg.de"),
+			        person("Mirco", "Migliavacca", role=c("ctb"), email="mmiglia@bgc-jena.mpg.de"),
+			        person("Thomas", "Wutzler", role=c("aut"), email="twutz@bgc-jena.mpg.de")
+			      )	
+Maintainer: Juergen Knauer <Juergen.Knauer@csiro.au>
 Description: Calculation of physical (e.g. aerodynamic conductance, surface temperature), 
              and physiological (e.g. canopy conductance, water-use efficiency) ecosystem properties
 			 from eddy covariance data and accompanying meteorological measurements. Calculations
@@ -17,17 +18,19 @@ Description: Calculation of physical (e.g. aerodynamic conductance, surface temp
 URL: https://bitbucket.org/juergenknauer/bigleaf
 BugReports: https://bitbucket.org/juergenknauer/bigleaf/issues
 Depends: R (>= 2.10)
-Imports: robustbase
+Imports: robustbase, solartime
 License: GPL (>= 2)
 LazyData: yes
-RoxygenNote: 6.0.1
-Suggests: knitr, rmarkdown
+RoxygenNote: 6.1.1
+Encoding: UTF-8
+Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2018-07-03 23:10:53 UTC; jknauer
+Packaged: 2019-03-20 02:02:52 UTC; kna016
 Author: Juergen Knauer [aut, cre],
   Soenke Zaehle [ctb],
   Tarek El-Madany [ctb],
-  Mirco Migliavacca [ctb]
+  Mirco Migliavacca [ctb],
+  Thomas Wutzler [aut]
 Repository: CRAN
-Date/Publication: 2018-07-04 08:00:03 UTC
+Date/Publication: 2019-03-20 09:03:36 UTC

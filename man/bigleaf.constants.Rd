@@ -6,12 +6,13 @@
 \usage{
 bigleaf.constants(cp = 1004.834, Rgas = 8.31451, Rv = 461.5,
   Rd = 287.0586, Md = 0.0289645, Mw = 0.0180153, eps = 0.622,
-  g = 9.81, pressure0 = 101325, Tair0 = 273.15, k = 0.41,
-  Cmol = 0.012011, Omol = 0.0159994, sigma = 5.670367e-08, Pr = 0.71,
+  g = 9.81, solar_constant = 1366.1, pressure0 = 101325,
+  Tair0 = 273.15, k = 0.41, Cmol = 0.012011, Omol = 0.0159994,
+  H2Omol = 0.01801528, sigma = 5.670367e-08, Pr = 0.71,
   Sc_CO2 = 1.07, Kelvin = 273.15, DwDc = 1.6, days2seconds = 86400,
-  kPa2Pa = 1000, Pa2kPa = 0.001, umol2mol = 1e-06, mol2umol = 1e+06,
-  kg2g = 1000, g2kg = 0.001, kJ2J = 1000, J2kJ = 0.001,
-  se_median = 1.253, frac2percent = 100)
+  kPa2Pa = 1000, Pa2kPa = 0.001, umol2mol = 1e-06,
+  mol2umol = 1e+06, kg2g = 1000, g2kg = 0.001, kJ2J = 1000,
+  J2kJ = 0.001, se_median = 1.253, frac2percent = 100)
 }
 \arguments{
 \item{cp}{Specific heat of air for constant pressure (J K-1 kg-1)}
@@ -30,6 +31,8 @@ bigleaf.constants(cp = 1004.834, Rgas = 8.31451, Rv = 461.5,
 
 \item{g}{Gravitational acceleration (m s-2)}
 
+\item{solar_constant}{Solar constant (W m-2)}
+
 \item{pressure0}{Reference atmospheric pressure at sea level (Pa)}
 
 \item{Tair0}{Reference air temperature (K)}
@@ -39,6 +42,8 @@ bigleaf.constants(cp = 1004.834, Rgas = 8.31451, Rv = 461.5,
 \item{Cmol}{Molar mass of carbon (kg mol-1)}
 
 \item{Omol}{Molar mass of oxygen (kg mol-1)}
+
+\item{H2Omol}{Molar mass of water (kg mol-1)}
 
 \item{sigma}{Stefan-Boltzmann constant (W m-2 K-4)}
 
@@ -76,22 +81,22 @@ bigleaf.constants(cp = 1004.834, Rgas = 8.31451, Rv = 461.5,
 This function defines the following constants:
 }
 \details{
-This function is passed as an argument to every function that uses one 
-         or more constants. Individual constants passed to a function can be 
-         easily altered. E.g. the following command will change the value of 
+This function is passed as an argument to every function that uses one
+         or more constants. Individual constants passed to a function can be
+         easily altered. E.g. the following command will change the value of
          the von Karman constant from 0.41 to 0.4:
-      
+
          \code{bigleaf.constants(k=0.4)}
-      
+
          the value of a constant can be returned by calling:
-      
+
          \code{bigleaf.constants()$*name_of_constant*}
 
          To permanently change the constants contained within this function (which
-         makes sense for some of them, e.g. for the von Karman constant), 
+         makes sense for some of them, e.g. for the von Karman constant),
          the command \code{\link[utils]{fixInNamespace}} can be used. E.g.
-      
+
          \code{fixInNamespace(bigleaf.constants,ns="bigleaf")}
-      
+
          Note that this has to be repeated every time the package is newly installed/loaded.
 }

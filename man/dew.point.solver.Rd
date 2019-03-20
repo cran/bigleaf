@@ -4,7 +4,8 @@
 \alias{dew.point.solver}
 \title{Solver function for dew point temperature}
 \usage{
-dew.point.solver(ea, accuracy, Esat.formula, constants = bigleaf.constants())
+dew.point.solver(ea, accuracy, Esat.formula,
+  constants = bigleaf.constants())
 }
 \arguments{
 \item{ea}{Air vapor pressure (kPa)}

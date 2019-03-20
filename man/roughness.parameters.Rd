@@ -5,11 +5,11 @@
 \title{Roughness Parameters}
 \usage{
 roughness.parameters(method = c("canopy_height", "canopy_height&LAI",
-  "wind_profile"), zh, frac_d = 0.7, frac_z0m = 0.1, LAI, zr, cd = 0.2,
-  hs = 0.01, data, Tair = "Tair", pressure = "pressure", wind = "wind",
-  ustar = "ustar", H = "H", d = NULL, z0m = NULL,
-  stab_roughness = TRUE, stab_formulation = c("Dyer_1970", "Businger_1971"),
-  constants = bigleaf.constants())
+  "wind_profile"), zh, frac_d = 0.7, frac_z0m = 0.1, LAI, zr,
+  cd = 0.2, hs = 0.01, data, Tair = "Tair", pressure = "pressure",
+  wind = "wind", ustar = "ustar", H = "H", d = NULL, z0m = NULL,
+  stab_roughness = TRUE, stab_formulation = c("Dyer_1970",
+  "Businger_1971"), constants = bigleaf.constants())
 }
 \arguments{
 \item{method}{Method to use, one of \code{"canopy_height","canopy_height&LAI","wind_profile"} \cr

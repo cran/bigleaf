@@ -4,11 +4,11 @@
 \alias{reference.ET}
 \title{Reference Evapotranspiration}
 \usage{
-reference.ET(data, Gs_ref = 0.0143, Tair = "Tair", pressure = "pressure",
-  VPD = "VPD", Rn = "Rn", Ga = "Ga_h", G = NULL, S = NULL,
-  missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
-  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
-  constants = bigleaf.constants())
+reference.ET(data, Gs_ref = 0.0143, Tair = "Tair",
+  pressure = "pressure", VPD = "VPD", Rn = "Rn", Ga = "Ga_h",
+  G = NULL, S = NULL, missing.G.as.NA = FALSE,
+  missing.S.as.NA = FALSE, Esat.formula = c("Sonntag_1990",
+  "Alduchov_1996", "Allen_1998"), constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables; optional}

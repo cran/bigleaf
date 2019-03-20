@@ -1,5 +1,15 @@
 NEWS for Package 'bigleaf'
 
+version 0.7.0 (2019-03-15)
+
+ - new functions added: extraterrestrial.radiation() and potential.radiation()
+ - vignette updated
+ - function e.to.rH() added to unit conversions
+ - function kg.to.mol() added to unit conversions (not yet in use)
+ - solar_constant and H2Omol added to bigleaf.constants
+ - CITATION file added
+ 
+
 
 version 0.6.5 (2018-06-17)
 

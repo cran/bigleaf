@@ -46,7 +46,7 @@ FR_Pue_May_2012
 \description{
 Halfhourly eddy covariance Data of the site FR-Pue,
              a Mediterranean evergreen oak forest in Southern France
-             (\url{http://www.fluxdata.org:8080/sitepages/siteInfo.aspx?FR-Pue}).
+             (\url{http://sites.fluxdata.org/FR-Pue}).
              Data are from May 2012.
 }
 \note{

@@ -5,9 +5,10 @@
 \title{Boundary Layer Conductance according to Su et al. 2001}
 \usage{
 Gb.Su(data, Tair = "Tair", pressure = "pressure", ustar = "ustar",
-  wind = "wind", H = "H", zh, zr, d, Dl, fc = NULL, LAI = NULL, N = 2,
-  Cd = 0.2, hs = 0.01, stab_formulation = c("Dyer_1970", "Businger_1971"),
-  Sc = NULL, Sc_name = NULL, constants = bigleaf.constants())
+  wind = "wind", H = "H", zh, zr, d, Dl, fc = NULL, LAI = NULL,
+  N = 2, Cd = 0.2, hs = 0.01, stab_formulation = c("Dyer_1970",
+  "Businger_1971"), Sc = NULL, Sc_name = NULL,
+  constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}

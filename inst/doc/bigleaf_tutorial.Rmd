@@ -3,10 +3,12 @@ title: "Tutorial on bigleaf"
 author: "Juergen Knauer"
 date: "`r Sys.Date()`"
 output: rmarkdown::pdf_document
+urlcolor: blue
 vignette: >
   %\VignetteIndexEntry{Tutorial on bigleaf}
   %\VignetteEngine{knitr::rmarkdown}
-  \usepackage[utf8]{inputenc}
+  %\VignetteEncoding{UTF-8}
+  %\usepackage[utf8]{inputenc}
 ---
 
 ```{r, echo = FALSE}
@@ -14,8 +16,7 @@ knitr::opts_chunk$set(collapse=TRUE,comment="#>")
 ```
 
 
-This vignette is a short introduction to the functionalities of the `bigleaf` R package (version 0.6.5). It is directed to first-time package users who are familiar with the basic concepts of R. After presenting the use of several key functions of the package, some useful hints and guidelines are given at the end of the vignette.
-
+This vignette is a short introduction to the functionalities of the `bigleaf` R package (version 0.7.0). It is directed to first-time package users who are familiar with the basic concepts of R. After presenting the use of several key functions of the package, some useful hints and guidelines are given at the end of the vignette.
 
 
 # Package scope and important conceptual considerations
@@ -25,6 +26,7 @@ This vignette is a short introduction to the functionalities of the `bigleaf` R 
 Please also keep in mind that the `bigleaf` package does NOT provide formulations for bottom-up modelling. The principle applied here is to use an inversion approach in which ecosystem properties are inferred top-down from the measured fluxes. Such an inversion can, in principle, be also be conducted with more complex models (e.g. sun/shade or canopy/soil models), but keep in mind that these approaches also require that the additional, site-specific parameters are adequately well known. 
 
 The use of more detailed models is not within the scope of the `bigleaf` R package, but it is preferable to use such approaches when important assumptions of the "big-leaf" approach are not met. This is the case in particular when the ecosystem is sparsely covered with vegetation (low LAI, e.g. sparse crops, some savanna systems). 
+
 
 \vspace{0.5cm}
 
@@ -43,7 +45,7 @@ library(devtools)
 install_bitbucket("juergenknauer/bigleaf")
 ```
 
-After installation, the package can be loaded:
+Note that for the `install_bitbucket` command to work on Windows, [Rtools](https://cran.r-project.org/bin/windows/Rtools/) must be installed. After installation, the package can be loaded:
 
 ```{r}
 library(bigleaf)
@@ -191,7 +193,7 @@ When looking at the function output we see that we these settings, we exclude in
 
 ## Aerodynamic conductance
 
-An important metric for many calculations in the `bigleaf` package is the aerodynamic conductance ($G_a$) between the land surface and the measurement height. $G_a$ characterizes how efficiently mass and energy is transferred between the land surface and the atmosphere. $G_a$ consists of two parts: $G_{am}$, the aerodynamic conductance for momentum, and $G_b$, the canopy boundary layer (or quasi-laminar) conductance. $G_a$ can be defined as $G_a = 1/(1/G_{am} + 1/G_b)$. In this tutorial we will focus on how to use the function `aerodynamic.conductance`. For further details on the equations, the reader is directed to the publication of the bigleaf package (Knauer et al. 2018, PLOS ONE) and the references therein. A good overview is provided by e.g. Verma 1989.
+An important metric for many calculations in the `bigleaf` package is the aerodynamic conductance ($G_a$) between the land surface and the measurement height. $G_a$ characterizes how efficiently mass and energy is transferred between the land surface and the atmosphere. $G_a$ consists of two parts: $G_{am}$, the aerodynamic conductance for momentum, and $G_b$, the canopy boundary layer (or quasi-laminar) conductance. $G_a$ can be defined as $G_a = 1/(1/G_{am} + 1/G_b)$. In this tutorial we will focus on how to use the function `aerodynamic.conductance`. For further details on the equations, the reader is directed to the publication of the bigleaf package (Knauer et al. 2018) and the references therein. A good overview is provided by e.g. Verma 1989.
 
 $G_a$ and in particular $G_b$ can be calculated with varying degrees of complexity. We start with the simplest version, in which $G_b$ is calculated empirically based on the friction velocity ($u_*$) according to Thom 1972:
 
@@ -613,20 +615,22 @@ In general, these operations are more effectively implemented elsewhere, and we 
 
 ## References
 
-Ball, J. T.; Woodrow, I. E. & Berry, J. A. Biggins, J. (Ed.) A model predicting stomatal conductance and its contribution to the control of photosynthesis under different environmental conditions Progress in photosynthesis research, Martinus Nijhoff Publishers, Dordrecht, Netherlands, 1987, 221-224
+Ball, J. T.; Woodrow, I. E. & Berry, J. A. Biggins, J. (Ed.) A model predicting stomatal conductance and its contribution to the control of photosynthesis under different environmental conditions Progress in photosynthesis research, Martinus Nijhoff Publishers, Dordrecht, Netherlands, 1987, 221-224.
 
-Grünwald, T. & Bernhofer, C. A decade of carbon, water and energy flux measurements of an old spruce forest at the Anchor Station Tharandt Tellus B, Wiley Online Library, 2007, 59, 387-396
+Grünwald, T. & Bernhofer, C. A decade of carbon, water and energy flux measurements of an old spruce forest at the Anchor Station Tharandt Tellus B, Wiley Online Library, 2007, 59, 387-396.
 
-Hollinger, D. & Richardson, A. Uncertainty in eddy covariance measurements and its application to physiological models. Tree physiology, 2005, 25, 873-885
+Hollinger, D. & Richardson, A. Uncertainty in eddy covariance measurements and its application to physiological models. Tree physiology, 2005, 25, 873-885.
 
-Leuning, R. A critical appraisal of a combined stomatal-photosynthesis model for C3 plants Plant, Cell & Environment, Wiley Online Library, 1995, 18, 339-355
+Knauer, J., El-Madany, T.S., Zaehle, S., Migliavacca, M. An R package for the calculation of physical and physiological ecosystem properties from eddy covariance data. PLoS ONE, 2018, e0201114.
 
-Leuning, R.; Van Gorsel, E.; Massman, W. J. & Isaac, P. R. Reflections on the surface energy imbalance problem Agricultural and Forest Meteorology, 2012, 156, 65-74
+Leuning, R. A critical appraisal of a combined stomatal-photosynthesis model for C3 plants Plant, Cell & Environment, Wiley Online Library, 1995, 18, 339-355.
 
-Medlyn, B. E.; Duursma, R. A.; Eamus, D.; Ellsworth, D. S.; Prentice, I. C.; Barton, C. V.; Crous, K. Y.; de Angelis, P.; Freeman, M. & Wingate, L. Reconciling the optimal and empirical approaches to modelling stomatal conductance. Global Change Biology, 2011, 17, 2134-2144
+Leuning, R.; Van Gorsel, E.; Massman, W. J. & Isaac, P. R. Reflections on the surface energy imbalance problem Agricultural and Forest Meteorology, 2012, 156, 65-74.
 
-Su, Z.; Schmugge, T.; Kustas, W. & Massman, W. An evaluation of two models for estimation of the roughness height for heat transfer between the land surface and the atmosphere. Journal of Applied Meteorology, 2001, 40, 1933-1951
+Medlyn, B. E.; Duursma, R. A.; Eamus, D.; Ellsworth, D. S.; Prentice, I. C.; Barton, C. V.; Crous, K. Y.; de Angelis, P.; Freeman, M. & Wingate, L. Reconciling the optimal and empirical approaches to modelling stomatal conductance. Global Change Biology, 2011, 17, 2134-2144.
 
-Thom, A. Momentum, mass and heat exchange of vegetation. Quarterly Journal of the Royal Meteorological Society, 1972, 98, 124-134
+Su, Z.; Schmugge, T.; Kustas, W. & Massman, W. An evaluation of two models for estimation of the roughness height for heat transfer between the land surface and the atmosphere. Journal of Applied Meteorology, 2001, 40, 1933-1951.
 
-Verma, S. Black, T.; Spittlehouse, D.; Novak, M. & Price, D. (Eds.) Aerodynamic resistances to transfers of heat, mass and momentum Estimation of areal evapotranspiration, Estimation of areal evapotranspiration, International Association of Hydrological Sciences, 1989, 177, 13-20
+Thom, A. Momentum, mass and heat exchange of vegetation. Quarterly Journal of the Royal Meteorological Society, 1972, 98, 124-134.
+
+Verma, S. Black, T.; Spittlehouse, D.; Novak, M. & Price, D. (Eds.) Aerodynamic resistances to transfers of heat, mass and momentum Estimation of areal evapotranspiration, Estimation of areal evapotranspiration, International Association of Hydrological Sciences, 1989, 177, 13-20.

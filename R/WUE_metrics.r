@@ -77,7 +77,7 @@ WUE.metrics <- function(data,GPP="GPP",NEE="NEE",LE="LE",VPD="VPD",Tair="Tair",
   
   check.input(data,list(GPP,NEE,LE,VPD,Tair))
   
-  ET  <- LE.to.ET(LE,Tair)                 # kg H2O s-1
+  ET  <- LE.to.ET(LE,Tair)                 # kg H2O m-2 s-1
   GPP <- (GPP * constants$umol2mol * constants$Cmol) * constants$kg2g  # gC m-2 s-1
   NEE <- (NEE * constants$umol2mol * constants$Cmol) * constants$kg2g  # gC m-2 s-1
   

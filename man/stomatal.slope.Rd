@@ -4,11 +4,11 @@
 \alias{stomatal.slope}
 \title{Stomatal Slope Parameter "g1"}
 \usage{
-stomatal.slope(data, Tair = "Tair", pressure = "pressure", GPP = "GPP",
-  Gs = "Gs_mol", VPD = "VPD", Ca = "Ca", Rleaf = NULL,
-  model = c("USO", "Ball&Berry", "Leuning"), robust.nls = FALSE,
-  nmin = 40, fitg0 = FALSE, g0 = 0, fitD0 = FALSE, D0 = 1.5,
-  Gamma = 50, missing.Rleaf.as.NA = FALSE,
+stomatal.slope(data, Tair = "Tair", pressure = "pressure",
+  GPP = "GPP", Gs = "Gs_mol", VPD = "VPD", Ca = "Ca",
+  Rleaf = NULL, model = c("USO", "Ball&Berry", "Leuning"),
+  robust.nls = FALSE, nmin = 40, fitg0 = FALSE, g0 = 0,
+  fitD0 = FALSE, D0 = 1.5, Gamma = 50, missing.Rleaf.as.NA = FALSE,
   constants = bigleaf.constants(), ...)
 }
 \arguments{

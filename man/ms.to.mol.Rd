@@ -3,7 +3,6 @@
 \name{ms.to.mol}
 \alias{ms.to.mol}
 \alias{mol.to.ms}
-\alias{mol.to.ms}
 \title{Conversion between Conductance Units}
 \usage{
 ms.to.mol(G_ms, Tair, pressure, constants = bigleaf.constants())
@@ -38,7 +37,7 @@ where Tair is in Kelvin and pressure in Pa (converted from kPa internally)
 }
 \examples{
 ms.to.mol(0.005,25,100)
-            
+
 }
 \references{
 Jones, H.G. 1992. Plants and microclimate: a quantitative approach to environmental plant physiology.

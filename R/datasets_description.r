@@ -2,7 +2,7 @@
 #' 
 #' @description Halfhourly eddy covariance Data of the site AT-Neu,
 #'              a mountain meadow in Austria.
-#'              (\url{http://www.fluxdata.org:8080/sitepages/siteInfo.aspx?AT-Neu}). 
+#'              (\url{http://sites.fluxdata.org/AT-Neu}). 
 #'              Data are from July 2010.
 #'              
 #' @format A data frame with 1488 observations and 31 columns:
@@ -54,7 +54,7 @@
 #' 
 #' @description Halfhourly eddy covariance Data of the site DE-Tha,
 #'              a spruce forest in Eastern Germany 
-#'              (\url{http://www.fluxdata.org:8080/sitepages/siteInfo.aspx?DE-Tha}). 
+#'              (\url{http://sites.fluxdata.org/DE-Tha}). 
 #'              Data are from June 2014.
 #'              
 #' @format A data frame with 1440 observations and 32 columns:
@@ -107,7 +107,7 @@
 #' 
 #' @description Halfhourly eddy covariance Data of the site FR-Pue,
 #'              a Mediterranean evergreen oak forest in Southern France
-#'              (\url{http://www.fluxdata.org:8080/sitepages/siteInfo.aspx?FR-Pue}).
+#'              (\url{http://sites.fluxdata.org/FR-Pue}).
 #'              Data are from May 2012.
 #'              
 #' @format A data frame with 1488 observations and 29 columns:

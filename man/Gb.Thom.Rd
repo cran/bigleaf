@@ -4,7 +4,8 @@
 \alias{Gb.Thom}
 \title{Boundary Layer Conductance according to Thom 1972}
 \usage{
-Gb.Thom(ustar, Sc = NULL, Sc_name = NULL, constants = bigleaf.constants())
+Gb.Thom(ustar, Sc = NULL, Sc_name = NULL,
+  constants = bigleaf.constants())
 }
 \arguments{
 \item{ustar}{Friction velocity (m s-1)}

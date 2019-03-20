@@ -49,7 +49,7 @@ DE_Tha_Jun_2014
 \description{
 Halfhourly eddy covariance Data of the site DE-Tha,
              a spruce forest in Eastern Germany 
-             (\url{http://www.fluxdata.org:8080/sitepages/siteInfo.aspx?DE-Tha}). 
+             (\url{http://sites.fluxdata.org/DE-Tha}). 
              Data are from June 2014.
 }
 \note{

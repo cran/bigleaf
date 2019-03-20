@@ -6,11 +6,12 @@
 \usage{
 photosynthetic.capacity(data, C3 = TRUE, Temp, GPP = "GPP", Ci,
   PPFD = "PPFD", PPFD_j = c(200, 500), PPFD_c = 1000, Rleaf = NULL,
-  Oi = 0.21, Kc25 = 404.9, Ko25 = 278.4, Gam25 = 42.75, Kc_Ha = 79.43,
-  Ko_Ha = 36.38, Gam_Ha = 37.83, Vcmax_Ha = 65.33, Vcmax_Hd = 200,
-  Vcmax_dS = 0.635, Jmax_Ha = 43.9, Jmax_Hd = 200, Jmax_dS = 0.64,
-  Theta = 0.7, alpha_canopy = 0.8, missing.Rleaf.as.NA = FALSE,
-  Ci_C4 = 100, constants = bigleaf.constants())
+  Oi = 0.21, Kc25 = 404.9, Ko25 = 278.4, Gam25 = 42.75,
+  Kc_Ha = 79.43, Ko_Ha = 36.38, Gam_Ha = 37.83, Vcmax_Ha = 65.33,
+  Vcmax_Hd = 200, Vcmax_dS = 0.635, Jmax_Ha = 43.9, Jmax_Hd = 200,
+  Jmax_dS = 0.64, Theta = 0.7, alpha_canopy = 0.8,
+  missing.Rleaf.as.NA = FALSE, Ci_C4 = 100,
+  constants = bigleaf.constants())
 }
 \arguments{
 \item{data}{Data.Frame or matrix with all required columns}
