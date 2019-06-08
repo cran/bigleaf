@@ -1,5 +1,11 @@
 NEWS for Package 'bigleaf'
 
+
+version 0.7.1 (2019-06-08)
+
+ - package rebuilt with knitr version 1.23 (fixed encoding issue)
+
+
 version 0.7.0 (2019-03-15)
 
  - new functions added: extraterrestrial.radiation() and potential.radiation()

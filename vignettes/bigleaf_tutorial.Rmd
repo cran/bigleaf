@@ -240,7 +240,7 @@ We can compare the surface and air temperature:
 ```{r}
 par(mfrow=c(1,2),mar=c(5,4,2,0.5))
 plot(tha_filtered[,"Tair"] ~ tha_filtered[,"Tsurf"],xlim=c(8,35),ylim=c(8,35),las=1,
-     xlab="Tsurf (°C)",ylab="Tair (°C)",mgp=c(2.2,0.5,0),tcl=-0.2)
+     xlab="Tsurf (degC)",ylab="Tair (degC)",mgp=c(2.2,0.5,0),tcl=-0.2)
 abline(0,1)
 plot(tha_filtered[,"VPD"] ~ tha_filtered[,"VPD_surf"],xlim=c(0,4),ylim=c(0,4),las=1,
      xlab="VPD surface (kPa)",ylab="VPD air (kPa)",mgp=c(2.2,0.5,0),tcl=-0.2)

@@ -1,6 +1,6 @@
-d24a8d86bcd6fe0497db4aca106884d3 *DESCRIPTION
+eb00844822a1d551b248ae551b27c752 *DESCRIPTION
 e852abe9aac8ab9df5aeb3b47a7c1ba9 *NAMESPACE
-ec53549897b5ead71bf3224ed24c14e5 *NEWS
+b6cd3f2bdbe3cc0de3307f6a872122be *NEWS
 2357c283a15bcf8976acd81e7acdc2eb *R/WUE_metrics.r
 cef83ea1a8ff4748f2bbfa4012242409 *R/aerodynamic_conductance.r
 0c6edaa5c8cd5ca6e95ea410d62fe046 *R/bigleaf_constants.r
@@ -24,9 +24,9 @@ a7bb12d3ae358398066109aa5c74c1fc *data/AT_Neu_Jul_2010.rda
 2572097df26fd9b64b5ad22a2248e8c6 *data/DE_Tha_Jun_2014.rda
 4816926d392e8e2f588300553fc2e686 *data/FR_Pue_May_2012.rda
 ff0dead3aea6489e54e49becce05ed65 *inst/CITATION
-fd10effc64decb82f0fbb47db894e743 *inst/doc/bigleaf_tutorial.R
-f435841c994cb4d24dec4ff13543f594 *inst/doc/bigleaf_tutorial.Rmd
-9aee8786313ef559d57753b6647b7764 *inst/doc/bigleaf_tutorial.pdf
+621ffc3860148122dd9fac4acd81ce3d *inst/doc/bigleaf_tutorial.R
+7df61eab4822fb4fc7df74258f0f6ec0 *inst/doc/bigleaf_tutorial.Rmd
+4c389de2ec356c19f94554c479e9ee33 *inst/doc/bigleaf_tutorial.pdf
 f3464a538736c4144ef68da1361190b2 *man/AT_Neu_Jul_2010.Rd
 4d0e1da7e937b4dacfb7cdfda5c2325b *man/Arrhenius.temp.response.Rd
 301394b8533b044581e7807890f5b5ab *man/DE_Tha_Jun_2014.Rd
@@ -88,4 +88,4 @@ b0003393d301ff5296f54a22bd507b4f *man/wind.profile.Rd
 2903b7d8fb04a6ba8a0a6020fb7c41af *tests/doRUnit.R
 48d6c51de822a15f118c60ac95c0309d *tests/testthat/test_potentialRadiation.R
 450b8ee1741c6095a54e3b98f3c16bce *tests/testthat/test_unitConversions.R
-f435841c994cb4d24dec4ff13543f594 *vignettes/bigleaf_tutorial.Rmd
+7df61eab4822fb4fc7df74258f0f6ec0 *vignettes/bigleaf_tutorial.Rmd
