@@ -4,8 +4,15 @@
 \alias{WUE.metrics}
 \title{Water-Use Efficiency Metrics}
 \usage{
-WUE.metrics(data, GPP = "GPP", NEE = "NEE", LE = "LE", VPD = "VPD",
-  Tair = "Tair", constants = bigleaf.constants())
+WUE.metrics(
+  data,
+  GPP = "GPP",
+  NEE = "NEE",
+  LE = "LE",
+  VPD = "VPD",
+  Tair = "Tair",
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}

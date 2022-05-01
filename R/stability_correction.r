@@ -152,7 +152,7 @@ stability.correction <- function(zeta,formulation=c("Dyer_1970","Businger_1971")
   
   check.input(NULL,zeta)
   
-  psi_h = psi_m <- numeric()
+  psi_h = psi_m <- rep(NA_real_,length(zeta))
   
   # universal functions
   if (formulation == "Businger_1971"){
@@ -168,11 +168,11 @@ stability.correction <- function(zeta,formulation=c("Dyer_1970","Businger_1971")
   
   # integration of universal functions (after Paulson_1970 and Foken 2008)
   # stable
-  stable <- zeta >= 0 | is.na(zeta)
+  stable <- zeta >= 0 & !is.na(zeta)
   psi_h[stable] <- x_h * zeta[stable]
   psi_m[stable] <- x_m * zeta[stable]
   # unstable
-  unstable <- zeta < 0 | is.na(zeta)
+  unstable <- zeta < 0 & !is.na(zeta)
   psi_h[unstable] <- 2 * log( (1 + y_h[unstable] ) / 2)
   psi_m[unstable] <- 2 * log( (1 + y_m[unstable] ) / 2) +
                      log( ( 1 + y_m[unstable]^2 ) / 2)

@@ -185,9 +185,10 @@ filter.data <- function(data,quality.control=TRUE,filter.growseas=FALSE,
   if(filter.growseas){
     check.input(data,doy,year,GPP)
     date             <- strptime(paste0(year,"-",doy),format="%Y-%j")
-    GPP_daily        <- aggregate(GPP,by=list(strftime(date)),mean,na.rm=TRUE)[,2]
+    GPP_daily        <- aggregate(GPP,by=list(strftime(date)),function(x){if (sum(!is.na(x)) < 3){NA}else{mean(x,na.rm=TRUE)}})[,2]
     growing_season   <- filter.growing.season(GPP_daily,tGPP=tGPP,ws=ws,min.int=min.int)
-    growseas_invalid <- which(sapply(growing_season,rep,48) == 0)
+    tsperday         <- table(as.character(date))
+    growseas_invalid <- which(rep(growing_season,tsperday) == 0)
   }
 
   # 2) precipitation
@@ -324,7 +325,7 @@ filter.growing.season <- function(GPPd,tGPP,ws=15,min.int=5){
     GPPd_smoothed[1:wsd] <- mean(GPPd[1:(2*wsd)],na.rm=TRUE)
     GPPd_smoothed[(length(GPPd)-(wsd-1)):length(GPPd)] <- mean(GPPd[(length(GPPd)-(2*wsd-1)):length(GPPd)],na.rm=TRUE)
     
-    # check for occurence of missing values and set them to mean of the values surrounding them
+    # check for occurrence of missing values and set them to mean of the values surrounding them
     missing <- which(is.na(GPPd_smoothed))
     if (length(missing) > 0){
       if (length(missing) > 10){warning("Attention, there is a gap in 'GPPd' of length n = ",length(missing))}

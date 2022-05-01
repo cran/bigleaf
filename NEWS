@@ -1,5 +1,52 @@
 NEWS for Package 'bigleaf'
 
+version 0.8.1 (2022-04-27)
+
+ - code examples in vignette updated
+ - example in wind.profile() coded more efficiently
+
+
+version 0.8.0 (2022-04-26)
+
+ - new function optimum.temperature() added by Alison Bennett. Calculates optimum temperature of
+   GPP (or any other flux) using boundary line analysis. 
+   
+
+version 0.7.6 (2022-01-18)
+
+ - new function roughness.length.heat() added. Calculates roughness length for heat (z0h). 
+ - new output z0h added to function aerodynamic.conductance(). New test function for aerodynamic conductance.
+ - bug fix in stability.correction() related to NA handling. New test function for stability.correction()
+ - new roxygen2 version
+
+
+version 0.7.5 (2022-01-10)
+
+ - growing season filter within filter.data() adjusted so that it can handle time series that start or 
+   end with incomplete days (i.e. time series that start/end in the middle of the day).
+   
+
+version 0.7.4 (2022-01-10)
+
+ - Solver functions within dew.point() and wetbulb.temp() not called if any of the inputs
+   is NA, NaN, or Inf. In this case the function returns NA (and not the upper bound as in previous versions).
+   
+
+version 0.7.3 (2022-01-09)
+
+ - Factor 0.93 in wetbulb.temp documented and added to list of constants as 'Le067', defined as the 
+   Lewis number to the power of 0.67.
+   
+
+version 0.7.2 (2020-01-28)
+
+ - z0m as input to Choudhury_1988 and Su_2001 functions for boundary layer conductance. Avoids the implicit 
+   assumptions that z0m is constant over the    entire time period. If z0m is not provided as input, the assumption
+   of a constant z0m is still made and z0m is estimated from the roughness.parameters (method='wind_profile') function. 
+ - wind.profile() function rewritten: heights (argument z) for which wind speed is calculated must have the same length 
+   as the other input data (or of length 1). If wind speed at multiple height needs to be calculated, this needs to be
+   done outside the function (e.g. as a for loop as in the function example).
+
 
 version 0.7.1 (2019-06-08)
 

@@ -4,8 +4,13 @@
 \alias{dew.point}
 \title{Dew Point}
 \usage{
-dew.point(Tair, VPD, accuracy = 0.001, Esat.formula = c("Sonntag_1990",
-  "Alduchov_1996", "Allen_1998"), constants = bigleaf.constants())
+dew.point(
+  Tair,
+  VPD,
+  accuracy = 0.001,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{Tair}{Air temperature (degC)}

@@ -4,9 +4,17 @@
 \alias{energy.closure}
 \title{Energy Balance Closure}
 \usage{
-energy.closure(data, Rn = "Rn", G = NULL, S = NULL, LE = "LE",
-  H = "H", instantaneous = FALSE, missing.G.as.NA = FALSE,
-  missing.S.as.NA = FALSE)
+energy.closure(
+  data,
+  Rn = "Rn",
+  G = NULL,
+  S = NULL,
+  LE = "LE",
+  H = "H",
+  instantaneous = FALSE,
+  missing.G.as.NA = FALSE,
+  missing.S.as.NA = FALSE
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables.}

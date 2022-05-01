@@ -4,12 +4,23 @@
 \alias{potential.ET}
 \title{Potential Evapotranspiration}
 \usage{
-potential.ET(data, Tair = "Tair", pressure = "pressure", Rn = "Rn",
-  G = NULL, S = NULL, VPD = "VPD", Ga = "Ga_h",
-  approach = c("Priestley-Taylor", "Penman-Monteith"), alpha = 1.26,
-  Gs_pot = 0.6, missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
+potential.ET(
+  data,
+  Tair = "Tair",
+  pressure = "pressure",
+  Rn = "Rn",
+  G = NULL,
+  S = NULL,
+  VPD = "VPD",
+  Ga = "Ga_h",
+  approach = c("Priestley-Taylor", "Penman-Monteith"),
+  alpha = 1.26,
+  Gs_pot = 0.6,
+  missing.G.as.NA = FALSE,
+  missing.S.as.NA = FALSE,
   Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
-  constants = bigleaf.constants())
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables; optional}

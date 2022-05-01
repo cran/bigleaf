@@ -4,14 +4,32 @@
 \alias{aerodynamic.conductance}
 \title{Aerodynamic Conductance}
 \usage{
-aerodynamic.conductance(data, Tair = "Tair", pressure = "pressure",
-  wind = "wind", ustar = "ustar", H = "H", zr, zh, d, z0m, Dl,
-  N = 2, fc = NULL, LAI, Cd = 0.2, hs = 0.01,
-  wind_profile = FALSE, stab_correction = TRUE,
+aerodynamic.conductance(
+  data,
+  Tair = "Tair",
+  pressure = "pressure",
+  wind = "wind",
+  ustar = "ustar",
+  H = "H",
+  zr,
+  zh,
+  d,
+  z0m = NULL,
+  Dl,
+  N = 2,
+  fc = NULL,
+  LAI,
+  Cd = 0.2,
+  hs = 0.01,
+  wind_profile = FALSE,
+  stab_correction = TRUE,
   stab_formulation = c("Dyer_1970", "Businger_1971"),
-  Rb_model = c("Thom_1972", "Choudhury_1988", "Su_2001",
-  "constant_kB-1"), kB_h = NULL, Sc = NULL, Sc_name = NULL,
-  constants = bigleaf.constants())
+  Rb_model = c("Thom_1972", "Choudhury_1988", "Su_2001", "constant_kB-1"),
+  kB_h = NULL,
+  Sc = NULL,
+  Sc_name = NULL,
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}
@@ -32,7 +50,9 @@ aerodynamic.conductance(data, Tair = "Tair", pressure = "pressure",
 
 \item{d}{Zero-plane displacement height (m)}
 
-\item{z0m}{Roughness length for momentum (m)}
+\item{z0m}{Roughness length for momentum (m), optional; if not provided, it is estimated from \code{roughness.parameters}
+(method="wind_profile"). Only used if \code{wind_profile = TRUE} and/or \code{Rb_model} = \code{"Su_2001"} or
+\code{"Choudhury_1988"}.}
 
 \item{Dl}{Characteristic leaf dimension (m) (if \code{Rb_model} = \code{"Su_2001"}) 
 or leaf width (if \code{Rb_model} = \code{"Choudhury_1988"}); ignored otherwise.}
@@ -62,7 +82,7 @@ Defaults to \code{FALSE}.}
 
 \item{Sc}{Optional: Schmidt number of additional quantities to be calculated}
 
-\item{Sc_name}{Optional: Name of the additonal quantities, has to be of same length than 
+\item{Sc_name}{Optional: Name of the additional quantities, has to be of same length than 
 \code{Sc_name}}
 
 \item{constants}{k - von Karman constant \cr
@@ -75,14 +95,16 @@ Sc_CO2 - Schmidt number for CO2 \cr
 Pr - Prandtl number (if \code{Sc} is provided)}
 }
 \value{
-a dataframe with the following columns:
+a data.frame with the following columns:
         \item{Ga_m}{Aerodynamic conductance for momentum transfer (m s-1)}
         \item{Ra_m}{Aerodynamic resistance for momentum transfer (s m-1)}
         \item{Ga_h}{Aerodynamic conductance for heat transfer (m s-1)}
         \item{Ra_h}{Aerodynamic resistance for heat transfer (s m-1)}
         \item{Gb_h}{Canopy boundary layer conductance for heat transfer (m s-1)}
         \item{Rb_h}{Canopy boundary layer resistance for heat transfer (s m-1)}
-        \item{kB_h}{kB-1 parameter for heat transfer}
+        \item{kB_h}{kB^(-1) parameter for heat transfer}
+        \item{z0h}{Roughness length for heat (m) (NA if not input \code{z0m} not provided as input
+                   or not estimated in this function)}
         \item{zeta}{Stability parameter 'zeta' (NA if \code{wind_profile = FALSE})}
         \item{psi_h}{Integrated stability correction function (NA if \code{wind_profile = FALSE})}
         \item{Ra_CO2}{Aerodynamic resistance for CO2 transfer (s m-1)}
@@ -146,17 +168,23 @@ Aerodynamic conductance for heat (Ga_h) is calculated as:
  The option \code{Rb_model = "Su_2001"} calculates Rb_h based on the physically-based Rb model by Su et al. 2001,
  a simplification of the model developed by Massman 1999:
  
-    \deqn{kB-1 = (k Cd fc^2) / (4Ct ustar/u(zh)) + kBs-1(1 - fc)^2}
+    \deqn{kB_h = (k Cd fc^2) / (4Ct ustar/u(zh)) + kBs-1(1 - fc)^2}
     
  where Cd is a foliage drag coefficient (defaults to 0.2), fc is fractional
  vegetation cover, Bs-1 is the inverse Stanton number for bare soil surface,
  and Ct is a heat transfer coefficient. See \code{\link{Gb.Su}} for 
  details on the model.
     
+ The models calculate the parameter kB^(-1) (in the code referred to as \code{kB_h}), 
+ which is related to Rb_h:
  
- The models calculate the parameter kB-1, which is related to Rb_h:
+    \deqn{kB_h = Rb_h * (k * ustar)}
+    
+ From version 0.7.6 onwards, the roughness length for heat (z0h) is added to the output
+ if z0m is available (i.e. provided as input or calculated within this function).
+ z0h is calculated from \code{\link{roughness.length.heat}}:
  
-    \deqn{kB-1 = Rb_h * (k * ustar)}
+    \deqn{z0h = z0m / exp(kB_h)}
  
  Rb (and Gb) for water vapor and heat are assumed to be equal in this package.
  Gb for other quantities x is calculated as (Hicks et al. 1987):
@@ -166,23 +194,18 @@ Aerodynamic conductance for heat (Ga_h) is calculated as:
  where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
 }
 \note{
-The roughness length for water and heat (z0h) is not returned by this function, but 
-      it can be calculated from the following relationship (e.g. Verma 1989):
-      
-      \deqn{kB-1 = ln(z0m/z0h)} 
-      
-      it follows:
-      
-      \deqn{z0h = z0m / exp(kB-1)}
-      
-      \code{kB-1} is an output of this function.
-      
-      Input variables such as LAI, Dl, or zh can be either constants, or
+Input variables such as LAI, Dl, or zh can be either constants, or
       vary with time (i.e. vectors of the same length as \code{data}).
       
       Note that boundary layer conductance to water vapor transfer (Gb_w) is often 
       assumed to equal Gb_h. This assumption is also made in this R package, for 
       example in the function \code{\link{surface.conductance}}.
+      
+      If the roughness length for momentum (\code{z0m}) is not provided as input, it is estimated 
+      from the function \code{roughness.parameters} within \code{wind.profile} if \code{wind_profile = TRUE} 
+      and/or \code{Rb_model} = \code{"Su_2001"} or \code{"Choudhury_1988"} The \code{roughness.parameters}
+      function estimates a single \code{z0m} value for the entire time period! If a varying \code{z0m} value 
+      (e.g. across seasons or years) is required, \code{z0m} should be provided as input argument.
 }
 \examples{
 df <- data.frame(Tair=25,pressure=100,wind=c(3,4,5),ustar=c(0.5,0.6,0.65),H=c(200,230,250))   
@@ -193,7 +216,7 @@ aerodynamic.conductance(df,Rb_model="Thom_1972")
 # calculation of Ga using a model derived from the logarithmic wind profile
 aerodynamic.conductance(df,Rb_model="Thom_1972",zr=40,zh=25,d=17.5,z0m=2,wind_profile=TRUE) 
 
-# simple calculation of Ga, but a physically based canopy boundary layer model
+# simple calculation of Ga_m, but a physically based canopy boundary layer model
 aerodynamic.conductance(df,Rb_model="Su_2001",zr=40,zh=25,d=17.5,Dl=0.05,N=2,fc=0.8)
 
 }

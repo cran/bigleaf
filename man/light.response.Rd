@@ -4,8 +4,14 @@
 \alias{light.response}
 \title{Ecosystem Light Response}
 \usage{
-light.response(data, NEE = "NEE", Reco = "Reco", PPFD = "PPFD",
-  PPFD_ref = 2000, ...)
+light.response(
+  data,
+  NEE = "NEE",
+  Reco = "Reco",
+  PPFD = "PPFD",
+  PPFD_ref = 2000,
+  ...
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required columns}

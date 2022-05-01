@@ -4,11 +4,28 @@
 \alias{Gb.Su}
 \title{Boundary Layer Conductance according to Su et al. 2001}
 \usage{
-Gb.Su(data, Tair = "Tair", pressure = "pressure", ustar = "ustar",
-  wind = "wind", H = "H", zh, zr, d, Dl, fc = NULL, LAI = NULL,
-  N = 2, Cd = 0.2, hs = 0.01, stab_formulation = c("Dyer_1970",
-  "Businger_1971"), Sc = NULL, Sc_name = NULL,
-  constants = bigleaf.constants())
+Gb.Su(
+  data,
+  Tair = "Tair",
+  pressure = "pressure",
+  ustar = "ustar",
+  wind = "wind",
+  H = "H",
+  zh,
+  zr,
+  d,
+  z0m = NULL,
+  Dl,
+  fc = NULL,
+  LAI = NULL,
+  N = 2,
+  Cd = 0.2,
+  hs = 0.01,
+  stab_formulation = c("Dyer_1970", "Businger_1971"),
+  Sc = NULL,
+  Sc_name = NULL,
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}
@@ -28,6 +45,9 @@ Gb.Su(data, Tair = "Tair", pressure = "pressure", ustar = "ustar",
 \item{zr}{Reference height (m)}
 
 \item{d}{Zero-plane displacement height (-), can be calculated using \code{roughness.parameters}}
+
+\item{z0m}{Roughness length for momentum (m). If not provided, calculated from \code{roughness.parameters} 
+within \code{wind.profile}}
 
 \item{Dl}{Leaf characteristic dimension (m)}
 
@@ -99,6 +119,12 @@ The formulation is based on the kB-1 model developed by Massman 1999.
            \deqn{Gb_x = Gb / (Sc_x / Pr)^0.67}
  
          where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
+}
+\note{
+If the roughness length for momentum (\code{z0m}) is not provided as input, it is estimated 
+      from the function \code{roughness.parameters} within \code{wind.profile}. This function
+      estimates a single \code{z0m} value for the entire time period! If a varying \code{z0m} value 
+      (e.g. across seasons or years) is required, \code{z0m} should be provided as input argument.
 }
 \examples{
 # Canopy boundary layer resistance (and kB-1 parameter) for a set of meteorological conditions,

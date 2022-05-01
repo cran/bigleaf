@@ -2,19 +2,32 @@
 % Please edit documentation in R/surface_roughness.r
 \name{wind.profile}
 \alias{wind.profile}
-\title{Wind Speed at Given Heights in the Surface Layer}
+\title{Wind Speed at a Given Height in the Surface Layer}
 \usage{
-wind.profile(data, heights, Tair = "Tair", pressure = "pressure",
-  ustar = "ustar", H = "H", wind = "wind", zr, zh, d = NULL,
-  frac_d = 0.7, z0m = NULL, frac_z0m = NULL, estimate_z0m = TRUE,
-  stab_correction = TRUE, stab_formulation = c("Dyer_1970",
-  "Businger_1971"), constants = bigleaf.constants())
+wind.profile(
+  data,
+  z,
+  Tair = "Tair",
+  pressure = "pressure",
+  ustar = "ustar",
+  H = "H",
+  wind = "wind",
+  zr,
+  zh,
+  d = NULL,
+  frac_d = 0.7,
+  z0m = NULL,
+  frac_z0m = NULL,
+  estimate_z0m = TRUE,
+  stab_correction = TRUE,
+  stab_formulation = c("Dyer_1970", "Businger_1971"),
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}
 
-\item{heights}{Vector with heights for which wind speed is to be 
-calculated.}
+\item{z}{Height above ground for which wind speed is calculated.}
 
 \item{Tair}{Air temperature (deg C)}
 
@@ -37,8 +50,8 @@ only used if \code{d} is not available}
 
 \item{z0m}{Roughness length (m), optional; only used if \code{stab_correction = FALSE} (default=0.1)}
 
-\item{frac_z0m}{Fraction of roughness length on canopy height (-), optional; only used 
-if \code{stab_correction = FALSE} (default=0.1), only used if \code{z0m} is not available}
+\item{frac_z0m}{Fraction of roughness length on canopy height (-), optional; only used if \code{z0m} is not provided.
+Default is 0.1.}
 
 \item{estimate_z0m}{Should \code{z0m} be estimated from the logarithmic wind profile? If \code{TRUE} (the default),
 arguments \code{z0m} and \code{frac_z0m} are ignored.
@@ -55,8 +68,7 @@ cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 g - gravitational acceleration (m s-2)}
 }
 \value{
-A data.frame with rows representing time and columns representing heights 
-        as specified in \code{heights}.
+A vector of wind speed at heights \code{z}.
 }
 \description{
 Wind speed at a given height above the canopy estimated from single-level
@@ -65,7 +77,7 @@ Wind speed at a given height above the canopy estimated from single-level
 \details{
 The underlying assumption is the existence of a logarithmic wind profile
          above the height d + z0m (the height at which wind speed mathematically reaches zero
-         according to the Monin-Obhukov similarity theory).
+         according to the Monin-Obukhov similarity theory).
          In this case, the wind speed at a given height z is given by:
          
            \deqn{u(z) = (ustar/k) * (ln((z - d) / z0m) - \psi{m}}
@@ -82,8 +94,10 @@ Note that this equation is only valid for z >= d + z0m, and it is not
       smaller than d + z0m will return 0.
 }
 \examples{
+heights <- seq(18,40,2)  # heights above ground for which to calculate wind speed
 df <- data.frame(Tair=25,pressure=100,wind=c(3,4,5),ustar=c(0.5,0.6,0.65),H=c(200,230,250)) 
-wind.profile(df,heights=seq(18,40,2),zr=40,zh=25,d=16)
+ws <- sapply(heights,function(x) wind.profile(df,z=x,zr=40,zh=25,d=16))
+colnames(ws) <- paste0(heights,"m")
 
 }
 \references{

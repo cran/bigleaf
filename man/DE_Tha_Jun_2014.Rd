@@ -4,7 +4,8 @@
 \name{DE_Tha_Jun_2014}
 \alias{DE_Tha_Jun_2014}
 \title{Eddy Covariance Data of DE-Tha (Tharandt)}
-\format{A data frame with 1440 observations and 32 columns:
+\format{
+A data frame with 1440 observations and 32 columns:
  \describe{
    \item{year}{year of measurement}
    \item{month}{month of measurement}
@@ -38,10 +39,11 @@
    \item{GPP}{Gross primary productivity from nighttime partitioning (umol m-2 s-1) [GPP_NT_VUT_USTAR50]}
    \item{GPP_qc}{Quality control of \code{GPP} [NEE_VUT_USTAR50_QC]}
    \item{Reco}{Ecosystem respiration from nighttime partitioning (umol m-2 s-1) [RECO_NT_VUT_USTAR50]}
- }}
+ }
+}
 \source{
 original data were downloaded from
-        \url{https://fluxnet.fluxdata.org/} (accessed 09 November 2016)
+        \url{https://fluxnet.org/} (accessed 09 November 2016)
 }
 \usage{
 DE_Tha_Jun_2014
@@ -49,7 +51,7 @@ DE_Tha_Jun_2014
 \description{
 Halfhourly eddy covariance Data of the site DE-Tha,
              a spruce forest in Eastern Germany 
-             (\url{http://sites.fluxdata.org/DE-Tha}). 
+             (\url{https://sites.fluxdata.org/DE-Tha/}). 
              Data are from June 2014.
 }
 \note{

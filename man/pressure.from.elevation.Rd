@@ -4,8 +4,12 @@
 \alias{pressure.from.elevation}
 \title{Atmospheric Pressure from Hypsometric Equation}
 \usage{
-pressure.from.elevation(elev, Tair, VPD = NULL,
-  constants = bigleaf.constants())
+pressure.from.elevation(
+  elev,
+  Tair,
+  VPD = NULL,
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{elev}{Elevation a.s.l. (m)}

@@ -1,16 +1,23 @@
 Package: bigleaf
 Type: Package
-Version: 0.7.1
-Date: 2019-06-08
+Version: 0.8.1
+Date: 2022-04-27
 Title: Physical and Physiological Ecosystem Properties from Eddy
         Covariance Data
-Authors@R: c( person("Juergen", "Knauer", role=c("aut","cre"), email="Juergen.Knauer@csiro.au"),
-              person("Soenke", "Zaehle", role=c("ctb"), email="szaehle@bgc-jena.mpg.de"),
-			        person("Tarek", "El-Madany", role=c("ctb"), email="telmad@bgc-jena.mpg.de"),
-			        person("Mirco", "Migliavacca", role=c("ctb"), email="mmiglia@bgc-jena.mpg.de"),
-			        person("Thomas", "Wutzler", role=c("aut"), email="twutz@bgc-jena.mpg.de")
+Authors@R: c( person("Juergen", "Knauer", role=c("aut","cre"), email="J.Knauer@westernsydney.edu.au",
+                     comment=c(ORCID="0000-0002-4947-7067")),
+              person("Thomas", "Wutzler", role=c("aut"), email="twutz@bgc-jena.mpg.de",
+                     comment=c(ORCID="0000-0003-4159-5445")),
+              person("Alison", "Bennett", role=c("aut"), email="bennetta2@student.unimelb.edu.au",
+                      comment=c(ORCID="0000-0002-8249-976X")),
+              person("Soenke", "Zaehle", role=c("ctb"), email="szaehle@bgc-jena.mpg.de",
+                      comment=c(ORCID="0000-0001-5602-7956")),
+			        person("Tarek", "El-Madany", role=c("ctb"), email="telmad@bgc-jena.mpg.de",
+			                comment=c(ORCID="0000-0002-0726-7141")),
+			        person("Mirco", "Migliavacca", role=c("ctb"), email="mmiglia@bgc-jena.mpg.de",
+			                comment=c(ORCID="0000-0003-3546-8407"))
 			      )	
-Maintainer: Juergen Knauer <Juergen.Knauer@csiro.au>
+Maintainer: Juergen Knauer <J.Knauer@westernsydney.edu.au>
 Description: Calculation of physical (e.g. aerodynamic conductance, surface temperature), 
              and physiological (e.g. canopy conductance, water-use efficiency) ecosystem properties
 			 from eddy covariance data and accompanying meteorological measurements. Calculations
@@ -20,16 +27,18 @@ BugReports: https://bitbucket.org/juergenknauer/bigleaf/issues
 Depends: R (>= 2.10)
 Imports: robustbase, solartime
 License: GPL (>= 2)
+Encoding: UTF-8
 LazyData: yes
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.2
 Suggests: knitr, rmarkdown, testthat
 VignetteBuilder: knitr
 NeedsCompilation: no
-Packaged: 2019-06-08 11:27:18 UTC; kna016
-Author: Juergen Knauer [aut, cre],
-  Soenke Zaehle [ctb],
-  Tarek El-Madany [ctb],
-  Mirco Migliavacca [ctb],
-  Thomas Wutzler [aut]
+Packaged: 2022-05-01 01:18:31 UTC; 30044953
+Author: Juergen Knauer [aut, cre] (<https://orcid.org/0000-0002-4947-7067>),
+  Thomas Wutzler [aut] (<https://orcid.org/0000-0003-4159-5445>),
+  Alison Bennett [aut] (<https://orcid.org/0000-0002-8249-976X>),
+  Soenke Zaehle [ctb] (<https://orcid.org/0000-0001-5602-7956>),
+  Tarek El-Madany [ctb] (<https://orcid.org/0000-0002-0726-7141>),
+  Mirco Migliavacca [ctb] (<https://orcid.org/0000-0003-3546-8407>)
 Repository: CRAN
-Date/Publication: 2019-06-08 11:40:03 UTC
+Date/Publication: 2022-05-01 14:30:05 UTC

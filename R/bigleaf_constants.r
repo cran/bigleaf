@@ -24,6 +24,7 @@
 #' @param sigma        Stefan-Boltzmann constant (W m-2 K-4)
 #' @param Pr           Prandtl number
 #' @param Sc_CO2       Schmidt number for CO2
+#' @param Le067        Lewis number for water vapor to the power of 0.67
 #' @param Kelvin       Conversion degree Celsius to Kelvin
 #' @param DwDc         Ratio of the molecular diffusivities for water vapor and CO2
 #' @param days2seconds Seconds per day
@@ -78,6 +79,7 @@ bigleaf.constants <- function(
   sigma      = 5.670367e-08,    # Stefan-Boltzmann constant (W m-2 K-4)
   Pr         = 0.71,            # Prandtl number
   Sc_CO2     = 1.07,            # Schmidt number for CO2 (Hicks et al. 1987)
+  Le067      = 0.93,            # Lewis number for water vapor to the power of 0.67
 
   ## Conversion constants
   Kelvin       = 273.15,         # conversion degree Celsius to Kelvin
@@ -100,7 +102,7 @@ bigleaf.constants <- function(
     solar_constant = solar_constant,
     pressure0 = pressure0, Tair0 = Tair0, k = k, Cmol = Cmol, Omol = Omol,
     H2Omol = H2Omol,
-    sigma = sigma, Pr = Pr, Sc_CO2 = Sc_CO2, Kelvin = Kelvin, DwDc = DwDc,
+    sigma = sigma, Pr = Pr, Sc_CO2 = Sc_CO2, Le067 = Le067, Kelvin = Kelvin, DwDc = DwDc,
     days2seconds = days2seconds, kPa2Pa = kPa2Pa, Pa2kPa = Pa2kPa, umol2mol = umol2mol,
     mol2umol = mol2umol, kg2g = kg2g, g2kg = g2kg, kJ2J = kJ2J, J2kJ = J2kJ,
     se_median = se_median, frac2percent = frac2percent

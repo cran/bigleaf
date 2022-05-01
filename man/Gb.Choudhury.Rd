@@ -4,10 +4,24 @@
 \alias{Gb.Choudhury}
 \title{Boundary Layer Conductance according to Choudhury & Monteith 1988}
 \usage{
-Gb.Choudhury(data, Tair = "Tair", pressure = "pressure",
-  wind = "wind", ustar = "ustar", H = "H", leafwidth, LAI, zh, zr, d,
-  stab_formulation = c("Dyer_1970", "Businger_1971"), Sc = NULL,
-  Sc_name = NULL, constants = bigleaf.constants())
+Gb.Choudhury(
+  data,
+  Tair = "Tair",
+  pressure = "pressure",
+  wind = "wind",
+  ustar = "ustar",
+  H = "H",
+  leafwidth,
+  LAI,
+  zh,
+  zr,
+  d,
+  z0m = NULL,
+  stab_formulation = c("Dyer_1970", "Businger_1971"),
+  Sc = NULL,
+  Sc_name = NULL,
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}
@@ -31,6 +45,9 @@ Gb.Choudhury(data, Tair = "Tair", pressure = "pressure",
 \item{zr}{Instrument (reference) height (m)}
 
 \item{d}{Zero-plane displacement height (-), can be calculated using \code{roughness.parameters}}
+
+\item{z0m}{Roughness length for momentum (m). If not provided, calculated from \code{roughness.parameters} 
+within \code{wind.profile}}
 
 \item{stab_formulation}{Stability correction function used (If \code{stab_correction = TRUE}).
 Either \code{"Dyer_1970"} or \code{"Businger_1971"}.}
@@ -77,6 +94,12 @@ Boundary layer conductance according to Choudhury & Monteith 1988 is
            \deqn{Gb_x = Gb / (Sc_x / Pr)^0.67}
  
          where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
+}
+\note{
+If the roughness length for momentum (\code{z0m}) is not provided as input, it is estimated 
+      from the function \code{roughness.parameters} within \code{wind.profile}. This function
+      estimates a single \code{z0m} value for the entire time period! If a varying \code{z0m} value 
+      (e.g. across seasons or years) is required, \code{z0m} should be provided as input argument.
 }
 \examples{
 ## bulk canopy boundary layer resistance for a closed canopy (LAI=5) 

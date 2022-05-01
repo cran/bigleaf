@@ -4,15 +4,32 @@
 \alias{filter.data}
 \title{Basic Eddy Covariance Data Filtering}
 \usage{
-filter.data(data, quality.control = TRUE, filter.growseas = FALSE,
-  filter.precip = FALSE, filter.vars = NULL, filter.vals.min,
-  filter.vals.max, NA.as.invalid = TRUE, vars.qc = NULL,
-  quality.ext = "_qc", good.quality = c(0, 1),
-  missing.qc.as.bad = TRUE, GPP = "GPP", doy = "doy",
-  year = "year", tGPP = 0.5, ws = 15, min.int = 5,
-  precip = "precip", tprecip = 0.01, precip.hours = 24,
-  records.per.hour = 2, filtered.data.to.NA = TRUE,
-  constants = bigleaf.constants())
+filter.data(
+  data,
+  quality.control = TRUE,
+  filter.growseas = FALSE,
+  filter.precip = FALSE,
+  filter.vars = NULL,
+  filter.vals.min,
+  filter.vals.max,
+  NA.as.invalid = TRUE,
+  vars.qc = NULL,
+  quality.ext = "_qc",
+  good.quality = c(0, 1),
+  missing.qc.as.bad = TRUE,
+  GPP = "GPP",
+  doy = "doy",
+  year = "year",
+  tGPP = 0.5,
+  ws = 15,
+  min.int = 5,
+  precip = "precip",
+  tprecip = 0.01,
+  precip.hours = 24,
+  records.per.hour = 2,
+  filtered.data.to.NA = TRUE,
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required input variables in 

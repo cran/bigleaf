@@ -12,30 +12,60 @@
 \alias{VPD.to.q}
 \title{Conversions between Humidity Measures}
 \usage{
-VPD.to.rH(VPD, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"), constants = bigleaf.constants())
+VPD.to.rH(
+  VPD,
+  Tair,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 
-rH.to.VPD(rH, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"), constants = bigleaf.constants())
+rH.to.VPD(
+  rH,
+  Tair,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 
-e.to.rH(e, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"), constants = bigleaf.constants())
+e.to.rH(
+  e,
+  Tair,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 
-VPD.to.e(VPD, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"), constants = bigleaf.constants())
+VPD.to.e(
+  VPD,
+  Tair,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 
-e.to.VPD(e, Tair, Esat.formula = c("Sonntag_1990", "Alduchov_1996",
-  "Allen_1998"), constants = bigleaf.constants())
+e.to.VPD(
+  e,
+  Tair,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 
 e.to.q(e, pressure, constants = bigleaf.constants())
 
 q.to.e(q, pressure, constants = bigleaf.constants())
 
-q.to.VPD(q, Tair, pressure, Esat.formula = c("Sonntag_1990",
-  "Alduchov_1996", "Allen_1998"), constants = bigleaf.constants())
+q.to.VPD(
+  q,
+  Tair,
+  pressure,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 
-VPD.to.q(VPD, Tair, pressure, Esat.formula = c("Sonntag_1990",
-  "Alduchov_1996", "Allen_1998"), constants = bigleaf.constants())
+VPD.to.q(
+  VPD,
+  Tair,
+  pressure,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{VPD}{Vapor pressure deficit (kPa)}

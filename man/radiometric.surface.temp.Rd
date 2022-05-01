@@ -4,8 +4,13 @@
 \alias{radiometric.surface.temp}
 \title{Radiometric Surface Temperature}
 \usage{
-radiometric.surface.temp(data, LW_up = "LW_up", LW_down = "LW_down",
-  emissivity, constants = bigleaf.constants())
+radiometric.surface.temp(
+  data,
+  LW_up = "LW_up",
+  LW_down = "LW_down",
+  emissivity,
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required input variables}

@@ -93,6 +93,8 @@ Gb.Thom <- function(ustar,Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
 #' @param zh               Canopy height (m)
 #' @param zr               Instrument (reference) height (m)
 #' @param d                Zero-plane displacement height (-), can be calculated using \code{roughness.parameters}
+#' @param z0m              Roughness length for momentum (m). If not provided, calculated from \code{roughness.parameters} 
+#'                         within \code{wind.profile}
 #' @param stab_formulation Stability correction function used (If \code{stab_correction = TRUE}).
 #'                         Either \code{"Dyer_1970"} or \code{"Businger_1971"}.
 #' @param Sc               Optional: Schmidt number of additional quantities to be calculated
@@ -130,6 +132,11 @@ Gb.Thom <- function(ustar,Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
 #'  
 #'          where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
 #'          
+#' @note If the roughness length for momentum (\code{z0m}) is not provided as input, it is estimated 
+#'       from the function \code{roughness.parameters} within \code{wind.profile}. This function
+#'       estimates a single \code{z0m} value for the entire time period! If a varying \code{z0m} value 
+#'       (e.g. across seasons or years) is required, \code{z0m} should be provided as input argument.
+#'          
 #' @references Choudhury, B. J., Monteith J.L., 1988: A four-layer model for the heat
 #'             budget of homogeneous land surfaces. Q. J. R. Meteorol. Soc. 114, 373-398.
 #'             
@@ -154,7 +161,7 @@ Gb.Thom <- function(ustar,Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
 #' 
 #' @export                                                                                                                                                                                                                                                                                    
 Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar="ustar",H="H",
-                         leafwidth,LAI,zh,zr,d,stab_formulation=c("Dyer_1970","Businger_1971"),
+                         leafwidth,LAI,zh,zr,d,z0m=NULL,stab_formulation=c("Dyer_1970","Businger_1971"),
                          Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
   
   stab_formulation <- match.arg(stab_formulation)
@@ -162,9 +169,17 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
   check.input(data,list(Tair,pressure,wind,ustar,H))
   
   alpha   <- 4.39 - 3.97*exp(-0.258*LAI)
-  wind_zh <- wind.profile(data=data,heights=zh,Tair=Tair,pressure=pressure,ustar=ustar,H=H,
-                          zr=zr,zh=zh,d=d,stab_correction=TRUE,
-                          stab_formulation=stab_formulation)[,1]
+
+  if (is.null(z0m)){
+    estimate_z0m <- TRUE
+    z0m <- NULL
+  } else {
+    estimate_z0m <- FALSE
+  }
+  
+  wind_zh <- wind.profile(data=data,z=zh,Tair=Tair,pressure=pressure,ustar=ustar,H=H,
+                          zr=zr,estimate_z0m=estimate_z0m,zh=zh,d=d,z0m=z0m,frac_z0m=NULL,
+                          stab_correction=TRUE,stab_formulation=stab_formulation)
   
   ## avoid zero windspeed
   wind_zh <- pmax(0.01,wind_zh)
@@ -200,21 +215,23 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
 #' @description A physically based formulation for the canopy boundary layer conductance
 #'              to heat transfer according to Su et al. 2001. 
 #'
-#' @param data     Data.frame or matrix containing all required variables
-#' @param Tair     Air temperature (degC)
-#' @param pressure Atmospheric pressure (kPa)
-#' @param ustar    Friction velocity (m s-1)
-#' @param wind     Wind speed (m s-1)
-#' @param H        Sensible heat flux (W m-2)
-#' @param zh       Canopy height (m)
-#' @param zr       Reference height (m)
-#' @param d        Zero-plane displacement height (-), can be calculated using \code{roughness.parameters}
-#' @param Dl       Leaf characteristic dimension (m)
-#' @param fc       Fractional vegetation cover [0-1] (if not provided, calculated from LAI)
-#' @param LAI      One-sided leaf area index (-)
-#' @param N        Number of leaf sides participating in heat exchange (defaults to 2)
-#' @param Cd       Foliage drag coefficient (-)
-#' @param hs       Roughness height of the soil (m)
+#' @param data      Data.frame or matrix containing all required variables
+#' @param Tair      Air temperature (degC)
+#' @param pressure  Atmospheric pressure (kPa)
+#' @param ustar     Friction velocity (m s-1)
+#' @param wind      Wind speed (m s-1)
+#' @param H         Sensible heat flux (W m-2)
+#' @param zh        Canopy height (m)
+#' @param zr        Reference height (m)
+#' @param d         Zero-plane displacement height (-), can be calculated using \code{roughness.parameters}
+#' @param z0m       Roughness length for momentum (m). If not provided, calculated from \code{roughness.parameters} 
+#'                  within \code{wind.profile}
+#' @param Dl        Leaf characteristic dimension (m)
+#' @param fc        Fractional vegetation cover [0-1] (if not provided, calculated from LAI)
+#' @param LAI       One-sided leaf area index (-)
+#' @param N         Number of leaf sides participating in heat exchange (defaults to 2)
+#' @param Cd        Foliage drag coefficient (-)
+#' @param hs        Roughness height of the soil (m)
 #' @param stab_formulation Stability correction function used (If \code{stab_correction = TRUE}).
 #'                         Either \code{"Dyer_1970"} or \code{"Businger_1971"}.
 #' @param Sc        Optional: Schmidt number of additional quantities to be calculated
@@ -265,6 +282,12 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
 #'  
 #'          where Sc_x is the Schmidt number of quantity x, and Pr is the Prandtl number (0.71).
 #' 
+#' @note If the roughness length for momentum (\code{z0m}) is not provided as input, it is estimated 
+#'       from the function \code{roughness.parameters} within \code{wind.profile}. This function
+#'       estimates a single \code{z0m} value for the entire time period! If a varying \code{z0m} value 
+#'       (e.g. across seasons or years) is required, \code{z0m} should be provided as input argument.
+#' 
+#' 
 #' @references Su, Z., Schmugge, T., Kustas, W. & Massman, W., 2001: An evaluation of
 #'             two models for estimation of the roughness height for heat transfer between
 #'             the land surface and the atmosphere. Journal of Applied Meteorology 40, 1933-1951.
@@ -292,7 +315,7 @@ Gb.Choudhury <- function(data,Tair="Tair",pressure="pressure",wind="wind",ustar=
 #' 
 #' @export
 Gb.Su <- function(data,Tair="Tair",pressure="pressure",ustar="ustar",wind="wind",
-                  H="H",zh,zr,d,Dl,fc=NULL,LAI=NULL,N=2,Cd=0.2,hs=0.01,
+                  H="H",zh,zr,d,z0m=NULL,Dl,fc=NULL,LAI=NULL,N=2,Cd=0.2,hs=0.01,
                   stab_formulation=c("Dyer_1970","Businger_1971"),
                   Sc=NULL,Sc_name=NULL,constants=bigleaf.constants()){
   
@@ -300,17 +323,24 @@ Gb.Su <- function(data,Tair="Tair",pressure="pressure",ustar="ustar",wind="wind"
   
   check.input(data,list(Tair,pressure,ustar,wind,H))
   
-  if (is.null(fc)) {
+  if (is.null(fc)){
     if (is.null(LAI)){
       stop("one of 'fc' or 'LAI' must be provided",call.=FALSE)
     } else {
-      fc  <- (1-exp(-LAI/2)) 
+      fc <- (1-exp(-LAI/2)) 
     }
   } 
   
-  wind_zh <- wind.profile(data=data,heights=zh,Tair=Tair,pressure=pressure,ustar=ustar,H=H,
-                          zr=zr,zh=zh,d=d,stab_correction=TRUE,
-                          stab_formulation=stab_formulation)[,1]
+  if (is.null(z0m)){
+    estimate_z0m <- TRUE
+    z0m <- NULL
+  } else {
+    estimate_z0m <- FALSE
+  }
+  
+  wind_zh <- wind.profile(data=data,z=zh,Tair=Tair,pressure=pressure,ustar=ustar,H=H,
+                          zr=zr,estimate_z0m=estimate_z0m,zh=zh,d=d,z0m=z0m,frac_z0m=NULL,
+                          stab_correction=TRUE,stab_formulation=stab_formulation)
   
   v   <- kinematic.viscosity(Tair,pressure,constants)
   Re  <- Reynolds.Number(Tair,pressure,ustar,hs,constants)
@@ -337,3 +367,49 @@ Gb.Su <- function(data,Tair="Tair",pressure="pressure",ustar="ustar",wind="wind"
   
   return(data.frame(Gb_h,Rb_h,kB_h,Gb_x))
 }
+
+
+
+
+#' Roughness length for heat
+#' 
+#' @description Roughness length for heat (thermal roughness length, z0h) from the 
+#'              kB-1 parameter and roughness length for momentum (z0m).
+#'
+#' @param z0m   Roughness length for momentum (m)
+#' @param kB_h  kB-1 parameter for heat transfer
+#' 
+#' @return Roughness length for heat, z0h (m)
+#' 
+#' @details The roughness length for heat (z0h) can be calculated from the 
+#'          following relationship (e.g. Verma 1989):
+#'       
+#'          \deqn{kB_h = ln(z0m/z0h)} 
+#'       
+#'           it follows:
+#'       
+#'           \deqn{z0h = z0m / exp(kB_h)}
+#' 
+#' @note    If unknown, \code{z0m} can be calculated from \code{\link{roughness.parameters}}.
+#'          \code{kB_h} can be calculated from \code{\link{Gb.Thom}}, \code{\link{Gb.Choudhury}}, \code{\link{Gb.Su}}
+#'          or \code{\link{aerodynamic.conductance}}. 
+#'           
+#'           
+#' @references Verma, S., 1989: Aerodynamic resistances to transfers of heat, mass and momentum.
+#'             In: Estimation of areal evapotranspiration, IAHS Pub, 177, 13-20.
+#'             
+#'             Rigden, A., Li, D., Salvucci, G., 2018: Dependence of thermal roughness length on friction 
+#'             velocity across land cover types: A synthesis analysis using AmeriFlux data. Agricultural 
+#'             and Forest Meteorology 249, 512-519.
+#'           
+#' @examples 
+#' roughness.length.heat(2,2.5)
+#' 
+#' @export  
+roughness.length.heat <- function(z0m,kB_h){
+  
+  z0h <- z0m / exp(kB_h)
+  
+  return(z0h)
+}
+

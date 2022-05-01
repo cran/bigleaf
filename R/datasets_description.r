@@ -2,7 +2,7 @@
 #' 
 #' @description Halfhourly eddy covariance Data of the site AT-Neu,
 #'              a mountain meadow in Austria.
-#'              (\url{http://sites.fluxdata.org/AT-Neu}). 
+#'              (\url{https://sites.fluxdata.org/AT-Neu/}). 
 #'              Data are from July 2010.
 #'              
 #' @format A data frame with 1488 observations and 31 columns:
@@ -45,7 +45,7 @@
 #'       in some cases (e.g. VPD from hPa to kPa).      
 #'  
 #' @source original data were downloaded from
-#'         \url{https://fluxnet.fluxdata.org/} (accessed 09 November 2016)  
+#'         \url{https://fluxnet.org/} (accessed 09 November 2016)  
 "AT_Neu_Jul_2010"
 
 
@@ -54,7 +54,7 @@
 #' 
 #' @description Halfhourly eddy covariance Data of the site DE-Tha,
 #'              a spruce forest in Eastern Germany 
-#'              (\url{http://sites.fluxdata.org/DE-Tha}). 
+#'              (\url{https://sites.fluxdata.org/DE-Tha/}). 
 #'              Data are from June 2014.
 #'              
 #' @format A data frame with 1440 observations and 32 columns:
@@ -98,7 +98,7 @@
 #'       in some cases (e.g. VPD from hPa to kPa).    
 #'  
 #' @source original data were downloaded from
-#'         \url{https://fluxnet.fluxdata.org/} (accessed 09 November 2016) 
+#'         \url{https://fluxnet.org/} (accessed 09 November 2016) 
 "DE_Tha_Jun_2014"
 
 
@@ -107,7 +107,7 @@
 #' 
 #' @description Halfhourly eddy covariance Data of the site FR-Pue,
 #'              a Mediterranean evergreen oak forest in Southern France
-#'              (\url{http://sites.fluxdata.org/FR-Pue}).
+#'              (\url{https://sites.fluxdata.org/FR-Pue/}).
 #'              Data are from May 2012.
 #'              
 #' @format A data frame with 1488 observations and 29 columns:
@@ -148,5 +148,5 @@
 #'       in some cases (e.g. VPD from hPa to kPa).       
 #'  
 #' @source original data were downloaded from
-#'         \url{https://fluxnet.fluxdata.org/} (accessed 09 November 2016) 
+#'         \url{https://fluxnet.org/} (accessed 09 November 2016) 
 "FR_Pue_May_2012"

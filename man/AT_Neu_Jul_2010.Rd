@@ -4,7 +4,8 @@
 \name{AT_Neu_Jul_2010}
 \alias{AT_Neu_Jul_2010}
 \title{Eddy Covariance Data of AT-Neu (Neustift)}
-\format{A data frame with 1488 observations and 31 columns:
+\format{
+A data frame with 1488 observations and 31 columns:
  \describe{
    \item{year}{year of measurement}
    \item{month}{month of measurement}
@@ -37,10 +38,11 @@
    \item{GPP}{Gross primary productivity from nighttime partitioning (umol m-2 s-1) [GPP_NT_VUT_USTAR50]}
    \item{GPP_qc}{Quality control of \code{GPP} [NEE_VUT_USTAR50_QC]}
    \item{Reco}{Ecosystem respiration from nighttime partitioning (umol m-2 s-1) [RECO_NT_VUT_USTAR50]}
- }}
+ }
+}
 \source{
 original data were downloaded from
-        \url{https://fluxnet.fluxdata.org/} (accessed 09 November 2016)
+        \url{https://fluxnet.org/} (accessed 09 November 2016)
 }
 \usage{
 AT_Neu_Jul_2010
@@ -48,7 +50,7 @@ AT_Neu_Jul_2010
 \description{
 Halfhourly eddy covariance Data of the site AT-Neu,
              a mountain meadow in Austria.
-             (\url{http://sites.fluxdata.org/AT-Neu}). 
+             (\url{https://sites.fluxdata.org/AT-Neu/}). 
              Data are from July 2010.
 }
 \note{

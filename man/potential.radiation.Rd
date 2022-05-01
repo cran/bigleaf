@@ -4,8 +4,7 @@
 \alias{potential.radiation}
 \title{Potential radiation}
 \usage{
-potential.radiation(doy, hour, latDeg, longDeg, timezone,
-  useSolartime = TRUE)
+potential.radiation(doy, hour, latDeg, longDeg, timezone, useSolartime = TRUE)
 }
 \arguments{
 \item{doy}{Integer vector with day of year (start at 1), same length as \code{hour} or length 1.}

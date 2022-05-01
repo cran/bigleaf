@@ -169,7 +169,7 @@ Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996","Allen_1998
   Esat <- Esat * constants$Pa2kPa
   
   # slope of the saturation vapor pressure curve
-  Delta <- eval(D(expression(a * exp((b * Tair) / (c + Tair))),name="Tair"))
+  Delta <- a * (exp((b * Tair)/(c + Tair)) * (b/(c + Tair) - (b * Tair)/(c + Tair)^2))
   Delta <- Delta * constants$Pa2kPa
   
   return(data.frame(Esat,Delta))
@@ -259,6 +259,7 @@ latent.heat.vaporization <- function(Tair) {
 #'                     One of \code{"Sonntag_1990"} (Default), \code{"Alduchov_1996"}, or \code{"Allen_1998"}.
 #'                     See \code{\link{Esat.slope}}. 
 #' @param constants    Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
+#'                     Le067 - Lewis number for water vapor to the power of 0.67
 #' 
 #' @note Arguments \code{accuracy} and \code{Esat.formula} are passed to this function by wetbulb.temp().
 #' 
@@ -266,7 +267,7 @@ latent.heat.vaporization <- function(Tair) {
 #' 
 #' @keywords internal
 wetbulb.solver <- function(ea,Tair,gamma,accuracy,Esat.formula,constants=bigleaf.constants()){
-  wetbulb.optim <- optimize(function(Tw){abs(ea - c((Esat.slope(Tw,Esat.formula,constants)[,"Esat"] - 0.93*gamma*(Tair - Tw))))},
+  wetbulb.optim <- optimize(function(Tw){abs(ea - c((Esat.slope(Tw,Esat.formula,constants)[,"Esat"] - constants$Le067*gamma*(Tair - Tw))))},
                             interval=c(-100,100),tol=accuracy)
   return(wetbulb.optim)
 }
@@ -288,19 +289,23 @@ wetbulb.solver <- function(ea,Tair,gamma,accuracy,Esat.formula,constants=bigleaf
 #' @param constants cp - specific heat of air for constant pressure (J K-1 kg-1) \cr
 #'                  eps - ratio of the molecular weight of water vapor to dry air (-) \cr
 #'                  Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)
+#'                  Le067 - Lewis number for water vapor to the power of 0.67
 #' 
 #' @details Wet-bulb temperature (Tw) is calculated from the following expression:
 #'          
-#'            \deqn{e = Esat(Tw) - gamma* (Tair - Tw)}
+#'            \deqn{e = Esat(Tw) - Le067 * gamma * (Tair - Tw)}
 #'          
 #'          The equation is solved for Tw using \code{\link[stats]{optimize}}.
 #'          Actual vapor pressure e (kPa) is calculated from VPD using the function \code{\link{VPD.to.e}}.
 #'          The psychrometric constant gamma (kPa K-1) is calculated from \code{\link{psychrometric.constant}}.
+#'          Le067 is the Lewis number for water vapor to the power of 0.67 and represents the ratio of
+#'          aerodynamic resistance to water vapor and heat. Le067 * gamma is sometimes referred to as the 
+#'          'modified psychrometric constant (gamma*). 
 #'          
 #' @return \item{Tw -}{wet-bulb temperature (degC)}      
 #'              
-#' @references Monteith J.L., Unsworth M.H., 2008: Principles of Environmental Physics.
-#'             3rd edition. Academic Press, London.
+#' @references Monteith J.L., Unsworth M.H., 2013: Principles of Environmental Physics. Plants, Animals, and the Atmosphere.
+#'             4th edition. Academic Press.
 #'             
 #' @examples 
 #' wetbulb.temp(Tair=c(20,25),pressure=100,VPD=c(1,1.6))             
@@ -327,8 +332,14 @@ wetbulb.temp <- function(Tair,pressure,VPD,accuracy=1e-03,Esat.formula=c("Sonnta
   gamma  <- psychrometric.constant(Tair,pressure)
   ea     <- VPD.to.e(VPD,Tair,Esat.formula)
   
-  Tw <- sapply(seq_along(ea),function(i) round(wetbulb.solver(ea[i],Tair[i],gamma[i],
-                                                              accuracy=accuracy,Esat.formula,constants)$minimum,ndigits))
+  Tw <- sapply(seq_along(ea),function(i){ if (any(c(ea[i],Tair[i],gamma[i]) %in% c(NA,NaN,Inf))){
+                                              NA
+                                          } else {
+                                             round(wetbulb.solver(ea[i],Tair[i],gamma[i],
+                                                   accuracy=accuracy,Esat.formula,constants)$minimum,ndigits)
+                                          }
+                                        }
+               )
   
   return(Tw)
   
@@ -416,8 +427,14 @@ dew.point <- function(Tair,VPD,accuracy=1e-03,Esat.formula=c("Sonntag_1990","Ald
   ndigits <- ifelse(is.na(ndigits),0,ndigits)
   
   ea <- VPD.to.e(VPD,Tair,Esat.formula)
-  Td <- sapply(seq_along(ea),function(i) round(dew.point.solver(ea[i],accuracy=accuracy,
-                                                                Esat.formula,constants)$minimum,ndigits))
+  Td <- sapply(seq_along(ea),function(i){ if (ea[i] %in% c(NA,NaN,Inf)){
+                                             NA
+                                          } else {
+                                            round(dew.point.solver(ea[i],accuracy=accuracy,
+                                                                   Esat.formula,constants)$minimum,ndigits)
+                                          }
+                                        }
+               )
   
   return(Td)
 }

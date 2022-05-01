@@ -4,11 +4,20 @@
 \alias{equilibrium.imposed.ET}
 \title{Equilibrium and Imposed Evapotranspiration}
 \usage{
-equilibrium.imposed.ET(data, Tair = "Tair", pressure = "pressure",
-  VPD = "VPD", Gs = "Gs_ms", Rn = "Rn", G = NULL, S = NULL,
-  missing.G.as.NA = FALSE, missing.S.as.NA = FALSE,
+equilibrium.imposed.ET(
+  data,
+  Tair = "Tair",
+  pressure = "pressure",
+  VPD = "VPD",
+  Gs = "Gs_ms",
+  Rn = "Rn",
+  G = NULL,
+  S = NULL,
+  missing.G.as.NA = FALSE,
+  missing.S.as.NA = FALSE,
   Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
-  constants = bigleaf.constants())
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required input variables}

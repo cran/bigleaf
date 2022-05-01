@@ -4,8 +4,16 @@
 \alias{stability.parameter}
 \title{Stability Parameter "zeta"}
 \usage{
-stability.parameter(data, Tair = "Tair", pressure = "pressure",
-  ustar = "ustar", H = "H", zr, d, constants = bigleaf.constants())
+stability.parameter(
+  data,
+  Tair = "Tair",
+  pressure = "pressure",
+  ustar = "ustar",
+  H = "H",
+  zr,
+  d,
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}

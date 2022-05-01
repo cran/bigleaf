@@ -4,8 +4,14 @@
 \alias{Arrhenius.temp.response}
 \title{(Modified) Arrhenius Temperature Response Function}
 \usage{
-Arrhenius.temp.response(param, Temp, Ha, Hd, dS,
-  constants = bigleaf.constants())
+Arrhenius.temp.response(
+  param,
+  Temp,
+  Ha,
+  Hd,
+  dS,
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{param}{Parameter measured at measurement temperature (umol m-2 s-1)}

@@ -4,7 +4,8 @@
 \name{FR_Pue_May_2012}
 \alias{FR_Pue_May_2012}
 \title{Eddy Covariance Data of FR-Pue (Puechabon)}
-\format{A data frame with 1488 observations and 29 columns:
+\format{
+A data frame with 1488 observations and 29 columns:
  \describe{
    \item{year}{year of measurement}
    \item{month}{month of measurement}
@@ -35,10 +36,11 @@
    \item{GPP}{Gross primary productivity from nighttime partitioning (umol m-2 s-1) [GPP_NT_VUT_USTAR50]}
    \item{GPP_qc}{Quality control of \code{GPP} [NEE_VUT_USTAR50_QC]}
    \item{Reco}{Ecosystem respiration from nighttime partitioning (umol m-2 s-1) [RECO_NT_VUT_USTAR50]}
- }}
+ }
+}
 \source{
 original data were downloaded from
-        \url{https://fluxnet.fluxdata.org/} (accessed 09 November 2016)
+        \url{https://fluxnet.org/} (accessed 09 November 2016)
 }
 \usage{
 FR_Pue_May_2012
@@ -46,7 +48,7 @@ FR_Pue_May_2012
 \description{
 Halfhourly eddy covariance Data of the site FR-Pue,
              a Mediterranean evergreen oak forest in Southern France
-             (\url{http://sites.fluxdata.org/FR-Pue}).
+             (\url{https://sites.fluxdata.org/FR-Pue/}).
              Data are from May 2012.
 }
 \note{

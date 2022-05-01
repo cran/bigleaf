@@ -4,8 +4,13 @@
 \alias{virtual.temp}
 \title{Virtual Temperature}
 \usage{
-virtual.temp(Tair, pressure, VPD, Esat.formula = c("Sonntag_1990",
-  "Alduchov_1996", "Allen_1998"), constants = bigleaf.constants())
+virtual.temp(
+  Tair,
+  pressure,
+  VPD,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{Tair}{Air temperature (deg C)}

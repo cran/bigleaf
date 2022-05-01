@@ -4,10 +4,17 @@
 \alias{decoupling}
 \title{Canopy-Atmosphere Decoupling Coefficient}
 \usage{
-decoupling(data, Tair = "Tair", pressure = "pressure", Ga = "Ga_h",
-  Gs = "Gs_ms", approach = c("Jarvis&McNaughton_1986", "Martin_1989"),
-  LAI, Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
-  constants = bigleaf.constants())
+decoupling(
+  data,
+  Tair = "Tair",
+  pressure = "pressure",
+  Ga = "Ga_h",
+  Gs = "Gs_ms",
+  approach = c("Jarvis&McNaughton_1986", "Martin_1989"),
+  LAI,
+  Esat.formula = c("Sonntag_1990", "Alduchov_1996", "Allen_1998"),
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required input variables}

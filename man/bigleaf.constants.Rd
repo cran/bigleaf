@@ -4,15 +4,40 @@
 \alias{bigleaf.constants}
 \title{Constants Used in the bigleaf Package}
 \usage{
-bigleaf.constants(cp = 1004.834, Rgas = 8.31451, Rv = 461.5,
-  Rd = 287.0586, Md = 0.0289645, Mw = 0.0180153, eps = 0.622,
-  g = 9.81, solar_constant = 1366.1, pressure0 = 101325,
-  Tair0 = 273.15, k = 0.41, Cmol = 0.012011, Omol = 0.0159994,
-  H2Omol = 0.01801528, sigma = 5.670367e-08, Pr = 0.71,
-  Sc_CO2 = 1.07, Kelvin = 273.15, DwDc = 1.6, days2seconds = 86400,
-  kPa2Pa = 1000, Pa2kPa = 0.001, umol2mol = 1e-06,
-  mol2umol = 1e+06, kg2g = 1000, g2kg = 0.001, kJ2J = 1000,
-  J2kJ = 0.001, se_median = 1.253, frac2percent = 100)
+bigleaf.constants(
+  cp = 1004.834,
+  Rgas = 8.31451,
+  Rv = 461.5,
+  Rd = 287.0586,
+  Md = 0.0289645,
+  Mw = 0.0180153,
+  eps = 0.622,
+  g = 9.81,
+  solar_constant = 1366.1,
+  pressure0 = 101325,
+  Tair0 = 273.15,
+  k = 0.41,
+  Cmol = 0.012011,
+  Omol = 0.0159994,
+  H2Omol = 0.01801528,
+  sigma = 5.670367e-08,
+  Pr = 0.71,
+  Sc_CO2 = 1.07,
+  Le067 = 0.93,
+  Kelvin = 273.15,
+  DwDc = 1.6,
+  days2seconds = 86400,
+  kPa2Pa = 1000,
+  Pa2kPa = 0.001,
+  umol2mol = 1e-06,
+  mol2umol = 1e+06,
+  kg2g = 1000,
+  g2kg = 0.001,
+  kJ2J = 1000,
+  J2kJ = 0.001,
+  se_median = 1.253,
+  frac2percent = 100
+)
 }
 \arguments{
 \item{cp}{Specific heat of air for constant pressure (J K-1 kg-1)}
@@ -50,6 +75,8 @@ bigleaf.constants(cp = 1004.834, Rgas = 8.31451, Rv = 461.5,
 \item{Pr}{Prandtl number}
 
 \item{Sc_CO2}{Schmidt number for CO2}
+
+\item{Le067}{Lewis number for water vapor to the power of 0.67}
 
 \item{Kelvin}{Conversion degree Celsius to Kelvin}
 

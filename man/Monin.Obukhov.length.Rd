@@ -4,8 +4,14 @@
 \alias{Monin.Obukhov.length}
 \title{Monin-Obukhov Length}
 \usage{
-Monin.Obukhov.length(data, Tair = "Tair", pressure = "pressure",
-  ustar = "ustar", H = "H", constants = bigleaf.constants())
+Monin.Obukhov.length(
+  data,
+  Tair = "Tair",
+  pressure = "pressure",
+  ustar = "ustar",
+  H = "H",
+  constants = bigleaf.constants()
+)
 }
 \arguments{
 \item{data}{Data.frame or matrix containing all required variables}
