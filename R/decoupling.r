@@ -47,7 +47,8 @@
 #'          \deqn{\Omega = \frac{\epsilon + 1 + \frac{Gr}{Ga}}{\epsilon + (1 + \frac{Ga}{Gs}) (1 + \frac{Gr}{Ga})}}{%
 #'          \Omega = (\epsilon + 1 + Gr/Ga) / (\epsilon + (1 + Ga/Gs) (1 + Gr/Ga))}
 #' 
-#' @return \item{\eqn{\Omega} -}{the decoupling coefficient Omega (-)}
+#' @return 
+#' \eqn{\Omega} - the decoupling coefficient Omega (-)
 #' 
 #' @references Jarvis P.G., McNaughton K.G., 1986: Stomatal control of transpiration:
 #'             scaling up from leaf to region. Advances in Ecological Research 15, 1-49. 

@@ -16,7 +16,7 @@ Rd - gas constant of dry air (J kg-1 K-1) \cr
 kPa2Pa - conversion kilopascal (kPa) to pascal (Pa)}
 }
 \value{
-\item{\eqn{\rho}}{air density (kg m-3)}
+\eqn{\rho} - air density (kg m-3)
 }
 \description{
 Air density of moist air from air temperature and pressure.

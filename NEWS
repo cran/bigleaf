@@ -1,5 +1,10 @@
 NEWS for Package 'bigleaf'
 
+version 0.8.2 (2022-08-21)
+
+ - Rd files re-generated using latest version of roxygen2 in response to CRAN request. 
+ 
+
 version 0.8.1 (2022-04-27)
 
  - code examples in vignette updated

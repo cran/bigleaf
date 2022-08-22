@@ -75,7 +75,8 @@ Monin.Obukhov.length <- function(data,Tair="Tair",pressure="pressure",ustar="ust
 #'          \code{\link{Monin.Obukhov.length}}. The displacement height d can 
 #'          be estimated from the function \code{\link{roughness.parameters}}.
 #'          
-#' @return \item{\eqn{\zeta} - }{stability parameter (-)}
+#' @return 
+#' \eqn{\zeta} - stability parameter zeta (-)
 #' 
 #' @examples 
 #' df <- data.frame(Tair=25,pressure=100,ustar=seq(0.2,1,0.1),H=seq(40,200,20))

@@ -43,7 +43,7 @@ sigma - Stefan-Boltzmann constant (W m-2 K-4) \cr
 Pa2kPa - conversion pascal (Pa) to kilopascal (kPa)}
 }
 \value{
-\item{\eqn{\Omega} -}{the decoupling coefficient Omega (-)}
+\eqn{\Omega} - the decoupling coefficient Omega (-)
 }
 \description{
 The canopy-atmosphere decoupling coefficient 'Omega'.

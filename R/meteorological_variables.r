@@ -16,7 +16,8 @@
 #' 
 #'   \deqn{\rho = pressure / (Rd * Tair)}
 #' 
-#' @return \item{\eqn{\rho}}{air density (kg m-3)}
+#' @return 
+#' \eqn{\rho} - air density (kg m-3)
 #' 
 #' @examples 
 #' # air density at 25degC and standard pressure (101.325kPa)
@@ -193,7 +194,8 @@ Esat.slope <- function(Tair,formula=c("Sonntag_1990","Alduchov_1996","Allen_1998
 #'  where \eqn{\lambda} is the latent heat of vaporization (J kg-1), 
 #'  as calculated from \code{\link{latent.heat.vaporization}}.
 #'  
-#' @return \item{\eqn{\gamma} -}{the psychrometric constant (kPa K-1)}
+#' @return 
+#' \eqn{\gamma} - the psychrometric constant (kPa K-1)
 #'  
 #' @references Monteith J.L., Unsworth M.H., 2008: Principles of Environmental Physics.
 #'             3rd Edition. Academic Press, London. 
@@ -222,7 +224,8 @@ psychrometric.constant <- function(Tair,pressure,constants=bigleaf.constants()){
 #' 
 #'   \deqn{\lambda = (2.501 - 0.00237*Tair)10^6}
 #' 
-#' @return \item{\eqn{\lambda} -}{Latent heat of vaporization (J kg-1)} 
+#' @return 
+#' \eqn{\lambda} - Latent heat of vaporization (J kg-1) 
 #' 
 #' @references Stull, B., 1988: An Introduction to Boundary Layer Meteorology (p.641)
 #'             Kluwer Academic Publishers, Dordrecht, Netherlands

@@ -36,7 +36,7 @@ k - von Karman constant (-) \cr
 g - gravitational acceleration (m s-2)}
 }
 \value{
-\item{\eqn{\zeta} - }{stability parameter (-)}
+\eqn{\zeta} - stability parameter zeta (-)
 }
 \description{
 calculates "zeta", a parameter characterizing stratification in 
